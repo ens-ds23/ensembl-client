@@ -396,7 +396,7 @@ fn contig_track(lc: &mut SourceResponse, leaf: &Leaf, p: &Palette, t: i32) {
             prev_pos = *pos;
         }
     } else {
-        let steps = 500.;
+        let steps = 1000.;
         let bp_inc = leaf.total_bp() / steps as f64;
         let mut buckets_end : Vec<bool> = repeat(false).take(steps as usize).collect();
         let mut buckets_num : Vec<usize> = repeat(0).take(steps as usize).collect();
