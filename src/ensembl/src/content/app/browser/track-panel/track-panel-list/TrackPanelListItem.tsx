@@ -1,8 +1,8 @@
 import React, { FunctionComponent } from 'react';
 import { TrackPanelItem, trackPanelIconConfig } from '../trackPanelConfig';
 
-import chevronDownIcon from 'static/img/track-panel/chevron-down.svg';
-import chevronUpIcon from 'static/img/track-panel/chevron-up.svg';
+import chevronDownIcon from 'static/img/shared/chevron-down.svg';
+import chevronUpIcon from 'static/img/shared/chevron-up.svg';
 
 import styles from './TrackPanelListItem.scss';
 
