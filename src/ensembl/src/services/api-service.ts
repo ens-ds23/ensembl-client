@@ -37,7 +37,7 @@ class ApiService {
     }
   ) {
     const fetch = this.getFetch();
-    const url = `${this.host}${endpoint}`;
+    const url = `${endpoint}`;
 
     try {
       const response = await fetch(url, options);

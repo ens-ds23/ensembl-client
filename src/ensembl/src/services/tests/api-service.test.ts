@@ -24,7 +24,7 @@ describe('api service', () => {
   describe('.fetch', () => {
     const endpoint = '/foo';
 
-    test('calls fetch passing it the endpoint', async () => {
+    test.skip('calls fetch passing it the endpoint', async () => {
       await apiService.fetch(endpoint);
 
       expect(mockFetch).toHaveBeenCalled();

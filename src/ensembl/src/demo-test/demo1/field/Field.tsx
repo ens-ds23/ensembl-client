@@ -1,18 +1,22 @@
-import React from 'react';
+import React, { useRef } from 'react';
 
 type Props = {
   onSubmit: (value: string) => void;
 };
 
 const Field = (props: Props) => {
-  const handleSubmit = (event: React.SyntheticEvent<HTMLFontElement>) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const value = event.target.value;
+    if (!inputRef.current) return;
+
+    props.onSubmit(inputRef.current.value);
   };
 
   return (
-    <form>
-      <input />
+    <form onSubmit={handleSubmit}>
+      <input ref={inputRef} />
       <button type="submit">Search</button>
     </form>
   );
