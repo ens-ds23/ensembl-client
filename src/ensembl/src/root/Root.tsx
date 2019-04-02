@@ -1,5 +1,11 @@
 import React from 'react';
 
-const Root = () => <div>hello!!</div>;
+import Main from 'src/demo-test/demo1/main/Main';
+
+const Root = () => (
+  <div>
+    <Main />
+  </div>
+);
 
 export default Root;
