@@ -1,4 +1,5 @@
 import React from 'react';
+import { act } from 'react-dom/test-utils';
 import { mount } from 'enzyme';
 import { render, fireEvent, waitForElement } from 'react-testing-library';
 import faker from 'faker';
@@ -40,6 +41,23 @@ describe('Main', () => {
     wrapper.update();
 
     expect(wrapper.find(Results).length).toBe(1);
+  });
+
+  test('shows repository names after they have been fetched — Enzyme', async () => {
+    const wrapper = mount(<Main />);
+    const field = wrapper.find(Field);
+    const onSubmit = field.prop('onSubmit');
+
+    // works with react 16.9.0-alpha.0
+    // await act(async () => {
+    //   await onSubmit('foo');
+    // });
+
+    await onSubmit('foo');
+    wrapper.update();
+    const results = wrapper.find(Results);
+
+    expect(results.length).toBeTruthy();
   });
 
   test('shows repository names after they have been fetched', async () => {
