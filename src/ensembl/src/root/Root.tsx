@@ -1,6 +1,7 @@
 import React from 'react';
 
 import Main from 'src/demo-test/demo1/main/Main';
+import Container from 'src/demo-test/exercise/container/Container';
 
 import styles from './Root.scss';
 
@@ -12,7 +13,7 @@ const Root = () => (
     </div>
     <div className={styles.exercise}>
       <h1>Exercise</h1>
-      Here is where our code will go
+      <Container />
     </div>
   </div>
 );
