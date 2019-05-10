@@ -128,10 +128,6 @@ const prodConfig = {
     }
   },
 
-  // make webpack throw an error if one of the bundled file sizes is too large
-  performance: {
-    hints: 'error'
-  }
 };
 
 // get the common config

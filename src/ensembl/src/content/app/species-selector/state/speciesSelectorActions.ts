@@ -47,6 +47,7 @@ export const clearSelectedSearchResult = createStandardAction(
 export const fetchStrains: ActionCreator<
   ThunkAction<void, any, null, Action<string>>
 > = (genomeId: string) => async (dispatch) => {
+  console.log(genomeId); //FIXME - remove
   try {
     dispatch(fetchStrainsAsyncActions.request());
 
@@ -63,6 +64,7 @@ export const fetchStrains: ActionCreator<
 export const fetchAssemblies: ActionCreator<
   ThunkAction<void, any, null, Action<string>>
 > = (genomeId: string) => async (dispatch) => {
+  console.log(genomeId); //FIXME - remove
   try {
     dispatch(fetchAssembliesAsyncActions.request());
 
