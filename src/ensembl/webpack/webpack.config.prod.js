@@ -9,7 +9,6 @@ const CompressionPlugin = require('compression-webpack-plugin');
 const BrotliPlugin = require('brotli-webpack-plugin');
 const WorkboxPlugin = require('workbox-webpack-plugin');
 const RobotstxtPlugin = require('robotstxt-webpack-plugin');
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 // copy from the environment the same variables that are declared in .env.example
 // NOTE: if no environment variable with corresponding key is present, the value from .env.example will be used
@@ -96,13 +95,7 @@ const plugins = [
     skipWaiting: true
   }),
 
-  new RobotstxtPlugin(),
-
-  // analyse the file sizes of bundled files
-  new BundleAnalyzerPlugin({
-    analyzerMode: 'static',
-    reportFilename: path.join(__dirname, '../bundle-report.html')
-  })
+  new RobotstxtPlugin()
 ];
 
 // prod specific configuration
