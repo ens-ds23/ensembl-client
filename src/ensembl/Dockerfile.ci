@@ -1,0 +1,10 @@
+FROM node:10.15.1
+
+RUN mkdir -p /srv/ensembl-client
+
+COPY . /srv/ensembl-client/
+
+WORKDIR /srv/ensembl-client/src/ensembl
+
+# NOTE: NODE_ENV=development before npm install ensures that dev dependencies won't get skipped
+RUN npm ci && npm run test

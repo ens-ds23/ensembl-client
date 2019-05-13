@@ -1,0 +1,27 @@
+# Instructions for building static assets and creating an nginx image with them
+
+FROM node:10.15.1 as builder
+
+RUN mkdir -p /srv/ensembl-client
+RUN mkdir -p /output
+
+COPY . /srv/ensembl-client/
+
+WORKDIR /srv/ensembl-client/src/ensembl
+
+RUN npm ci &&\
+	  npm run test &&\
+    npm run build &&\
+    cp -r /srv/ensembl-client/src/ensembl/dist/ /output/ &&\
+ 	  git clone https://gitlab.ebi.ac.uk/kamal/ensembl-client-nginx.git /nginxconf/
+
+# Build nginx image from static assets
+
+FROM nginx:1.14
+
+LABEL maintainer="kamal@ebi.ac.uk"
+
+EXPOSE 80 8000
+
+COPY --from=builder /nginxconf/config/conf.d/ /etc/nginx/conf.d/
+COPY --from=builder /output/ /usr/staticfiles/

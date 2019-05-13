@@ -6,6 +6,25 @@ services:
 before_script:
   - docker info
 
-test_job:
+stages:
+  - test
+  - test_and_build_frontend
+  - build_nginx
+
+Test:
+  stage: test
+
   script:
-    - docker build -t my-docker-image src/ensembl
+  - docker build -t node-container -f src/ensembl/Dockerfile.ci src/ensembl
+
+  except:
+    - test-cicd
+
+Test and Build:
+  stage: test_and_build_frontend
+
+  script:
+  - docker build -t node-container -f src/ensembl/Dockerfile.build src/ensembl
+
+  only:
+    - test-cicd
