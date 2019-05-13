@@ -24,9 +24,7 @@ Test and Build:
   stage: test_and_build_frontend
 
   script:
-  - echo "hello world?"
-  - echo docker ps -aq
-  - docker build -t node-container -f src/ensembl/Dockerfile.build src/ensembl
+  - docker build -t node-container -f src/ensembl/Dockerfile.build .
 
   only:
     - test-cicd
