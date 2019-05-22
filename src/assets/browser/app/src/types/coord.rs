@@ -1,4 +1,4 @@
-use std::cmp::{ Ordering, PartialOrd };
+use std::cmp::{ Ordering, PartialEq, PartialOrd };
 use std::fmt::Debug;
 use std::ops::{ Add, Sub, Mul, Div, Neg };
 
@@ -24,6 +24,12 @@ impl<T: Clone+Copy+Debug + Neg<Output=T>,
      U: Clone+Copy+Debug + Neg<Output=U>> Dot<T,U> {
     pub fn flip(&self, c: &Corner) -> Dot<T,U> {
         Dot(c.0.flip(self.0), c.1.flip(self.1))
+    }
+}
+
+impl<T: Copy+PartialEq,U: Copy+PartialEq> PartialEq for Dot<T,U> {
+    fn eq(&self, other: &Dot<T,U>) -> bool {
+        return self.0 == other.0 && self.1 == other.1
     }
 }
 

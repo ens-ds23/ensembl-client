@@ -20,6 +20,7 @@ use dom::domutil::query_selector_ok;
 use drivers::webgl::GLPrinter;
 use model::driver::{ Printer, PrinterManager };
 use tácode::Tácode;
+use types::Dot;
 
 use dom::webgl::{
     WebGLRenderingContext as glctx,
@@ -41,6 +42,7 @@ pub struct App {
     csl: SourceManagerList,
     http_clerk: HttpXferClerk,
     als: AllLandscapes,
+    size: Option<Dot<i32,i32>>
 }
 
 impl App {
@@ -69,7 +71,8 @@ impl App {
             viewport: None,
             csl: SourceManagerList::new(),
             http_clerk: clerk,
-            als: AllLandscapes::new()
+            als: AllLandscapes::new(),
+            size: None
         };
         let dsm = CombinedSourceManager::new(&tc,config,&out.als,&out.http_clerk);
         out.csl.add_compsource(Box::new(dsm));
@@ -141,7 +144,7 @@ impl App {
         }
         if let Some(ref report) = self.viewport {
             s.update_viewport_report(report);
-        }        
+        }
         out
     }
 
@@ -165,7 +168,11 @@ impl App {
     
     pub fn check_size(self: &mut App) {
         let mut sz = self.printer.lock().unwrap().get_available_size();
-        actions_run(self,&vec! { Action::Resize(sz) });
+        if self.size == None || self.size.unwrap() != sz {
+            console!("resize action");
+            actions_run(self,&vec! { Action::Resize(sz) });
+            self.size = Some(sz);
+        }
     }
  
     pub fn force_size(self: &App) {
