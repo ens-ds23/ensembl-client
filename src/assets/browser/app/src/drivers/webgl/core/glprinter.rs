@@ -53,7 +53,8 @@ pub struct GLPrinterBase {
     base_progs: GLProgs,
     acm: AllCanvasAllocator,
     lp: HashMap<Leaf,GLCarriagePrinter>,
-    current: HashSet<Leaf>
+    current: HashSet<Leaf>,
+    new_size: Option<Dot<i32,i32>>
 }
 
 impl GLPrinterBase {
@@ -72,7 +73,8 @@ impl GLPrinterBase {
             acm, ctx: ctx_rc,
             base_progs: progs,
             lp: HashMap::<Leaf,GLCarriagePrinter>::new(),
-            current: HashSet::<Leaf>::new()
+            current: HashSet::<Leaf>::new(),
+            new_size: None
         }
     }
 
@@ -92,6 +94,9 @@ impl GLPrinterBase {
     }
 
     fn prepare_all(&mut self) {
+        if let Some(new_size) = self.new_size.take() {
+            self.set_size(new_size);
+        }
         self.ctx.enable(glctx::DEPTH_TEST);
         self.ctx.enable(glctx::BLEND);
         self.ctx.blend_func_separate(
@@ -205,7 +210,7 @@ impl Printer for GLPrinter {
     }
 
     fn set_size(&mut self, s: Dot<i32,i32>) {
-        self.base.borrow_mut().set_size(s);
+        self.base.borrow_mut().new_size = Some(s);
     }
     
     fn get_available_size(&self) -> Dot<i32,i32> {
