@@ -54,7 +54,8 @@ pub struct GLPrinterBase {
     acm: AllCanvasAllocator,
     lp: HashMap<Leaf,GLCarriagePrinter>,
     current: HashSet<Leaf>,
-    new_size: Option<Dot<i32,i32>>
+    new_size: Option<Dot<i32,i32>>,
+    round_size: bool
 }
 
 impl GLPrinterBase {
@@ -74,7 +75,8 @@ impl GLPrinterBase {
             base_progs: progs,
             lp: HashMap::<Leaf,GLCarriagePrinter>::new(),
             current: HashSet::<Leaf>::new(),
-            new_size: None
+            new_size: None,
+            round_size: true
         }
     }
 
@@ -109,6 +111,7 @@ impl GLPrinterBase {
     }
     
     fn set_size(&mut self, s: Dot<i32,i32>) {
+        self.round_size = false;
         let elel: Element =  self.canv_el.clone().into();
         let elc : CanvasElement = elel.clone().try_into().unwrap();
         elc.set_width(s.0 as u32);
@@ -127,9 +130,15 @@ impl GLPrinterBase {
             size.1 += rb.1
         }
         /* Rendering can go fuzzy if available size not multiple of 4 */
-        size.0 = ((size.0+3)/4)*4;
-        size.1 = ((size.1+3)/4)*4;
+        if self.round_size {
+            size.0 = ((size.0+3)/4)*4;
+            size.1 = ((size.1+3)/4)*4;
+        }
         size
+    }
+
+    fn settle(&mut self) {
+        self.round_size = true;
     }
 
     fn destroy(&mut self) {
@@ -211,6 +220,10 @@ impl Printer for GLPrinter {
 
     fn set_size(&mut self, s: Dot<i32,i32>) {
         self.base.borrow_mut().new_size = Some(s);
+    }
+    
+    fn settle(&mut self) {
+        self.base.borrow_mut().settle();
     }
     
     fn get_available_size(&self) -> Dot<i32,i32> {

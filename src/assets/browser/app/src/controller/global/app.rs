@@ -20,6 +20,7 @@ use model::driver::{ Printer, PrinterManager };
 use tácode::Tácode;
 use types::Dot;
 
+const SETTLE_TIME : f64 = 100.; // ms
 const CANVAS : &str = r##"<canvas id="canvas"></canvas>"##;
 
 pub struct App {
@@ -36,7 +37,8 @@ pub struct App {
     csl: SourceManagerList,
     http_clerk: HttpXferClerk,
     als: AllLandscapes,
-    size: Option<Dot<i32,i32>>
+    size: Option<Dot<i32,i32>>,
+    last_resize_at: Option<f64>
 }
 
 impl App {
@@ -66,7 +68,8 @@ impl App {
             csl: SourceManagerList::new(),
             http_clerk: clerk,
             als: AllLandscapes::new(),
-            size: None
+            size: None,
+            last_resize_at: None
         };
         let dsm = CombinedSourceManager::new(&tc,config,&out.als,&out.http_clerk);
         out.csl.add_compsource(Box::new(dsm));
@@ -162,15 +165,26 @@ impl App {
     
     pub fn check_size(self: &mut App) {
         let sz = self.printer.lock().unwrap().get_available_size();
+        let now = domutil::browser_time();
         if self.size == None || self.size.unwrap() != sz {
-            console!("resize action");
+            self.last_resize_at = Some(now);
             actions_run(self,&vec! { Action::Resize(sz) });
             self.size = Some(sz);
+        }
+        if let Some(last_resize_at) = self.last_resize_at {
+            if now - last_resize_at > SETTLE_TIME {
+                actions_run(self,&vec! { Action::Settled });
+                self.last_resize_at = None;
+            }
         }
     }
  
     pub fn force_size(self: &App) {
         let stage = self.stage.lock().unwrap();
         self.printer.lock().unwrap().set_size(stage.get_size());
+    }
+    
+    pub fn settle(&self) {
+        self.printer.lock().unwrap().settle();
     }
 }

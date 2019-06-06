@@ -12,7 +12,8 @@ pub enum Action {
     Resize(Dot<i32,i32>),
     AddComponent(String),
     SetStick(String),
-    SetState(String,bool)
+    SetState(String,bool),
+    Settled
 }
 
 fn exe_pos_event(app: &App, v: Dot<f64,f64>, prop: Option<f64>) {
@@ -72,6 +73,10 @@ fn exe_resize(cg: &App, sz: Dot<i32,i32>) {
     cg.force_size();
 }
 
+fn exe_settled(app: &App) {
+   app.settle(); 
+}
+
 fn exe_component_add(a: &mut App, name: &str) {
     if let Some(c) = a.get_component(name) {
         a.with_compo(|co| {
@@ -113,6 +118,7 @@ pub fn actions_run(cg: &mut App, evs: &Vec<Action>) {
             Action::AddComponent(name) => exe_component_add(cg,&name),
             Action::SetStick(name) => exe_set_stick(cg,&name),
             Action::SetState(name,on) => exe_set_state(cg,&name,on),
+            Action::Settled => exe_settled(cg),
             Action::Noop => ()
         }
     }

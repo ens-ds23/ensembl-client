@@ -46,6 +46,10 @@ impl Printer for PrinterManager {
         self.0.borrow_mut().printer.set_size(s);
     }
     
+    fn settle(&mut self) {
+        self.0.borrow_mut().printer.settle();
+    }
+    
     /* How much size is available to expand into, should you be
      * requested to do so?
      */

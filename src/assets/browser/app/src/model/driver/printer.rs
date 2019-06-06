@@ -15,6 +15,9 @@ pub trait Printer {
     /* Set your size to this */
     fn set_size(&mut self, s: Dot<i32,i32>);
     
+    /* no recent resizes, etc */
+    fn settle(&mut self);
+    
     /* How much size is available to expand into, should you be
      * requested to do so?
      */
