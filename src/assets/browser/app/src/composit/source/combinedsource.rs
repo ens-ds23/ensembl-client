@@ -2,8 +2,8 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 use composit::{ 
-    ActiveSource, Landscape, Leaf, Plot, Source,
-    StateAtom, AllLandscapes, StateExpr
+    ActiveSource, Leaf, Plot, Source,
+    StateAtom, AllLandscapes
 };
 use data::{ BackendConfig, HttpXferClerk };
 use debug::{ add_debug_sources };

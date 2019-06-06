@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-use composit::{ Leaf, ActiveSource };
+use composit::Leaf;
 use composit::{ StateManager };
 use model::driver::{ Printer, PrinterManager };
 use super::Traveller;

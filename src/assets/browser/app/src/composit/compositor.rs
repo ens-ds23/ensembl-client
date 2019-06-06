@@ -1,5 +1,5 @@
 use composit::{
-    ActiveSource, Leaf, Stick, Scale, ComponentSet, StateManager
+    ActiveSource, Stick, Scale, ComponentSet, StateManager
 };
 
 use model::driver::PrinterManager;
@@ -7,7 +7,7 @@ use model::train::{ Train, TrainManager, TravellerCreator };
 
 use controller::global::AppRunner;
 use controller::output::Report;
-use data::{ Psychic, PsychicPacer, XferCache, XferRequest, XferClerk };
+use data::{ Psychic, PsychicPacer, XferCache, XferClerk };
 use types::DOWN;
 
 const MS_PER_UPDATE : f64 = 0.;

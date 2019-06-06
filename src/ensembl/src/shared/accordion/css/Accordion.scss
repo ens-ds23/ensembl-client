@@ -1,0 +1,77 @@
+@import 'src/styles/common';
+
+.accordionDefault {
+  border: 2px solid $ens-medium-light-grey;
+  border-radius: 2px;
+}
+
+.accordionItemDefault + .accordionItemDefault {
+  border-top: 2px solid $ens-medium-light-grey;
+}
+
+.accordionButtonDefault {
+  color: #444;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  position: relative;
+}
+
+.accordionButtonDefault:after,
+.accordionButtonDefault:before {
+  display: inline-block;
+  position: absolute;
+  margin-top: 10px;
+  content: '';
+  height: 2px;
+  width: 10px;
+  margin-right: 12px;
+  transition: transform 0.2s linear, top 0.2s linear;
+  background-color: $ens-blue;
+}
+
+.accordionButtonDefault:before {
+  right: 21px;
+  top: 20px;
+  transform: rotate(45deg);
+}
+
+.accordionButtonDefault:after {
+  right: 15px;
+  top: 20px;
+  transform: rotate(-45deg);
+}
+
+.accordionButtonDefault[aria-expanded='true']::before,
+.accordionButtonDefault[aria-selected='true']::before {
+  top: 15px;
+  transform: rotate(-45deg);
+}
+
+.accordionButtonDefault[aria-expanded='true']::after,
+.accordionButtonDefault[aria-selected='true']::after {
+  top: 15px;
+  transform: rotate(45deg);
+}
+
+.accordionPanelDefault {
+  background: $ens-light-grey;
+  padding: 20px;
+  animation: fadein 0.2s ease-in;
+}
+
+/* -------------------------------------------------- */
+/* ---------------- Animation part ------------------ */
+/* -------------------------------------------------- */
+
+@keyframes fadein {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}

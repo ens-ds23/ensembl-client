@@ -1,4 +1,3 @@
-use std::fmt::Debug;
 use std::f32;
 
 use program::{
@@ -7,8 +6,7 @@ use program::{
 };
 
 use types::{
-    CFraction, cfraction, Dot, AxisSense, Bounds, Edge, Anchors, 
-    RFraction, TOPLEFT
+    CFraction, cfraction, AxisSense, Bounds, Anchors, RFraction, TOPLEFT
 };
 
 use super::GLShape;
@@ -17,7 +15,7 @@ use super::util::{
     colourspec_to_group
 };
 use drivers::webgl::{ GLProgData, Artwork };
-use model::shape::{ ColourSpec, ShapeSpec, MathsShape, PolyPosition, PinPolySpec };
+use model::shape::{ ColourSpec, MathsShape, PolyPosition, PinPolySpec };
 
 const CIRC_TOL : f32 = 1.; // max px undercut
 

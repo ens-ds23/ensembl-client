@@ -16,7 +16,7 @@ import { getChrLocationStr } from '../browserHelper';
 
 type BrowserGenomeSelectorProps = {
   browserActivated: boolean;
-  defaultChrLocation: ChrLocation;
+  chrLocation: ChrLocation;
   dispatchBrowserLocation: (chrLocation: ChrLocation) => void;
   drawerOpened: boolean;
   genomeSelectorActive: boolean;
@@ -26,12 +26,12 @@ type BrowserGenomeSelectorProps = {
 const BrowserGenomeSelector: FunctionComponent<BrowserGenomeSelectorProps> = (
   props: BrowserGenomeSelectorProps
 ) => {
-  const chrLocationStr = getChrLocationStr(props.defaultChrLocation);
+  const chrLocationStr = getChrLocationStr(props.chrLocation);
 
   const [chrLocationPlaceholder, setChrLocationPlaceholder] = useState('');
   const [chrLocationInput, setChrLocationInput] = useState('');
 
-  const [chrCode, chrStart, chrEnd] = props.defaultChrLocation;
+  const [chrCode, chrStart, chrEnd] = props.chrLocation;
   const displayChrRegion = chrStart === 0 && chrEnd === 0 ? false : true;
 
   useEffect(() => {

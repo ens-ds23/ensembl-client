@@ -1,5 +1,4 @@
 use types::{ Move, Units, Axis, Dot, cdfraction, LEFT, RIGHT };
-use composit::StickManager;
 use controller::global::App;
 
 #[derive(Debug,Clone)]

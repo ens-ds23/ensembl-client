@@ -1,0 +1,33 @@
+@import 'src/styles/common';
+
+.default {
+  border-radius: 15px;
+  padding: 6px 15px;
+  min-width: 170px;
+  position: relative;
+  border: 1px solid $ens-blue;
+  color: $ens-dark-blue;
+
+  &:active,
+  &:focus {
+    outline: none;
+  }
+}
+
+.active {
+  background-color: $ens-black;
+  color: $ens-white;
+  border: none;
+}
+
+.inactive {
+  border: 1px solid $ens-blue;
+  color: $ens-dark-blue;
+}
+
+.disabled {
+  background-color: transparent;
+  color: $ens-grey;
+  border: 1px solid $ens-grey;
+  cursor: default;
+}

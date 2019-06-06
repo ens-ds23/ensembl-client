@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::sync::{ Arc, Mutex };
 
-use controller::global::{ App, AppRunner };
+use controller::global::{ AppRunner };
 use controller::output::OutputAction;
 
 use serde_json::Map as JSONMap;

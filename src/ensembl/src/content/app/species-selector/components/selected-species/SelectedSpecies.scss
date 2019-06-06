@@ -1,7 +1,7 @@
 @import 'src/styles/common';
 
 $selectedSpeciesBorderRadius: 20px;
-$selectedSpeciesPadding: 7px 28px;
+$selectedSpeciesPadding: 6px 20px;
 $deleteButtonPadding: 8px 20px 8px 28px;
 
 .selectedSpecies {
@@ -14,15 +14,23 @@ $deleteButtonPadding: 8px 20px 8px 28px;
   cursor: pointer;
   user-select: none;
 
+  &:hover {
+    background-color: transparent;
+  }
+
+  &:not(:last-child) {
+    margin-right: 1em;
+  }
+
   .name {
-    font-size: 16px; // FIXME
+    font-size: 14px;
     color: white;
     font-weight: $bold;
-    margin-right: 0.6rem;
+    margin-right: 0.5rem;
   }
 
   .assembly {
-    font-size: 11px; // FIXME
+    font-size: 11px;
     color: $white;
   }
 }
@@ -45,7 +53,7 @@ $deleteButtonPadding: 8px 20px 8px 28px;
   cursor: default;
 
   .overlayText,
-  .closeButton {
+  .closeButtonContainer {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -58,7 +66,7 @@ $deleteButtonPadding: 8px 20px 8px 28px;
     color: $ens-blue;
   }
 
-  .closeButton {
+  .closeButtonContainer {
     display: flex;
     padding: $deleteButtonPadding;
     align-items: center;

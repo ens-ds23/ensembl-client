@@ -1,5 +1,4 @@
 use std::collections::{ HashMap, HashSet };
-use std::ops::Drop;
 
 use composit::{
     Leaf, StateManager, Scale,
@@ -110,7 +109,7 @@ impl Train {
 
     fn get_carriage(&mut self, leaf: &Leaf) -> &mut Carriage {
         if !self.carriages.contains_key(&leaf) {
-            let mut c = Carriage::new(&mut self.pm,&leaf);
+            let c = Carriage::new(&mut self.pm,&leaf);
             self.carriages.insert(leaf.clone(),c);
         }
         self.carriages.get_mut(leaf).unwrap()

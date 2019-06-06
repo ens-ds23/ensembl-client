@@ -1,10 +1,10 @@
 use std::collections::HashSet;
 use std::rc::Rc;
 
-use super::{ GLSourceResponse, GLProgs, GLProgData, GLProgInstances };
+use super::{ GLSourceResponse, GLProgs, GLProgInstances };
 use program::ProgramType;
-use model::train::{ Train, Traveller, Carriage };
-use composit::{ Leaf, Stage, StateManager };
+use model::train::Carriage;
+use composit::{ Leaf, Stage };
 use super::super::drawing::{ CarriageCanvases, AllCanvasAllocator };
 use dom::webgl::WebGLRenderingContext as glctx;
 
@@ -78,7 +78,7 @@ impl GLCarriagePrinter {
             carriage.reset_needs_refresh();
             self.redraw_travellers(aca);
         }
-        let mut progs = self.progs.as_mut().unwrap();
+        let progs = self.progs.as_mut().unwrap();
         for k in &progs.order {
             let prog = progs.map.get_mut(k).unwrap();
             let u = stage.get_uniforms(&self.leaf, opacity);

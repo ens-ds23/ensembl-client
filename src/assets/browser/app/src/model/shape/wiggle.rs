@@ -2,12 +2,10 @@ use types::{ CLeaf, Colour, cleaf };
 
 use drivers::webgl::{
     Facade, FacadeType, ShapeLongInstanceData, 
-    ShapeInstanceData, TypeToShape,
-    ShapeInstanceDataType,
+    TypeToShape, ShapeInstanceDataType,
 };
 
-use program::{ PTGeom, PTMethod, PTSkin, ProgramType, ProgramAttribs };
-use model::shape::{ ColourSpec, ShapeSpec };
+use model::shape::ShapeSpec;
 
 #[derive(Clone,Debug)]
 pub struct StretchWiggle {

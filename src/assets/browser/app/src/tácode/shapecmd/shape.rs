@@ -6,21 +6,14 @@ use tánaiste::{
 
 use composit::{ Leaf };
 use drivers::webgl::{
-    Facade, FacadeType, ShapeInstanceData, TypeToShape,
-    ShapeShortInstanceData,
+    Facade, FacadeType, TypeToShape, ShapeShortInstanceData,
     ShapeInstanceDataType, ShapeLongInstanceData
 };
-use model::shape::{ 
-    ColourSpec, DrawingSpec, PinRectTypeSpec, StretchRectTypeSpec,
-    TextureTypeSpec
-};
+use model::shape::DrawingSpec;
 use model::train::PartyResponses;
 use tácode::core::{ TáContext, TáTask };
 use super::super::shapecmd::{ build_meta };
-use types::{
-    Colour, cedge, cleaf, Dot, area, area_size, cpixel, Rect, A_MIDDLE,
-    A_RIGHT, A_TOPLEFT, TOPLEFT, AxisSense
-};
+use types::Colour;
 
 fn do_scale(spec: &Box<TypeToShape>, leaf: &Leaf, x_start: f64, x_aux: f64) -> Option<(f32,f32)> {
     let needs_scale = spec.needs_scale();

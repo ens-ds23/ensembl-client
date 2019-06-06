@@ -10,7 +10,6 @@ use debug::DEMO_SOURCES;
 use dom::domutil;
 use dom::event::{ EventListener, EventType, EventData, EventControl, Target };
 use dom::AppEventData;
-use types::Dot;
 
 pub struct StartupEventListener {
     g: Arc<Mutex<Global>>

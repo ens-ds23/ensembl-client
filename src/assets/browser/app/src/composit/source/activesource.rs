@@ -26,13 +26,12 @@ pub struct ActiveSource {
 
 impl ActiveSource {
     pub fn new(name: &str, source: Rc<Source>, als: &AllLandscapes, lid: usize) -> ActiveSource {
-        let mut out = ActiveSource {
+        ActiveSource {
             source, lid,
             name: name.to_string(),
             als: als.clone(),
             parts: HashMap::<Option<String>,SourcePart>::new()
-        };
-        out
+        }
     }
     
     pub fn get_source(&self) -> &Rc<Source> { &self.source }

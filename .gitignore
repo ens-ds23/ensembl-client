@@ -12,7 +12,6 @@ built-docs/
 .DS_Store
 .vstags
 
-package-lock.json
 bundle-report.html
 
 .env

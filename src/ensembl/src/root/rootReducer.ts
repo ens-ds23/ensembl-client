@@ -7,6 +7,7 @@ import global from '../global/globalReducer';
 import header from '../header/headerReducer';
 import ensObject from '../ens-object/ensObjectReducer';
 import trackPanel from '../content/app/browser/track-panel/trackPanelReducer';
+import speciesSelector from '../content/app/species-selector/state/speciesSelectorReducer';
 
 const rootReducer = (history: any) =>
   combineReducers({
@@ -16,7 +17,8 @@ const rootReducer = (history: any) =>
     global,
     header,
     router: connectRouter(history),
-    trackPanel
+    trackPanel,
+    speciesSelector
   });
 
 export default rootReducer;

@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use composit::{ Leaf, Stage, StateManager, Compositor };
+use composit::{ Leaf, Stage, Compositor };
 use model::driver::SourceResponse;
 use types::Dot;
 use super::Printer;

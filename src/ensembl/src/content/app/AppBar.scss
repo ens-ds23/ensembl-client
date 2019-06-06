@@ -5,12 +5,8 @@
   padding: 8px 20px;
   width: 100%;
 
-  > div {
-    @include flex;
-
-    &.top {
-      margin-bottom: 12px;
-    }
+  .top {
+    margin-bottom: 12px;
   }
 }
 

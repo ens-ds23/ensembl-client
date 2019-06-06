@@ -17,7 +17,7 @@ There are several script commands that have been baked into the NPM configuratio
 - `npm run deploy` - Runs `deploy.js` file to deploy the production build into the master machine (`ves-hx2-70`). You will need to pass the full address of the machine name along with your username as an argument. 
 - `npm run certify` - Runs `setup-ssl.js` to create a local SSL certificate to run the production build on `HTTPS`. There are two files that are created for this: `localhost.crt` and `localhost.key`.
 - `npm run lint` - Runs both `lint:scripts` and `lint:style`. There is no need to run any of these lint scripts during development. This is because, each time a change is made to the code, the linters run along with the build.
-- `npm run lint:scripts` - Runs TSLint to check code errors in TypeScript and React. Also, suggests improvements to the code.
+- `npm run lint:scripts` - Runs ESLint to check code errors in TypeScript and React. Also, suggests improvements to the code.
 - `npm run lint:styles` - Does the same as above through `stylelint` for the SASS code.
 - `npm run storybook` - Starts the Storybook application
 - `npm run deploy-docs` — Builds the Storybook application and deploys it, along with the docs on Genome browser, to Github Pages ([link](https://ensembl.github.io/ensembl-client))
@@ -36,7 +36,7 @@ The IDE setup may change depending on which one you have chosen. This document w
 - [GitLens](https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens): Extends the existing support for `git`.
 - [Prettier - Code formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode): Automated code formatting. Prettier is built into `webpack`, however it is not fit for formatting the code on the fly. It is currently disabled in `webpack`, so using this extension is recommended.
 - [SCSS IntelliSense](https://marketplace.visualstudio.com/items?itemName=mrmlnc.vscode-scss): The support for SCSS, the alternate syntax of SASS, is not great in VS Code. This extension adds this support.
-- [TSLint](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-typescript-tslint-plugin): Adds TSLint support to VS Code.
+- [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint): Adds ESLint support to VS Code.
 - [stylelint](https://marketplace.visualstudio.com/items?itemName=shinnn.stylelint): Adds `stylelint` support to VS Code.
 - [SVG Viewer](https://marketplace.visualstudio.com/items?itemName=cssho.vscode-svgviewer): By default, VS Code will show SVG images only as a code file. This extension will add functionality, to let you view the SVG files as images.
 - [snapshot-tools](https://marketplace.visualstudio.com/items?itemName=asvetliakov.snapshot-tools): Enable linking of Jest generated snapshots with the Jest unit tests.

@@ -135,7 +135,7 @@ export const BrowserBar: FunctionComponent<BrowserBarProps> = (
           <BrowserGenomeSelector
             browserActivated={props.browserActivated}
             dispatchBrowserLocation={props.dispatchBrowserLocation}
-            defaultChrLocation={props.defaultChrLocation}
+            chrLocation={props.chrLocation}
             drawerOpened={props.drawerOpened}
             genomeSelectorActive={props.genomeSelectorActive}
             toggleGenomeSelector={props.toggleGenomeSelector}

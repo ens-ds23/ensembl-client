@@ -1,8 +1,5 @@
 use std::rc::Rc;
 use std::collections::HashMap;
-use std::hash::Hash;
-use std::hash::Hasher;
-use std::collections::hash_map::DefaultHasher;
 
 use types::{ CPixel, RPixel, area_size, cpixel };
 use super::alloc::{ Ticket, Allocator };

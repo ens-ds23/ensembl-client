@@ -1,9 +1,7 @@
 use super::super::shape::{ Spot, CanvasIdx };
 use super::GLProgs;
-use super::super::drawing::{ CarriageCanvases, OneCanvasManager };
-use program::{ CanvasCache, CanvasWeave };
-
-use dom::webgl::WebGLRenderingContext as glctx;
+use super::super::drawing::{ CarriageCanvases };
+use program::CanvasCache;
 
 pub struct GLProgData {
     spot: Spot,
@@ -13,12 +11,11 @@ pub struct GLProgData {
 
 impl GLProgData {
     pub fn new(cc: CarriageCanvases) -> GLProgData {
-        let mut out = GLProgData {
+        GLProgData {
             spot: Spot::new(),
             canvas: CanvasIdx::new(cc.indices()),
             cc
-        };
-        out
+        }
     }
         
     pub fn spot(&mut self) -> &mut Spot { &mut self.spot }

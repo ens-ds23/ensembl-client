@@ -4,22 +4,17 @@ use std::collections::hash_map::Entry;
 use std::rc::{ Rc, Weak };
 use std::sync::{ Arc, Mutex };
 
-use serde_json::Value as JSONValue;
 use stdweb::unstable::TryInto;
-use stdweb::web::event::IEvent;
 use stdweb::web::{ HtmlElement, Element, IHtmlElement, window };
 use url::Url;
 
 use controller::input::{
-    register_startup_events, initial_actions, actions_run,
-    run_direct_events, register_shutdown_events,
+    register_startup_events, register_shutdown_events,
     Timers
 };
-use controller::global::{ AppRunner, App, Booting };
-use data::{ BackendConfigBootstrap, HttpManager, BackendConfig };
-use debug::{ DebugBling, create_interactors };
-use dom::{ domutil, Bling, NoBling };
-use dom::event::{ EventListener, Target, EventData, EventType, EventControl, ICustomEvent };
+use controller::global::{ AppRunner, Booting };
+use data::{ BackendConfigBootstrap, HttpManager };
+use dom::domutil;
 
 pub struct GlobalImpl {
     apps: HashMap<String,AppRunner>,

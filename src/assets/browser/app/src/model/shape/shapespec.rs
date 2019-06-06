@@ -3,11 +3,8 @@ use std::hash::Hash;
 use std::hash::Hasher;
 use std::collections::hash_map::DefaultHasher;
 
-use drivers::webgl::{
-    GLShape, StretchTextureSpec, Artist
-};
-use types::{ Colour, RLeaf };
-use program::{ ProgramAttribs, DataGroupIndex, ProgramType };
+use drivers::webgl::{ StretchTextureSpec, Artist };
+use types::Colour;
 use super::{
     PinPolySpec, StretchWiggle, RectSpec, BoxSpec, BitmapArtist,
     CollageArtist, TextArtist, TextureSpec

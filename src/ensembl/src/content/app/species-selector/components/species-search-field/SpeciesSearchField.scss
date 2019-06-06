@@ -2,29 +2,33 @@
 
 $rightCornerWidth: 40px;
 
-.speciesSearchField {
-  position: relative;
-  display: flex;
+.speciesSearchFieldWrapper {
+  display: inline-flex;
   align-items: center;
+  position: relative;
+  padding: 4px;
   width: 100%;
   max-width: 485px;
   height: 40px;
-  background: $ens-white;
-  padding-left: 22px;
   box-shadow: inset 2px 2px 4px -2px $ens-dark-grey;
+  background: white;
 }
 
-.speciesSearchFieldInput {
-  width: calc(100% - #{$rightCornerWidth});
+.speciesSearchField {
+  width: 100%;
+  background: $ens-white;
+  padding-left: 18px;
   border: none;
 
-  &::placeholder {
-    color: $ens-grey;
-  }
-
-  &:focus {
+  input {
     &::placeholder {
-      color: white;
+      color: $ens-grey;
+    }
+
+    &:focus {
+      &::placeholder {
+        color: white;
+      }
     }
   }
 }

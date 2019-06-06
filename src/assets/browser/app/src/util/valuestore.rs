@@ -38,11 +38,13 @@ impl<T> ValueStore<T> {
     pub fn get_mut(&mut self, k: usize) -> Option<&mut T> {
         self.values.get_mut(k).and_then(|v| v.as_mut())
     }
-        
+    
+    #[allow(unused)]    
     pub fn replace(&mut self, k: usize, v: T) {
         self.values[k] = Some(v);
     }
     
+    #[allow(unused)]
     pub fn unstore(&mut self, k: usize) -> T {
         let out = self.values[k].take();
         self.smallest.put(k);

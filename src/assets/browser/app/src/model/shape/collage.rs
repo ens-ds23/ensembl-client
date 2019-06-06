@@ -1,6 +1,5 @@
 use types::{ CPixel, RPixel, Colour };
-use drivers::webgl::{ Artist, Mark };
-use super::DrawingSpec;
+use drivers::webgl::Mark;
 
 #[derive(Clone,Debug)]
 pub struct RectMark {

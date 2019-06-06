@@ -19,6 +19,7 @@ module.exports = ({ config }) => {
     include: [
       path.resolve(__dirname, '../src'),
       path.resolve(__dirname, '../stories'),
+      path.resolve(__dirname, '../tests'),
     ]
   });
   config.module.rules.push({

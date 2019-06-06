@@ -22,6 +22,7 @@ impl Smallest {
         -self.heap.pop().unwrap() as usize
     }
     
+    #[allow(unused)]
     pub fn put(&mut self, v: usize) {
         self.heap.push(-(v as i64))
     }    

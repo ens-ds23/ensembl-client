@@ -1,6 +1,6 @@
 use super::{ DrawingHash, DrawingSpec };
 
-use types::{ CPixel, area_size, cpixel };
+use types::CPixel;
 
 #[derive(Clone)]
 pub struct BitmapArtist {

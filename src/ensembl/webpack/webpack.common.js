@@ -39,7 +39,7 @@ module.exports = (isDev, moduleRules, plugins) => ({
       {
         test: /.js$/,
         exclude: /node_modules/,
-        use: ['source-map-loader'],
+        loader: 'source-map-loader',
         enforce: 'pre'
       },
 
@@ -128,10 +128,8 @@ module.exports = (isDev, moduleRules, plugins) => ({
 
   // the plugins that extends the webpack configuration
   plugins: [
-    // checks typescript types and runs tslint in a separate process
-    new ForkTsCheckerPlugin({
-      tslint: true
-    }),
+    // checks typescript types
+    new ForkTsCheckerPlugin(),
 
     // generates the index file using the provided html template
     new HtmlPlugin({

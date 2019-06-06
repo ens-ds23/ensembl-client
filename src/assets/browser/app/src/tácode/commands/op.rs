@@ -1,12 +1,9 @@
-use std::collections::HashSet;
 use std::sync::{ Arc, Mutex };
 
 use tánaiste::{
     Argument, Command, DataState, Instruction, ProcState, Signature,
     Value
 };
-
-use composit::{ Leaf };
 
 #[derive(Clone)]
 pub enum BinOpType {
@@ -56,7 +53,7 @@ fn binop(type_: &BinOpType, a: &Vec<f64>, b: &Vec<f64>) -> Vec<f64> {
 
 fn member(av: &Vec<f64>, bv: &Vec<f64>) -> Vec<f64> {
     let mut cv : Vec<f64> = Vec::<f64>::new();
-    let mut ai = av.iter().map(|x| x.round() as i64);
+    let ai = av.iter().map(|x| x.round() as i64);
     let mut bi = bv.iter().map(|x| x.round() as i64);
     let mut b = bi.next();
     for a in ai {
@@ -80,7 +77,7 @@ pub struct BinOp(BinOpType,usize,usize,usize);
 pub struct Member(usize,usize,usize);
 
 impl Command for BinOp {
-    fn execute(&self, rt: &mut DataState, proc: Arc<Mutex<ProcState>>) -> i64 {
+    fn execute(&self, rt: &mut DataState, _proc: Arc<Mutex<ProcState>>) -> i64 {
         let regs = rt.registers();
         regs.get(self.2).as_floats(|a| {
             regs.get(self.3).as_floats(|b| {
@@ -93,7 +90,7 @@ impl Command for BinOp {
 }
 
 impl Command for Member {
-    fn execute(&self, rt: &mut DataState, proc: Arc<Mutex<ProcState>>) -> i64 {
+    fn execute(&self, rt: &mut DataState, _proc: Arc<Mutex<ProcState>>) -> i64 {
         let regs = rt.registers();
         regs.get(self.1).as_floats(|a| {
             regs.get(self.2).as_floats(|b| {

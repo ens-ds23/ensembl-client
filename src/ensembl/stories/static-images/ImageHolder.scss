@@ -1,0 +1,29 @@
+.imageHolder {
+  display: inline-block;
+  width: 200px;
+  height: 300px;
+  border: 1px solid #eaeced;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 1px 0 0 darken(#eaeced, 20%);
+
+  .imageArea {
+    height: 200px;
+    border-bottom: 1px solid #eaeced;
+    position: relative;
+  }
+
+  .imageArea img {
+    height: 50%;
+    top: 25%;
+    left: 25%;
+    position: absolute;
+  }
+
+  .imagePath {
+    padding: 5px;
+    overflow-wrap: break-word;
+  }
+}

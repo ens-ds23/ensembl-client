@@ -1,8 +1,6 @@
 /* In the test-cards, every testcard is a separate stick */
 
-use std::collections::HashMap;
-
-use composit::{ CombinedStickManager, Stick, StickManager };
+use composit::{ CombinedStickManager, Stick };
 
 pub fn add_debug_sticks(csm: &mut CombinedStickManager) {
     csm.add_internal_stick("polar",Stick::new("polar",17000000,false));

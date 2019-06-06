@@ -119,7 +119,7 @@ fn make_texture(meta: &Vec<f64>) -> Option<Box<TypeToShape>> {
     }))
 }
 
-fn make_wiggle(meta: &Vec<f64>) -> Option<Box<TypeToShape>> {
+fn make_wiggle(_meta: &Vec<f64>) -> Option<Box<TypeToShape>> {
     Some(Box::new(StretchWiggleTypeSpec{}))
 }
 

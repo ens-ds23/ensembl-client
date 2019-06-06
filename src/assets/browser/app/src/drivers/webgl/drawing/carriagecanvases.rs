@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 
-use model::train::Traveller;
 use super::{ OneCanvasManager, FlatCanvas, AllCanvasAllocator };
 use program::{ CanvasCache, CanvasWeave };
 

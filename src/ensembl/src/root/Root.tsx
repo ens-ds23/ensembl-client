@@ -11,6 +11,8 @@ import useResizeObserver from 'use-resize-observer';
 import Header from '../header/Header';
 import Content from '../content/Content';
 import PrivacyBanner from '../shared/privacy-banner/PrivacyBanner';
+import ErrorBoundary from 'src/shared/error-boundary/ErrorBoundary';
+import { GeneralErrorScreen } from 'src/shared/error-screen';
 
 import { updateBreakpointWidth } from '../global/globalActions';
 import { getBreakpointWidth } from '../global/globalSelectors';
@@ -56,9 +58,11 @@ export const Root: FunctionComponent<RootProps> = (props: RootProps) => {
 
   return (
     <div ref={ref as React.RefObject<HTMLDivElement>} className={styles.root}>
-      <Header />
-      <Content />
-      {showPrivacyBanner && <PrivacyBanner closeBanner={closeBanner} />}
+      <ErrorBoundary fallbackComponent={GeneralErrorScreen}>
+        <Header />
+        <Content />
+        {showPrivacyBanner && <PrivacyBanner closeBanner={closeBanner} />}
+      </ErrorBoundary>
     </div>
   );
 };

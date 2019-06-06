@@ -16,13 +16,13 @@ Since the frontend uses TypeScript and SCSS (SASS) for coding, there needs to be
 
 Three tools are used to enforce this:
 
-1. [TSLint](https://palantir.github.io/tslint/): for TypeScript rules
+1. [ESLint](https://eslint.org/): for JavaScript and TypeScript rules
 2. [Stylelint](https://stylelint.io/): for SASS/SCSS rules (Stylelint is originally for CSS but can be used for SASS too)
 3. [Prettier](https://prettier.io/): the code formatting tool which will automatically format code in development mode
 
 Supplementary tools such as extensions/plugins for IDEs can be used too. The recommended extensions for VS Code are:
 
-1. [vscode-tslint](https://marketplace.visualstudio.com/items?itemName=eg2.tslint)
+1. [vscode-eslint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 2. [vscode-stylelint](https://marketplace.visualstudio.com/items?itemName=shinnn.stylelint)
 3. [Prettier - Code formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 

@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use stdweb::web::{ ArrayBuffer, TypedArray, XmlHttpRequest, XhrResponseType };
+use stdweb::web::{XmlHttpRequest, XhrResponseType };
 use url::Url;
 
 use super::{ BackendConfig, HttpManager, HttpResponseConsumer };

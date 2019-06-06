@@ -9,7 +9,6 @@ use dom::webgl::{
 
 use program::data::{ DataBatch };
 use program::objects::Object;
-use drivers::webgl::CarriageCanvases;
 use drivers::webgl::GLProgData;
 
 pub struct ObjectMain {

@@ -10,6 +10,7 @@ use rand::SeedableRng;
 use composit::Leaf;
 use types::{ CLeaf, cleaf, Colour };
 
+#[cfg(not(deploy))]
 fn bytes_of_u64(v: u64) -> [u8;8] {
     [
         ((v>>56)&0xff) as u8,
@@ -95,6 +96,7 @@ fn start_hash(kind: [u8;8], start: &[i32;2]) -> u64 {
     h.finish()
 }
 
+#[cfg(not(deploy))]
 pub fn start_rng(kind: [u8;8], start: &[i32;2]) -> SmallRng {
     let b = bytes_of_u64(start_hash(kind,start));
     let seed = [b[0],b[1],b[2],b[3],b[4],b[5],b[6],b[7],
@@ -103,6 +105,7 @@ pub fn start_rng(kind: [u8;8], start: &[i32;2]) -> SmallRng {
     SmallRng::from_seed(seed)
 }
 
+#[cfg(not(deploy))]
 pub fn rng_colour(kind: [u8;8], start: &[i32;2]) -> Colour {
     let b = bytes_of_u64(start_hash(kind,start));
     Colour(b[0] as u32,b[1] as u32,b[2] as u32)
@@ -114,6 +117,7 @@ pub fn rng_prob(kind: [u8;8], start: &[i32;2], prob: f32) -> bool {
     (b%MANY) < (prob * MANY as f32) as u64
 }
 
+#[cfg(not(deploy))]
 pub fn rng_choose(kind: [u8;8], start: &[i32;2], vals: &[&[&str]]) -> String {
     let mut rng = start_rng(kind,start);
     let mut out = String::new();
@@ -123,6 +127,7 @@ pub fn rng_choose(kind: [u8;8], start: &[i32;2], vals: &[&[&str]]) -> String {
     out
 }
 
+#[cfg(not(deploy))]
 pub fn rng_subdivide(kind: [u8;8], extent: &[i32;2], parts: u32) -> Vec<[i32;2]> {
     let mut rng = start_rng(kind,extent);
     let mut breaks = Vec::<i32>::new();
@@ -148,6 +153,7 @@ fn choose<R>(rng: &mut R, vals: &[&[&str]]) -> String
     out
 }
 
+#[cfg(not(deploy))]
 pub fn bio_mark(kind: [u8;8], start: &[i32;2]) -> String {
     let vals = [ "5'","3'","snp","ins","del",
                  "5'","3'","snp","ins","del",
@@ -156,6 +162,7 @@ pub fn bio_mark(kind: [u8;8], start: &[i32;2]) -> String {
     rng_choose(kind,start,&[&vals[..]])
 }
 
+#[cfg(not(deploy))]
 pub fn rng_tracks(kind: [u8;8], num: i32) -> Vec<String> {    
     let onset = [
         "bl", "br", "ch", "cl", "cr", "dr", "fl", "fr", "gh", "gl", 

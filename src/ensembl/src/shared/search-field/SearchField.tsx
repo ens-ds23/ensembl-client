@@ -33,6 +33,7 @@ const SearchField = (props: Props) => {
     <form className={className} onSubmit={handleSubmit}>
       <Input
         value={props.search}
+        placeholder={props.placeholder}
         onChange={props.onChange}
         onFocus={props.onFocus}
         onBlur={props.onBlur}

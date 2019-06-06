@@ -201,6 +201,7 @@ const AutosuggestSearchField = (props: Props) => {
     <div ref={element} className={className}>
       <SearchField
         search={props.search}
+        placeholder={props.placeholder}
         rightCorner={props.rightCorner}
         onChange={handleChange}
         onFocus={handleFocus}

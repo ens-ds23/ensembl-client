@@ -64,9 +64,15 @@ const devConfig = {
       });
     },
 
+    // disable host check only when testing on IE11 remotely
+    disableHostCheck: false,
+
     // fallback for the history API used by the react router when page is reloaded
     // this should prevent 404 errors that usually occur in SPA on reloads
     historyApiFallback: true,
+
+    // make the server accessible from other machines
+    host: '0.0.0.0',
 
     // enable hot module reloading
     hot: true,

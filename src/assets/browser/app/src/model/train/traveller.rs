@@ -1,10 +1,8 @@
 use std::fmt;
 
-use composit::{
-    SourceResponseData, Leaf, ActiveSource,
-};
+use composit::{ Leaf, ActiveSource };
 use composit::{ StateManager };
-use model::driver::{ Printer, PrinterManager, SourceResponse };
+use model::driver::{ PrinterManager, SourceResponse };
 
 pub struct Traveller {
     pm: PrinterManager,

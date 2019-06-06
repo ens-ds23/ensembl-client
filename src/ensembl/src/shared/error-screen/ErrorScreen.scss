@@ -1,0 +1,71 @@
+@import 'src/styles/common';
+
+$generalErrorImageWidth: 170px;
+$generalErrorImageGap: 60px;
+$generalErrorImagesTotalWidth: calc(
+  3 * #{$generalErrorImageWidth} + 2 * #{$generalErrorImageGap}
+);
+
+.newTechErrorWrapper {
+  padding-top: 10vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.newTechMessage {
+  margin-bottom: 3rem;
+}
+
+.errorLinkButton {
+  background-color: $ens-blue;
+  color: $ens-white;
+  font-weight: $bold;
+  padding: 8px 18px;
+  border-radius: 4px;
+}
+
+.generalErrorScreen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.generalErrorHeader {
+  flex: 0 0 auto;
+  display: block;
+}
+
+.generalErrorBody {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.generalErrorImages {
+  img {
+    width: 170px;
+    height: 170px;
+  }
+
+  @media screen and (min-width: $generalErrorImagesTotalWidth) {
+    margin-top: 10vh;
+    margin-bottom: calc(#{$generalErrorImageGap} / 2);
+
+    img:not(:last-child) {
+      margin-right: $generalErrorImageGap;
+    }
+  }
+
+  @media screen and (max-width: $generalErrorImagesTotalWidth) {
+    display: inline-flex;
+    flex-direction: column;
+
+    img:not(:last-child) {
+      margin-bottom: calc(#{$generalErrorImageGap} / 2);
+    }
+  }
+}

@@ -1,4 +1,4 @@
-use composit::{ Leaf, SourceResponseData };
+use composit::SourceResponseData;
 
 pub trait SourceResponse {
     fn set_state(&self, state: bool);

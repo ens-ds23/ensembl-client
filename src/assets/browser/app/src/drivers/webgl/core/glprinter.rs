@@ -6,7 +6,7 @@ use stdweb::unstable::TryInto;
 use stdweb::web::{ HtmlElement, Element, INode, IElement };
 
 use super::{ GLProgs, GLCarriagePrinter, GLSourceResponse };
-use composit::{ Compositor, StateManager, Leaf, Stage };
+use composit::{ Compositor, Leaf, Stage };
 use model::driver::{ Printer, SourceResponse };
 use model::train::Train;
 use super::super::drawing::{ AllCanvasAllocator };

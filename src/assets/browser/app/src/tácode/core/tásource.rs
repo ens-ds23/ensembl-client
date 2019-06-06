@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use tánaiste::Value;
 
-use composit::{ Landscape, Leaf, Source, ActiveSource };
+use composit::{ Leaf, Source, ActiveSource };
 use data::{ XferClerk, XferRequest, XferConsumer, BackendConfig, BackendBytecode };
 use model::shape::DrawingSpec;
 use model::train::PartyResponses;

@@ -1,20 +1,12 @@
-use std::fmt::Debug;
-
-use composit::Leaf;
 use program::{ ProgramAttribs, PTGeom, PTMethod, ProgramType };
-use types::{ 
-    CLeaf, AxisSense, Rect, Edge, RLeaf, Anchor, Anchored, Colour,
-    area_size, cleaf, cpixel
-};
+use types::AxisSense;
 
 use super::GLShape;
 use super::util::{
     rectangle_p, rectangle_c, rectangle_g, multi_gl, vertices_rect,
-    despot, colour, ShapeInstanceData, ShapeShortInstanceData, 
-    TypeToShape, Facade, FacadeType, ShapeInstanceDataType,
-    colourspec_to_group
+    despot, colour, colourspec_to_group
 };
-use model::shape::{ BoxSpec, ColourSpec, ShapeSpec, RectPosition, RectSpec };
+use model::shape::{ ColourSpec, RectPosition, RectSpec };
 use drivers::webgl::{ GLProgData, Artwork };
 
 fn program_type(spec: &RectSpec) -> PTGeom {

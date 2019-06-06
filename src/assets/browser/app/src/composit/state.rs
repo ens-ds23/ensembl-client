@@ -1,6 +1,5 @@
 use std::rc::Rc;
 use std::collections::HashMap;
-use std::ops::{ BitAnd, BitOr, Not };
 
 pub trait StateExpr {
     fn is_on(&self, _m: &StateManager) -> bool { false }

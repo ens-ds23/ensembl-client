@@ -1,5 +1,5 @@
-use model::shape::{ DrawingSpec, TextArtist, DrawingHash };
-use super::{ FCFont, Artist, FlatCanvas };
+use model::shape::{ TextArtist, DrawingHash };
+use super::{ Artist, FlatCanvas };
 use types::{ Colour, CPixel };
 
 impl Artist for TextArtist {

@@ -1,9 +1,7 @@
 use std::fmt::Debug;
 
-use composit::Leaf;
 use types::{ 
-    CLeaf, AxisSense, Rect, Edge, RLeaf, Anchor, Anchored, Colour,
-    area_size, cleaf, cpixel
+    CLeaf, AxisSense, Rect, Edge, RLeaf, area_size, cleaf, cpixel
 };
 use model::shape::{ ColourSpec, ShapeSpec };
 use drivers::webgl::{

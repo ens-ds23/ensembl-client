@@ -12,6 +12,8 @@ import { changeCurrentApp } from 'src/header/headerActions';
 import { getCurrentApp } from 'src/header/headerSelectors';
 
 import AppBar from './AppBar';
+import ErrorBoundary from 'src/shared/error-boundary/ErrorBoundary';
+import { NewTechError } from 'src/shared/error-screen';
 
 import { RootState } from 'src/store';
 
@@ -72,10 +74,12 @@ const AppInner = (props: AppProps) => {
       <Switch>
         <Route path={`${url}/global-search`} component={GlobalSearch} />
         <Route path={`${url}/species-selector`} component={SpeciesSelector} />
-        <Route
-          path={`${url}/browser/:species/:stableId/`}
-          component={Browser}
-        />
+        <ErrorBoundary fallbackComponent={NewTechError}>
+          <Route
+            path={`${url}/browser/:species/:stableId/`}
+            component={Browser}
+          />
+        </ErrorBoundary>
         <Redirect
           exact={true}
           from={`${url}/browser`}

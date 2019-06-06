@@ -1,6 +1,7 @@
 export const human38Match = {
-  description: 'Human GRCh38.p12',
+  description: 'Human',
   scientific_name: 'Homo sapiens',
+  assembly_name: 'GRCh38.p12',
   matched_substrings: [
     {
       length: 3,
@@ -8,13 +9,13 @@ export const human38Match = {
       match: 'description'
     }
   ],
-  self: 'http://whatever.com/GRCh38_demo',
   genome: 'GRCh38_demo'
 };
 
 export const human37Match = {
-  description: 'Human GRCh37.p12',
+  description: 'Human',
   scientific_name: 'Homo sapiens',
+  assembly_name: 'GRCh37.p12',
   matched_substrings: [
     {
       length: 3,
@@ -29,6 +30,7 @@ export const human37Match = {
 export const azospirillumMatch = {
   description: 'Azospirillum humicireducens',
   scientific_name: null,
+  assembly_name: null,
   matched_substrings: [
     {
       length: 3,
@@ -36,6 +38,5 @@ export const azospirillumMatch = {
       match: 'description'
     }
   ],
-  self: 'http://whatever.com/SgZ-5T',
   genome: 'SgZ-5T'
 };

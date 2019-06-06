@@ -8,7 +8,7 @@ const googleTrackingID = process.env.GOOGLE_ANALYTICS_KEY
 class AnalyticsTracking {
   private reactGA: typeof ReactGA;
 
-  constructor() {
+  public constructor() {
     ReactGA.initialize(googleTrackingID);
     this.reactGA = ReactGA;
   }

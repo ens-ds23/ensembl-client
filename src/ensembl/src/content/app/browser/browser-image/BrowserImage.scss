@@ -17,3 +17,9 @@
 .browserInnerWrapper {
   overflow: hidden;
 }
+
+.loaderWrapper {
+  left: calc(50% - 20px);
+  top: calc(50% - 20px);
+  position: absolute;
+}

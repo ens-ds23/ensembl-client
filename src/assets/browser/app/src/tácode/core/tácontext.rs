@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use composit::{ ActiveSource, Landscape, Leaf };
+use composit::{ ActiveSource, Leaf };
 use data::BackendConfig;
 use model::shape::DrawingSpec;
 use model::train::PartyResponses;

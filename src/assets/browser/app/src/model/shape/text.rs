@@ -1,8 +1,5 @@
-use composit::Source;
-use drivers::webgl::{ FCFont, FontVariety };
-use model::shape::{ PinRectTypeSpec, TextureTypeSpec };
-use drivers::webgl::{ Facade, TypeToShape, ShapeInstanceData, ShapeShortInstanceData };
-use types::{ Colour, cleaf, cpixel, area_size, AxisSense, A_TOPLEFT };
+use drivers::webgl::FCFont;
+use types::Colour;
 
 use super::DrawingSpec;
 

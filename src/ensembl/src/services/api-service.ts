@@ -20,16 +20,16 @@ type FetchOptions = {
 class ApiService {
   private host: string;
 
-  constructor() {
+  public constructor() {
     this.host = config.apiHost;
   }
 
   // temporary method, for easy testing, until we choose a library
-  getFetch() {
+  public getFetch() {
     return fetch;
   }
 
-  async fetch(
+  public async fetch(
     endpoint: string,
     options: FetchOptions = {
       method: HTTPMethod.GET,

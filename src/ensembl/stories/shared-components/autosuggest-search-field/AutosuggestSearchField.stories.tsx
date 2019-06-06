@@ -57,7 +57,7 @@ const Wrapper = (props: any) => {
         onSelect={(match: any) => {
           const { description } = match;
           setValue(description);
-          // to avoid resetting isSelected to false, allow first the value state to get updated
+          // allow time for the isSelected state value to get updated
           setTimeout(() => setIsSelected(true), 0);
           action('autosuggest-search-field-select')(description);
         }}

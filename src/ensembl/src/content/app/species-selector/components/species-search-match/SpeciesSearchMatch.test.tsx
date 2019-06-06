@@ -1,23 +1,25 @@
 import React from 'react';
-import { mount, render } from 'enzyme';
+import { render } from 'enzyme';
 
 import SpeciesSearchMatch from './SpeciesSearchMatch';
 
 import styles from './SpeciesSearchMatch.scss';
 
-const onClick = jest.fn();
+import { MatchedFieldName } from 'src/content/app/species-selector/types/species-search';
 
 const matchTemplate = {
-  description: 'Human GRCh38.p12',
+  genome_id: 'homo_sapiens_38',
+  reference_genome_id: null,
+  common_name: 'Human',
   scientific_name: 'Homo sapiens',
+  subtype: 'GRCh38.p12',
   matched_substrings: [
     {
       length: 3,
       offset: 0,
-      match: 'description' as 'description'
+      match: MatchedFieldName.COMMON_NAME
     }
-  ],
-  genome: 'GRCh38_demo'
+  ]
 };
 
 describe('<SpeciesSearchMatch />', () => {
@@ -26,12 +28,8 @@ describe('<SpeciesSearchMatch />', () => {
   });
 
   test('highlights a single match in the description field', () => {
-    const renderedMatch = render(
-      <SpeciesSearchMatch match={matchTemplate} onClick={onClick} />
-    );
-    const highlightedFragments = renderedMatch.find(
-      `.${styles.speciesSearchMatchMatched}`
-    );
+    const renderedMatch = render(<SpeciesSearchMatch match={matchTemplate} />);
+    const highlightedFragments = renderedMatch.find(`.${styles.matched}`);
     expect(highlightedFragments.length).toBe(1);
     // highlighting Hum in Human
     expect(highlightedFragments.first().text()).toBe('Hum');
@@ -44,16 +42,14 @@ describe('<SpeciesSearchMatch />', () => {
         {
           length: 3,
           offset: 0,
-          match: 'scientific_name' as 'scientific_name'
+          match: MatchedFieldName.SCIENTIFIC_NAME
         }
       ]
     };
-    const renderedMatch = render(
-      <SpeciesSearchMatch match={match} onClick={onClick} />
-    );
+    const renderedMatch = render(<SpeciesSearchMatch match={match} />);
     const highlightedFragments = renderedMatch.find(
-      `.${styles.speciesSearchMatchScientificName}
-      .${styles.speciesSearchMatchMatched}`
+      `.${styles.scientificName}
+      .${styles.matched}`
     );
     expect(highlightedFragments.length).toBe(1);
     // highlighting Hom in Homo sapiens
@@ -63,39 +59,29 @@ describe('<SpeciesSearchMatch />', () => {
   test('highlights multiple matches in the description field', () => {
     const match = {
       ...matchTemplate,
-      description: 'Bacillus subtilis',
+      common_name: null,
+      scientific_name: 'Bacillus subtilis',
+      subtype: null,
       matched_substrings: [
         {
           length: 3,
           offset: 0,
-          match: 'description' as 'description'
+          match: MatchedFieldName.SCIENTIFIC_NAME
         },
         {
           length: 3,
           offset: 9,
-          match: 'description' as 'description'
+          match: MatchedFieldName.SCIENTIFIC_NAME
         }
       ]
     };
-    delete match.scientific_name;
 
-    const renderedMatch = render(
-      <SpeciesSearchMatch match={match} onClick={onClick} />
-    );
-    const highlightedFragments = renderedMatch.find(
-      `.${styles.speciesSearchMatchMatched}`
-    );
+    const renderedMatch = render(<SpeciesSearchMatch match={match} />);
+
+    const highlightedFragments = renderedMatch.find(`.${styles.matched}`);
     expect(highlightedFragments.length).toBe(2);
     // highlighting Bac in Bacillus and sub in subtilis
     expect(highlightedFragments.first().text()).toBe('Bac');
     expect(highlightedFragments.last().text()).toBe('sub');
-  });
-
-  test('calls click handler when clicked', () => {
-    const renderedMatch = mount(
-      <SpeciesSearchMatch match={matchTemplate} onClick={onClick} />
-    );
-    renderedMatch.simulate('click');
-    expect(onClick).toHaveBeenCalled();
   });
 });

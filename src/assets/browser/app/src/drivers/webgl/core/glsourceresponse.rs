@@ -1,5 +1,4 @@
 use std::cell::RefCell;
-use std::collections::HashMap;
 use std::fmt;
 use std::hash::{ Hash, Hasher };
 use std::rc::Rc;
@@ -8,7 +7,6 @@ use super::{ GLDrawing, GLProgInstances, GLPrinter };
 use super::super::drawing::CarriageCanvases;
 use composit::{ Leaf, SourceResponseData };
 use model::driver::SourceResponse;
-use model::shape::ShapeSpec;
 
 #[derive(Clone)]
 pub struct GLSourceResponse {

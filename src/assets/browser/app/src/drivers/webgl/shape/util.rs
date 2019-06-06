@@ -1,5 +1,4 @@
 use std::iter;
-use composit::Leaf;
 use program::{
     ProgramAttribs, DataBatch, DataGroupIndex, ProgramType, PTMethod, 
     PTGeom, PTSkin
@@ -7,10 +6,8 @@ use program::{
 use types::{ RFraction, CLeaf, RPixel, RLeaf, cleaf, Rect, Edge, Colour };
 use model::shape::{ ColourSpec, DrawingSpec, ShapeSpec };
 use program::Input;
-use std::rc::Rc;
 
-use drivers::webgl::{ GLProgs, GLProgData };
-use drivers::webgl::{ Artist, Artwork, Drawing, CarriageCanvases };
+use drivers::webgl::GLProgData;
 
 pub enum FacadeType {
     Drawing,

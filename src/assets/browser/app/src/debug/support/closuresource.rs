@@ -1,8 +1,5 @@
 use std::rc::Rc;
 
-use stdweb::web::window;
-use stdweb::web::IWindowOrWorker;
-
 use composit::{ Source, Leaf, ActiveSource };
 use model::train::PartyResponses;
 use model::shape::ShapeSpec;
@@ -36,7 +33,7 @@ pub fn closure_add_opt(lcb: &mut PartyResponses, s: &Option<ShapeSpec>) {
     }
 }
 pub fn closure_add(lcb: &mut PartyResponses, s: &ShapeSpec) {
-    let mut srb = lcb.get_mut(&None).unwrap();
+    let srb = lcb.get_mut(&None).unwrap();
     srb.add_shape(s.clone());
 }
 

@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::sync::{ Arc, Mutex };
 use dom::domutil;
 use dom::event::{ EventListener, EventType, EventData, EventControl, Target };
@@ -6,7 +5,6 @@ use stdweb::web::{ Element, HtmlElement, IHtmlElement };
 use stdweb::traits::IEvent;
 
 use controller::global::{ App, AppRunner };
-use controller::input::{ Action, actions_run };
 use controller::input::physics::MousePhysics;
 use controller::input::optical::Optical;
 use types::Dot;

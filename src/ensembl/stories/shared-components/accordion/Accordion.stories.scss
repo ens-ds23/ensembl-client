@@ -1,0 +1,21 @@
+@import 'src/styles/common';
+
+.accordionContainer {
+  width: 50%;
+  margin: 10px;
+}
+
+.accordionPermanentBlock {
+  background: #eee;
+  padding: 20px;
+}
+
+.accordionBottomRight {
+  width: 50%;
+  margin: 10px;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  height: 350px;
+  overflow-y: auto;
+}

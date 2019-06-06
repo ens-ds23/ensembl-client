@@ -3,10 +3,9 @@ import { connect } from 'react-redux';
 
 import { RootState } from 'src/store';
 import Launchbar from './Launchbar';
-import { getCurrentApp, getLaunchbarExpanded } from '../headerSelectors';
+import { getLaunchbarExpanded } from '../headerSelectors';
 
 type StateProps = {
-  currentApp: string;
   launchbarExpanded: boolean;
 };
 
@@ -19,7 +18,6 @@ export const LaunchbarContainer: FunctionComponent<
 > = memo((props) => <Launchbar {...props} />);
 
 const mapStateToProps = (state: RootState): StateProps => ({
-  currentApp: getCurrentApp(state),
   launchbarExpanded: getLaunchbarExpanded(state)
 });
 

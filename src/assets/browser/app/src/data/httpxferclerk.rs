@@ -10,11 +10,9 @@ use stdweb::web::{ ArrayBuffer, TypedArray, XmlHttpRequest, XhrResponseType };
 use tánaiste::Value;
 use url::Url;
 
-use composit::Leaf;
 use super::{ 
     XferClerk, XferConsumer, XferRequest, XferCache,
-    HttpResponseConsumer, HttpManager, BackendConfig,
-    BackendConfigBootstrap
+    HttpResponseConsumer, HttpManager, BackendConfig
 };
 
 use super::backendconfig::BackendBytecode;

@@ -1,9 +1,8 @@
 use std::cmp::{ min, max };
 
 use super::{ FlatCanvas, Artist, CarriageCanvases, OneCanvasManager };
-use drivers::webgl::GLProgData;
 use program::CanvasWeave;
-use model::shape::{ BitmapArtist, DrawingHash, DrawingSpec };
+use model::shape::{ BitmapArtist, DrawingHash };
 use types::{ CPixel, area_size, cpixel };
 
 fn copy_data(out: &mut Vec<u8>, in_: &Vec<u8>, size: CPixel,

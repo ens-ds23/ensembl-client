@@ -152,7 +152,6 @@ export const Browser: FunctionComponent<BrowserProps> = (
   return (
     <section className={styles.browser}>
       <BrowserBar dispatchBrowserLocation={dispatchBrowserLocation} />
-
       {props.genomeSelectorActive && <div className={styles.browserOverlay} />}
       <div className={styles.browserInnerWrapper}>
         <animated.div style={trackAnimation}>

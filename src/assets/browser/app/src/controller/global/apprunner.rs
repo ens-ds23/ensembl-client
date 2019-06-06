@@ -10,10 +10,9 @@ use controller::input::{
     Timers, Timer
 };
 use controller::output::{ OutputAction, Projector, Report, ViewportReport };
-use data::{ HttpManager, HttpXferClerk, BackendConfigBootstrap, BackendConfig };
+use data::{ HttpManager, BackendConfig };
 use dom::Bling;
 use dom::event::EventControl;
-use debug::{ DebugBling, create_interactors, add_debug_sticks };
 use tácode::Tácode;
 
 const SIZE_CHECK_INTERVAL_MS: f64 = 500.;

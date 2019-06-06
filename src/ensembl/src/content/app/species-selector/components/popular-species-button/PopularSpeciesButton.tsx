@@ -17,9 +17,10 @@ type Props = {
 
 const PopularSpeciesButton = (props: Props) => {
   const { isSelected, species, strains, onClick, onStrainSelect } = props;
-  const {
-    ReactComponent: Icon
-  } = require(`src/content/app/species-selector/assets/icons/${species}.svg`);
+
+  const { ReactComponent: Icon } =
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require(`src/content/app/species-selector/assets/icons/${species}.svg`);
 
   const className = classNames(styles.popularSpeciesButton, {
     [styles.popularSpeciesButtonActive]: isSelected

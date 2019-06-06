@@ -1,16 +1,9 @@
 use std::sync::{ Arc, Mutex };
 
-use stdweb::unstable::TryInto;
-use url::Url;
-
 use controller::global::Global;
-use controller::input::Action;
-use debug::DEMO_SOURCES;
 
 use dom::domutil;
 use dom::event::{ EventListener, EventType, EventData, EventControl, Target };
-use dom::AppEventData;
-use types::Dot;
 
 pub struct ShutdownEventListener {
     g: Arc<Mutex<Global>>

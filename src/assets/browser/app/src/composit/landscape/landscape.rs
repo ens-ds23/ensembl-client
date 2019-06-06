@@ -3,8 +3,6 @@
  * maybe other things, in different roles.
  */
 
-use std::sync::Mutex;
-
 use super::Plot;
 
 pub struct Landscape {

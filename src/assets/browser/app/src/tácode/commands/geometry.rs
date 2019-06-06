@@ -112,7 +112,7 @@ impl Command for AllPlots {
         let regs = rt.registers();
         let pid = proc.lock().unwrap().get_pid().unwrap();
         self.0.with_task(pid,|task| {
-            if let TáTask::MakeShapes(acs,_,_,_,ls,_,_) = task {
+            if let TáTask::MakeShapes(acs,_,_,_,_,_,_) = task {
                 let mut data : Vec<(i32,i32,String)> = acs.all_landscapes(|lid,ls| {
                     let p = ls.get_plot();
                     (p.get_base(),p.get_height(),p.get_letter().to_string())
@@ -144,7 +144,7 @@ impl Command for SetPart {
         let regs = rt.registers();
         let pid = proc.lock().unwrap().get_pid().unwrap();
         self.0.with_task(pid,|task| {
-            regs.get(self.1).as_string(|mut new_part| {
+            regs.get(self.1).as_string(|new_part| {
                 if let TáTask::MakeShapes(_,_,_,_,_,part,_) = task {
                     if new_part == "" {
                         part.take();

@@ -41,7 +41,7 @@ impl TravellerCreator {
     /* train/add_component() */
     pub fn make_party(&mut self, c: &ActiveSource, leaf: &Leaf) -> Vec<Traveller> {
         let party = PartyResponses::new(&self.pm,&c.list_parts(),leaf);
-        let mut source = c.get_source().clone();
+        let source = c.get_source().clone();
         let out = c.make_party(&self.pm,&party,leaf);
         source.populate(c,party,leaf);
         out

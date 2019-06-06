@@ -18,7 +18,7 @@ export const PrivacyBanner: FunctionComponent<PrivacyBannerProps> = (
         <a
           href="https://www.ebi.ac.uk/data-protection/ensembl/privacy-notice"
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
         >
           Privacy Policy
         </a>{' '}
@@ -26,7 +26,7 @@ export const PrivacyBanner: FunctionComponent<PrivacyBannerProps> = (
         <a
           href="https://www.ebi.ac.uk/about/terms-of-use"
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
         >
           {' '}
           Terms of Use

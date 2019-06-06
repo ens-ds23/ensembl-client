@@ -16,7 +16,7 @@ if( typeof Rust === "undefined" ) {
     return (function( module_factory ) {
         var instance = module_factory();
 
-        if( typeof window === "undefined" && typeof process === "object" ) {
+        if( typeof process === "object" && typeof process.versions === "object" && typeof process.versions.node === "string" ) {
             var fs = require( "fs" );
             var path = require( "path" );
             var wasm_path = path.join( __dirname, "/static/browser/browser.wasm" );
@@ -54,6 +54,7 @@ if( typeof Rust === "undefined" ) {
 
 // This is based on code from Emscripten's preamble.js.
 Module.STDWEB_PRIVATE.to_utf8 = function to_utf8( str, addr ) {
+    var HEAPU8 = Module.HEAPU8;
     for( var i = 0; i < str.length; ++i ) {
         // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code unit, not a Unicode code point of the character! So decode UTF16->UTF32->UTF8.
         // See http://unicode.org/faq/utf_bom.html#utf16-3
@@ -96,26 +97,26 @@ Module.STDWEB_PRIVATE.to_utf8 = function to_utf8( str, addr ) {
 
 Module.STDWEB_PRIVATE.noop = function() {};
 Module.STDWEB_PRIVATE.to_js = function to_js( address ) {
-    var kind = HEAPU8[ address + 12 ];
+    var kind = Module.HEAPU8[ address + 12 ];
     if( kind === 0 ) {
         return undefined;
     } else if( kind === 1 ) {
         return null;
     } else if( kind === 2 ) {
-        return HEAP32[ address / 4 ];
+        return Module.HEAP32[ address / 4 ];
     } else if( kind === 3 ) {
-        return HEAPF64[ address / 8 ];
+        return Module.HEAPF64[ address / 8 ];
     } else if( kind === 4 ) {
-        var pointer = HEAPU32[ address / 4 ];
-        var length = HEAPU32[ (address + 4) / 4 ];
+        var pointer = Module.HEAPU32[ address / 4 ];
+        var length = Module.HEAPU32[ (address + 4) / 4 ];
         return Module.STDWEB_PRIVATE.to_js_string( pointer, length );
     } else if( kind === 5 ) {
         return false;
     } else if( kind === 6 ) {
         return true;
     } else if( kind === 7 ) {
-        var pointer = Module.STDWEB_PRIVATE.arena + HEAPU32[ address / 4 ];
-        var length = HEAPU32[ (address + 4) / 4 ];
+        var pointer = Module.STDWEB_PRIVATE.arena + Module.HEAPU32[ address / 4 ];
+        var length = Module.HEAPU32[ (address + 4) / 4 ];
         var output = [];
         for( var i = 0; i < length; ++i ) {
             output.push( Module.STDWEB_PRIVATE.to_js( pointer + i * 16 ) );
@@ -123,24 +124,24 @@ Module.STDWEB_PRIVATE.to_js = function to_js( address ) {
         return output;
     } else if( kind === 8 ) {
         var arena = Module.STDWEB_PRIVATE.arena;
-        var value_array_pointer = arena + HEAPU32[ address / 4 ];
-        var length = HEAPU32[ (address + 4) / 4 ];
-        var key_array_pointer = arena + HEAPU32[ (address + 8) / 4 ];
+        var value_array_pointer = arena + Module.HEAPU32[ address / 4 ];
+        var length = Module.HEAPU32[ (address + 4) / 4 ];
+        var key_array_pointer = arena + Module.HEAPU32[ (address + 8) / 4 ];
         var output = {};
         for( var i = 0; i < length; ++i ) {
-            var key_pointer = HEAPU32[ (key_array_pointer + i * 8) / 4 ];
-            var key_length = HEAPU32[ (key_array_pointer + 4 + i * 8) / 4 ];
+            var key_pointer = Module.HEAPU32[ (key_array_pointer + i * 8) / 4 ];
+            var key_length = Module.HEAPU32[ (key_array_pointer + 4 + i * 8) / 4 ];
             var key = Module.STDWEB_PRIVATE.to_js_string( key_pointer, key_length );
             var value = Module.STDWEB_PRIVATE.to_js( value_array_pointer + i * 16 );
             output[ key ] = value;
         }
         return output;
     } else if( kind === 9 ) {
-        return Module.STDWEB_PRIVATE.acquire_js_reference( HEAP32[ address / 4 ] );
+        return Module.STDWEB_PRIVATE.acquire_js_reference( Module.HEAP32[ address / 4 ] );
     } else if( kind === 10 || kind === 12 || kind === 13 ) {
-        var adapter_pointer = HEAPU32[ address / 4 ];
-        var pointer = HEAPU32[ (address + 4) / 4 ];
-        var deallocator_pointer = HEAPU32[ (address + 8) / 4 ];
+        var adapter_pointer = Module.HEAPU32[ address / 4 ];
+        var pointer = Module.HEAPU32[ (address + 4) / 4 ];
+        var deallocator_pointer = Module.HEAPU32[ (address + 8) / 4 ];
         var num_ongoing_calls = 0;
         var drop_queued = false;
         var output = function() {
@@ -202,31 +203,31 @@ Module.STDWEB_PRIVATE.to_js = function to_js( address ) {
 
         return output;
     } else if( kind === 14 ) {
-        var pointer = HEAPU32[ address / 4 ];
-        var length = HEAPU32[ (address + 4) / 4 ];
-        var array_kind = HEAPU32[ (address + 8) / 4 ];
+        var pointer = Module.HEAPU32[ address / 4 ];
+        var length = Module.HEAPU32[ (address + 4) / 4 ];
+        var array_kind = Module.HEAPU32[ (address + 8) / 4 ];
         var pointer_end = pointer + length;
 
         switch( array_kind ) {
             case 0:
-                return HEAPU8.subarray( pointer, pointer_end );
+                return Module.HEAPU8.subarray( pointer, pointer_end );
             case 1:
-                return HEAP8.subarray( pointer, pointer_end );
+                return Module.HEAP8.subarray( pointer, pointer_end );
             case 2:
-                return HEAPU16.subarray( pointer, pointer_end );
+                return Module.HEAPU16.subarray( pointer, pointer_end );
             case 3:
-                return HEAP16.subarray( pointer, pointer_end );
+                return Module.HEAP16.subarray( pointer, pointer_end );
             case 4:
-                return HEAPU32.subarray( pointer, pointer_end );
+                return Module.HEAPU32.subarray( pointer, pointer_end );
             case 5:
-                return HEAP32.subarray( pointer, pointer_end );
+                return Module.HEAP32.subarray( pointer, pointer_end );
             case 6:
-                return HEAPF32.subarray( pointer, pointer_end );
+                return Module.HEAPF32.subarray( pointer, pointer_end );
             case 7:
-                return HEAPF64.subarray( pointer, pointer_end );
+                return Module.HEAPF64.subarray( pointer, pointer_end );
         }
     } else if( kind === 15 ) {
-        return Module.STDWEB_PRIVATE.get_raw_value( HEAPU32[ address / 4 ] );
+        return Module.STDWEB_PRIVATE.get_raw_value( Module.HEAPU32[ address / 4 ] );
     }
 };
 
@@ -235,10 +236,10 @@ Module.STDWEB_PRIVATE.serialize_object = function serialize_object( address, val
     var length = keys.length;
     var key_array_pointer = Module.STDWEB_PRIVATE.alloc( length * 8 );
     var value_array_pointer = Module.STDWEB_PRIVATE.alloc( length * 16 );
-    HEAPU8[ address + 12 ] = 8;
-    HEAPU32[ address / 4 ] = value_array_pointer;
-    HEAPU32[ (address + 4) / 4 ] = length;
-    HEAPU32[ (address + 8) / 4 ] = key_array_pointer;
+    Module.HEAPU8[ address + 12 ] = 8;
+    Module.HEAPU32[ address / 4 ] = value_array_pointer;
+    Module.HEAPU32[ (address + 4) / 4 ] = length;
+    Module.HEAPU32[ (address + 8) / 4 ] = key_array_pointer;
     for( var i = 0; i < length; ++i ) {
         var key = keys[ i ];
         var key_address = key_array_pointer + i * 8;
@@ -251,9 +252,9 @@ Module.STDWEB_PRIVATE.serialize_object = function serialize_object( address, val
 Module.STDWEB_PRIVATE.serialize_array = function serialize_array( address, value ) {
     var length = value.length;
     var pointer = Module.STDWEB_PRIVATE.alloc( length * 16 );
-    HEAPU8[ address + 12 ] = 7;
-    HEAPU32[ address / 4 ] = pointer;
-    HEAPU32[ (address + 4) / 4 ] = length;
+    Module.HEAPU8[ address + 12 ] = 7;
+    Module.HEAPU32[ address / 4 ] = pointer;
+    Module.HEAPU32[ (address + 4) / 4 ] = length;
     for( var i = 0; i < length; ++i ) {
         Module.STDWEB_PRIVATE.from_js( pointer + i * 16, value[ i ] );
     }
@@ -276,11 +277,11 @@ if ( cachedEncoder != null ) {
 
         if ( length > 0 ) {
             pointer = Module.STDWEB_PRIVATE.alloc( length );
-            HEAPU8.set( buffer, pointer );
+            Module.HEAPU8.set( buffer, pointer );
         }
 
-        HEAPU32[ address / 4 ] = pointer;
-        HEAPU32[ (address + 4) / 4 ] = length;
+        Module.HEAPU32[ address / 4 ] = pointer;
+        Module.HEAPU32[ (address + 4) / 4 ] = length;
     };
 
 } else {
@@ -293,40 +294,40 @@ if ( cachedEncoder != null ) {
             Module.STDWEB_PRIVATE.to_utf8( value, pointer );
         }
 
-        HEAPU32[ address / 4 ] = pointer;
-        HEAPU32[ (address + 4) / 4 ] = length;
+        Module.HEAPU32[ address / 4 ] = pointer;
+        Module.HEAPU32[ (address + 4) / 4 ] = length;
     };
 }
 
 Module.STDWEB_PRIVATE.from_js = function from_js( address, value ) {
     var kind = Object.prototype.toString.call( value );
     if( kind === "[object String]" ) {
-        HEAPU8[ address + 12 ] = 4;
+        Module.HEAPU8[ address + 12 ] = 4;
         Module.STDWEB_PRIVATE.to_utf8_string( address, value );
     } else if( kind === "[object Number]" ) {
         if( value === (value|0) ) {
-            HEAPU8[ address + 12 ] = 2;
-            HEAP32[ address / 4 ] = value;
+            Module.HEAPU8[ address + 12 ] = 2;
+            Module.HEAP32[ address / 4 ] = value;
         } else {
-            HEAPU8[ address + 12 ] = 3;
-            HEAPF64[ address / 8 ] = value;
+            Module.HEAPU8[ address + 12 ] = 3;
+            Module.HEAPF64[ address / 8 ] = value;
         }
     } else if( value === null ) {
-        HEAPU8[ address + 12 ] = 1;
+        Module.HEAPU8[ address + 12 ] = 1;
     } else if( value === undefined ) {
-        HEAPU8[ address + 12 ] = 0;
+        Module.HEAPU8[ address + 12 ] = 0;
     } else if( value === false ) {
-        HEAPU8[ address + 12 ] = 5;
+        Module.HEAPU8[ address + 12 ] = 5;
     } else if( value === true ) {
-        HEAPU8[ address + 12 ] = 6;
+        Module.HEAPU8[ address + 12 ] = 6;
     } else if( kind === "[object Symbol]" ) {
         var id = Module.STDWEB_PRIVATE.register_raw_value( value );
-        HEAPU8[ address + 12 ] = 15;
-        HEAP32[ address / 4 ] = id;
+        Module.HEAPU8[ address + 12 ] = 15;
+        Module.HEAP32[ address / 4 ] = id;
     } else {
         var refid = Module.STDWEB_PRIVATE.acquire_rust_reference( value );
-        HEAPU8[ address + 12 ] = 9;
-        HEAP32[ address / 4 ] = refid;
+        Module.HEAPU8[ address + 12 ] = 9;
+        Module.HEAP32[ address / 4 ] = refid;
     }
 };
 
@@ -341,13 +342,14 @@ var cachedDecoder = ( typeof TextDecoder === "function"
 
 if ( cachedDecoder != null ) {
     Module.STDWEB_PRIVATE.to_js_string = function to_js_string( index, length ) {
-        return cachedDecoder.decode( HEAPU8.subarray( index, index + length ) );
+        return cachedDecoder.decode( Module.HEAPU8.subarray( index, index + length ) );
     };
 
 } else {
     // This is ported from Rust's stdlib; it's faster than
     // the string conversion from Emscripten.
     Module.STDWEB_PRIVATE.to_js_string = function to_js_string( index, length ) {
+        var HEAPU8 = Module.HEAPU8;
         index = index|0;
         length = length|0;
         var end = (index|0) + (length|0);
@@ -537,16 +539,27 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
         HEAPU32 = new Uint32Array( buffer );
         HEAPF32 = new Float32Array( buffer );
         HEAPF64 = new Float64Array( buffer );
+        Module.HEAP8 = HEAP8;
+        Module.HEAP16 = HEAP16;
+        Module.HEAP32 = HEAP32;
+        Module.HEAPU8 = HEAPU8;
+        Module.HEAPU16 = HEAPU16;
+        Module.HEAPU32 = HEAPU32;
+        Module.HEAPF32 = HEAPF32;
+        Module.HEAPF64 = HEAPF64;
     }
 
     return {
         imports: {
             env: {
-                "__cargo_web_snippet_05eb1fa3a369aeb53fa30b81d7ffa84d99189bab": function($0, $1) {
+                "__cargo_web_snippet_01dfab22b1c922ee5d9f404fe0ebdfce33433e80": function($0, $1) {
+                $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).innerHTML=($1)
+            },
+            "__cargo_web_snippet_05eb1fa3a369aeb53fa30b81d7ffa84d99189bab": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).createBuffer();})());
             },
-            "__cargo_web_snippet_06c4a5af1c172c8bdf03dc5eb72185e557b912ce": function($0) {
-                Module.STDWEB_PRIVATE.from_js($0, (function(){console.log("Watermark alloc failed. Should be impossible");})());
+            "__cargo_web_snippet_06f31fdb8e557ba44aaaa2b7a5a6f57d459c4653": function($0, $1) {
+                return Module.STDWEB_PRIVATE.acquire_rust_reference( Module.HEAPU8.slice( $0, $1 ) );
             },
             "__cargo_web_snippet_09675c7ed2827e045dc760aeac3d286437cfbe5e": function($0, $1, $2, $3) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);Module.STDWEB_PRIVATE.from_js($0, (function(){try{return{value:function(){return($1).setAttribute(($2),($3));}(),success:true};}catch(error){return{error:error,success:false};}})());
@@ -559,9 +572,6 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__cargo_web_snippet_0b41df5af60304b964af0723b16b70e974fb9509": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).detail;})());
-            },
-            "__cargo_web_snippet_0d4a327ff0d851fe709f6234961bc91c3b107020": function($0) {
-                Module.STDWEB_PRIVATE.from_js($0, (function(){var sel=window.getSelection?window.getSelection():document.selection;if(sel){if(sel.removeAllRanges){sel.removeAllRanges();}else if(sel.empty){sel.empty();}}})());
             },
             "__cargo_web_snippet_0e54fd9c163fcf648ce0a395fde4500fd167a40b": function($0) {
                 var r = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (r instanceof DOMException) && (r.name === "InvalidCharacterError");
@@ -578,14 +588,11 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__cargo_web_snippet_10f5aa3985855124ab83b21d4e9f7297eb496508": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof Array) | 0;
             },
-            "__cargo_web_snippet_14fbfabb9cf5395f57df6ceec7de23526d556316": function($0, $1) {
-                $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);var array=($0);var pointer=($1);HEAPU8.set(array,pointer);
-            },
             "__cargo_web_snippet_16a29a24997792c4d65aabe89033fb5dcb06b826": function($0, $1, $2, $3, $4) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);$4 = Module.STDWEB_PRIVATE.to_js($4);($0).drawElements(($1),($2),($3),($4));
             },
-            "__cargo_web_snippet_1c05a59c904a74accda99b768fc309da057dd89f": function($0, $1, $2) {
-                $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);Module.STDWEB_PRIVATE.from_js($0, (function(){($1).scrollTop=($2).scrollHeight;})());
+            "__cargo_web_snippet_199d5eb25dfe761687bcd487578eb7e636bd9650": function($0) {
+                $0 = Module.STDWEB_PRIVATE.to_js($0);console.log(($0));
             },
             "__cargo_web_snippet_1d215a652e33885c8a0c73fed6f412252bea75b5": function($0, $1, $2, $3) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);($0).texParameteri(($1),($2),($3));
@@ -614,14 +621,8 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__cargo_web_snippet_2e787da4cf65f1a75e61b4ffa128a1209c25378f": function($0) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);($0).send();
             },
-            "__cargo_web_snippet_2f33107ff8cc02d70bb611c3ab61d4b0f0ca5848": function($0, $1) {
-                return Module.STDWEB_PRIVATE.acquire_rust_reference( HEAPU8.slice( $0, $1 ) );
-            },
             "__cargo_web_snippet_31f6071b77215fa0db4e2754d20833403f06a364": function($0) {
                 var r = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (r instanceof DOMException) && (r.name === "InvalidAccessError");
-            },
-            "__cargo_web_snippet_329384458774100c384d2588238c10f110e8f7b6": function($0, $1) {
-                $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){console.error(($1));})());
             },
             "__cargo_web_snippet_32f73e1a10ada3bafa29a60084c3c7200043017d": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).top;})());
@@ -647,23 +648,29 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__cargo_web_snippet_41648715735c41dd07f9e6ecd29694c149a1147f": function($0, $1, $2) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);($0).bindTexture(($1),($2));
             },
-            "__cargo_web_snippet_43dab2e292efbe2410738abe1504ef832d4622bd": function($0, $1, $2) {
-                $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);Module.STDWEB_PRIVATE.from_js($0, (function(){($1).textContent=($2)})());
-            },
             "__cargo_web_snippet_49ae24e0f2d690c290030200ef793256363af281": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).getContext("2d");})());
             },
             "__cargo_web_snippet_4b619d3fa1d34c314c0343e9f924ee6efa400514": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).rangeMin;})());
             },
+            "__cargo_web_snippet_4bed2763bb003e27010c86e937c1d731c07ae977": function() {
+                console.log("Watermark alloc failed. Should be impossible");
+            },
             "__cargo_web_snippet_4d66721dd755374fa177d86d1c818bf74cc0be84": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1);})());
             },
-            "__cargo_web_snippet_4f6d5311e99ab5d3fe659f8adbf6a9632b8fed49": function($0, $1, $2, $3) {
-                $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);Module.STDWEB_PRIVATE.from_js($0, (function(){var e=new CustomEvent(($1),{detail:($2),bubbles:true});($3).dispatchEvent(e);})());
+            "__cargo_web_snippet_4f7805e988e6b675f71f05d4e1658c38e9fd09d5": function($0, $1) {
+                $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).disableVertexAttribArray(($1));
+            },
+            "__cargo_web_snippet_4fd31c9e56d40b8642cf9e6f96fd6b570f355cea": function($0) {
+                $0 = Module.STDWEB_PRIVATE.to_js($0);console.error(($0));
             },
             "__cargo_web_snippet_51c698c3896cefa6badebc5a5c16586cf31af567": function($0, $1, $2) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);($0).bindBuffer(($1),($2));
+            },
+            "__cargo_web_snippet_54c301f42021c68eb1c25310e36baf3b3b910e96": function($0, $1) {
+                $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);var array=($0);var pointer=($1);Module.HEAPU8.set(array,pointer);
             },
             "__cargo_web_snippet_57a2f98b8ead212050903a7563b9d0d12a68c4d4": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){var self=($1);if(self.selectedIndex<0){return null;}else{return self.selectedIndex;}})());
@@ -698,9 +705,6 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__cargo_web_snippet_6c1f25bf7c9104accb489618515bd1869f4ca315": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).clientX;})());
             },
-            "__cargo_web_snippet_6cc57df24f1e7383b7c0590707297e15f860dc19": function($0, $1, $2, $3, $4, $5, $6, $7) {
-                $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);$4 = Module.STDWEB_PRIVATE.to_js($4);$5 = Module.STDWEB_PRIVATE.to_js($5);$6 = Module.STDWEB_PRIVATE.to_js($6);$7 = Module.STDWEB_PRIVATE.to_js($7);Module.STDWEB_PRIVATE.from_js($0, (function(){var id=($1).createImageData(($2),($3));id.data.set(($4));($5).putImageData(id,($6),($7));})());
-            },
             "__cargo_web_snippet_6dc4f8ae7f6f817eb79d86191e298d65cc5ab23b": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).innerHTML;})());
             },
@@ -722,14 +726,14 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__cargo_web_snippet_734a82ee4ac42c380518cb72c7adb54b7c35c8fe": function($0, $1) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).linkProgram(($1));
             },
-            "__cargo_web_snippet_75cb9ec3029b08fbc9cc5e7bdf2aff0c5b052182": function($0, $1) {
-                return Module.STDWEB_PRIVATE.acquire_rust_reference( HEAPU16.slice( $0, $1 ) );
-            },
             "__cargo_web_snippet_77921d78a03be540f77cff16979810c493eca4c1": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).parentNode;})());
             },
             "__cargo_web_snippet_77e0e1ec1d4bd4ae51076c4c84da5c7214096ebe": function($0, $1) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).clear(($1));
+            },
+            "__cargo_web_snippet_7815ab472ebebbb995dd21f03b87f1e2210e8a12": function() {
+                var sel=window.getSelection?window.getSelection():document.selection;if(sel){if(sel.removeAllRanges){sel.removeAllRanges();}else if(sel.empty){sel.empty();}}
             },
             "__cargo_web_snippet_78fddaff0f0da074fcf66227f0873dec2d6cbc4c": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof WebGLTexture) | 0;
@@ -752,8 +756,8 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__cargo_web_snippet_80d6d56760c65e49b7be8b6b01c1ea861b046bf0": function($0) {
                 Module.STDWEB_PRIVATE.decrement_refcount( $0 );
             },
-            "__cargo_web_snippet_84f4f33413953cc0e0629520df97438bd8dca2bd": function($0, $1, $2, $3, $4, $5, $6, $7) {
-                $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);$4 = Module.STDWEB_PRIVATE.to_js($4);$5 = Module.STDWEB_PRIVATE.to_js($5);$6 = Module.STDWEB_PRIVATE.to_js($6);$7 = Module.STDWEB_PRIVATE.to_js($7);Module.STDWEB_PRIVATE.from_js($0, (function(){($1).texImage2D(($2),($3),($4),($5),($6),($7));})());
+            "__cargo_web_snippet_848ea1c1240c42ae5105b8df122e9a2d6d288162": function($0, $1) {
+                return Module.STDWEB_PRIVATE.acquire_rust_reference( Module.HEAPU16.slice( $0, $1 ) );
             },
             "__cargo_web_snippet_85b9ecbdb8513465b790546acfd0cd530441b8a4": function($0) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);($0).stopPropagation();
@@ -794,6 +798,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__cargo_web_snippet_947e3c71a436d2534560c3daba2b3a52e02ec6d0": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).clientY;})());
             },
+            "__cargo_web_snippet_94da2e58ae86a5421b950e88b119a5d28620ef83": function($0, $1, $2) {
+                $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);var e=new CustomEvent(($0),{detail:($1),bubbles:true});($2).dispatchEvent(e);
+            },
             "__cargo_web_snippet_96019afc94417ba3716a0fc16a6f6bb0b478a037": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof HTMLSelectElement) | 0;
             },
@@ -821,14 +828,14 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__cargo_web_snippet_9faf1e0a6d7f4c8097ea8703e711d0a79ef4133a": function($0, $1, $2) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);var cb=($0);($1).removeEventListener(($2),cb);cb.drop();
             },
+            "__cargo_web_snippet_a08318f2d6ae2d01fde542f3519007735c4915d2": function($0, $1) {
+                return Module.STDWEB_PRIVATE.acquire_rust_reference( Module.HEAPF32.slice( $0, $1 ) );
+            },
             "__cargo_web_snippet_a0b7b9e5ff62e9d75889569ce62d2d2c2ed899e1": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof HTMLElement) | 0;
             },
             "__cargo_web_snippet_a152e8d0e8fac5476f30c1d19e4ab217dbcba73d": function($0, $1, $2) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);Module.STDWEB_PRIVATE.from_js($0, (function(){try{return{value:function(){return($1).querySelector(($2));}(),success:true};}catch(error){return{error:error,success:false};}})());
-            },
-            "__cargo_web_snippet_a1bde086ce8713d0a17c518ea35c6b6a7c47d99b": function($0, $1, $2, $3, $4) {
-                $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);$4 = Module.STDWEB_PRIVATE.to_js($4);($0).fillText(($1),($2),($3),($4));
             },
             "__cargo_web_snippet_a22b013cdfad43b048086eb38b7d14366fb7d483": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).readyState;})());
@@ -848,9 +855,6 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__cargo_web_snippet_a6869298bc27aad2e9079e7c1c03cbc00bfe61fe": function($0, $1, $2, $3) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);($0).bufferData(($1),($2),($3));
             },
-            "__cargo_web_snippet_a8498924342a2e576565c96289a5e872bd3d6bf8": function($0, $1) {
-                $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){($1).stopPropagation();})());
-            },
             "__cargo_web_snippet_a8869cf2d77ba584443739645e4f4b714afb506f": function($0, $1, $2, $3, $4) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);$4 = Module.STDWEB_PRIVATE.to_js($4);($0).viewport(($1),($2),($3),($4));
             },
@@ -868,9 +872,6 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__cargo_web_snippet_aced5a0bc31e9d4b2c0a70c656f71a6a7334963a": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof WebGLProgram) | 0;
-            },
-            "__cargo_web_snippet_ae2c8a52ab6d1f3f05bfe3f17211ec398cd5efc4": function($0, $1) {
-                return Module.STDWEB_PRIVATE.acquire_rust_reference( HEAPF32.slice( $0, $1 ) );
             },
             "__cargo_web_snippet_aefaa9d37f5ee323edcd23f2b91f3aecdac17e52": function($0) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);($0).focus();
@@ -896,6 +897,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__cargo_web_snippet_b50dd9343ba8c65ddb87c507e81326b50054f72a": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).precision;})());
             },
+            "__cargo_web_snippet_b6d7f3360b7e1fe69bb71de3e3b04cb73b9e859c": function($0, $1) {
+                $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).textContent=($1)
+            },
             "__cargo_web_snippet_b71edda6abdc82b7ba10e4d557888d8458548a28": function($0, $1, $2, $3, $4) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);$4 = Module.STDWEB_PRIVATE.to_js($4);($0).blendFuncSeparate(($1),($2),($3),($4));
             },
@@ -908,8 +912,8 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__cargo_web_snippet_bd22eda5ec53d6777bf2959f246ff36ad471504d": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof DOMRect) | 0;
             },
-            "__cargo_web_snippet_c00f72d67c13584b402913c922a15e1fd64ae49c": function($0, $1, $2) {
-                $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);Module.STDWEB_PRIVATE.from_js($0, (function(){($1).innerHTML=($2)})());
+            "__cargo_web_snippet_bebf7145f69303cfe7b8f21866ff308d8d48bdd4": function($0, $1, $2, $3, $4, $5, $6) {
+                $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);$4 = Module.STDWEB_PRIVATE.to_js($4);$5 = Module.STDWEB_PRIVATE.to_js($5);$6 = Module.STDWEB_PRIVATE.to_js($6);var id=($0).createImageData(($1),($2));id.data.set(($3));($4).putImageData(id,($5),($6));
             },
             "__cargo_web_snippet_c0d7020c2994fa3cf8e9c6552319070c5fb5c002": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).value})());
@@ -926,6 +930,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__cargo_web_snippet_cd41a77d0178ae27c833ef2950e5f1a48a1455c1": function($0, $1, $2) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);Module.STDWEB_PRIVATE.from_js($0, (function(){try{return{value:function(){return($1).removeChild(($2));}(),success:true};}catch(error){return{error:error,success:false};}})());
             },
+            "__cargo_web_snippet_cea7d4c9b5a01ffd38728d99cfcaf3dae9413622": function($0, $1, $2, $3, $4, $5, $6) {
+                $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);$4 = Module.STDWEB_PRIVATE.to_js($4);$5 = Module.STDWEB_PRIVATE.to_js($5);$6 = Module.STDWEB_PRIVATE.to_js($6);($0).texImage2D(($1),($2),($3),($4),($5),($6));
+            },
             "__cargo_web_snippet_cf0debbfec441e126df5ec4b805a71e969f49a75": function($0, $1, $2, $3, $4) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);$4 = Module.STDWEB_PRIVATE.to_js($4);($0).fillRect(($1),($2),($3),($4));
             },
@@ -937,9 +944,6 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__cargo_web_snippet_d34874aef1d1baab55569b93e9039667d4475745": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).target;})());
-            },
-            "__cargo_web_snippet_d4d8c727f1f9ff4ade3e53755b50714f4557018c": function($0, $1) {
-                $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){var x=($1).getExtension("WEBGL_lose_context");if(x)x.loseContext();})());
             },
             "__cargo_web_snippet_d5268550db8834dda9a5cb31d532c54071c704a2": function($0, $1) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).activeTexture(($1));
@@ -955,9 +959,6 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__cargo_web_snippet_dc2fd915bd92f9e9c6a3bd15174f1414eee3dbaf": function() {
                 console.error( 'Encountered a panic!' );
-            },
-            "__cargo_web_snippet_dc60751e0e113afd6490309f9ee63b8d087872d2": function($0, $1) {
-                $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){console.log(($1));})());
             },
             "__cargo_web_snippet_dcbfa3eb1cc89d9842b0ad8d9030a57a7cae7124": function($0) {
                 return (Module.STDWEB_PRIVATE.acquire_js_reference( $0 ) instanceof Uint8Array) | 0;
@@ -986,6 +987,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__cargo_web_snippet_e741b9d9071097746386b2c2ec044a2bc73e688c": function($0, $1) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).appendChild(($1));
             },
+            "__cargo_web_snippet_e78679ccc67afeb2bad23084ef5ab2341b118688": function($0, $1) {
+                $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).scrollTop=($1).scrollHeight;
+            },
             "__cargo_web_snippet_e9638d6405ab65f78daf4a5af9c9de14ecf1e2ec": function($0) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);Module.STDWEB_PRIVATE.unregister_raw_value(($0));
             },
@@ -998,9 +1002,6 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__cargo_web_snippet_eda4412440e7d32f8fe74d951b52da51099b5d05": function($0, $1, $2) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);($0).shaderSource(($1),($2));
             },
-            "__cargo_web_snippet_f129f5c9cad8bf49862ca7bc2b991c0bc171bd59": function($0, $1) {
-                $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){($1).preventDefault();})());
-            },
             "__cargo_web_snippet_f1c5b555b7858c4f021b91769dce6f5bafdef9a2": function($0, $1, $2, $3) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);Module.STDWEB_PRIVATE.from_js($0, (function(){var callback=($1);var request=($2).requestAnimationFrame(callback);return{request:request,callback:callback,window:($3)};})());
             },
@@ -1012,6 +1013,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__cargo_web_snippet_f814fda503cb20016f78481f85431d48a7c4e731": function($0, $1) {
                 var object = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );Module.STDWEB_PRIVATE.serialize_object( $1, object );
+            },
+            "__cargo_web_snippet_f879358f3ba2af7fbea5b6a66416a19819bb72fc": function($0) {
+                $0 = Module.STDWEB_PRIVATE.to_js($0);var x=($0).getExtension("WEBGL_lose_context");if(x)x.loseContext();
             },
             "__cargo_web_snippet_fc788667416ad6e036cdb7fca6aa20f52014d95d": function($0, $1, $2) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);Module.STDWEB_PRIVATE.from_js($0, (function(){try{return{value:function(){($1).responseType=($2);}(),success:true};}catch(error){return{error:error,success:false};}})());

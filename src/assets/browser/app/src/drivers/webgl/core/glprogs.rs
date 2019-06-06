@@ -4,7 +4,6 @@ use dom::webgl::WebGLRenderingContext as glctx;
 
 use drivers::webgl::GLProgData;
 
-use super::super::drawing::CarriageCanvases;
 use program::{ Program, GPUSpec, ProgramType };
 
 pub struct GLProgs {

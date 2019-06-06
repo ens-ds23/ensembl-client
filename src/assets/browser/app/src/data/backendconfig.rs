@@ -1,13 +1,11 @@
 use std::collections::HashMap;
-use std::fmt;
 use std::rc::Rc;
 use std::string::ToString;
 
 use serde_json::Value as SerdeValue;
 use tánaiste::Value;
-use url::Url;
 
-use composit::{ Leaf, Scale, Stick };
+use composit::{ Scale, Stick };
 
 #[derive(Debug,Clone)]
 pub struct BackendBytecode {

@@ -1,8 +1,5 @@
 use std::fmt::Debug;
-use types::{
-    CFraction, cfraction, Dot, AxisSense, Bounds, Edge, Anchors, 
-    RFraction, TOPLEFT
-};
+use types::{ Dot, Edge, Anchors, RFraction, TOPLEFT };
 use super::{ MathsShape, ColourSpec, ShapeSpec };
 
 #[derive(Clone,Copy,Debug)]

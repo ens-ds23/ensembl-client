@@ -1,0 +1,49 @@
+@import 'src/styles/common';
+
+.checkboxHolder {
+  position: relative;
+}
+
+.defaultCheckbox {
+  cursor: pointer;
+  height: 15px;
+  width: 15px;
+  border: 1px solid $ens-grey;
+  background-color: $ens-white;
+  transition: background-color 0.1s ease-in-out;
+  display: inline-block;
+}
+
+.unchecked {
+  cursor: pointer;
+  background-color: $ens-white;
+}
+
+.checked {
+  background-color: $ens-green;
+}
+
+.disabled {
+  background-color: $ens-light-grey;
+  cursor: default;
+}
+
+.defaultLabel {
+  color: $ens-dark-grey;
+  display: inline-block;
+  line-height: 15px;
+  position: absolute;
+  font-size: 16px;
+  top: 0px;
+  left: 15px;
+  padding-left: 15px;
+}
+
+.hiddenInput {
+  z-index: -999;
+  position: absolute;
+
+  &:focus + div {
+    border: 1px solid $ens-dark-grey;
+  }
+}

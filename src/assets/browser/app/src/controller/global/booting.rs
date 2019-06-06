@@ -1,24 +1,17 @@
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::collections::hash_map::Entry;
-use std::rc::{ Rc, Weak };
 use std::sync::{ Arc, Mutex };
 
 use serde_json::Value as JSONValue;
-use stdweb::unstable::TryInto;
 use stdweb::web::event::IEvent;
-use stdweb::web::{ HtmlElement, Element, IHtmlElement, window };
+use stdweb::web::HtmlElement;
 use url::Url;
 
 use controller::input::{
-    register_startup_events, initial_actions, actions_run,
-    run_direct_events,
-    Timers
+    initial_actions, actions_run, run_direct_events
 };
 use controller::global::{ AppRunner, App, GlobalWeak, Global };
-use data::{ BackendConfigBootstrap, HttpManager, BackendConfig };
+use data::{ HttpManager, BackendConfig };
 use debug::{ DebugBling, create_interactors };
-use dom::{ domutil, Bling, NoBling };
+use dom::{ Bling, NoBling };
 use dom::event::{ EventListener, Target, EventData, EventType, EventControl, ICustomEvent };
 
 #[derive(Clone)]

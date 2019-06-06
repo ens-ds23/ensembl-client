@@ -1,9 +1,6 @@
-use std::cell::RefCell;
 use std::collections::HashMap;
-use std::rc::Rc;
 
 use composit::{ Stick, StickManager };
-use data::BackendConfigBootstrap;
 use super::BackendConfig;
 
 pub struct BackendStickManager {

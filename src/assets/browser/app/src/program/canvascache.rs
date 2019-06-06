@@ -2,11 +2,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use dom::webgl::{
-    WebGLRenderingContext as glctx,
-    WebGLTexture as gltex,
-    GLint, GLenum,
-};
+use dom::webgl::WebGLTexture as gltex;
 
 use drivers::webgl::OneCanvasManager;
 

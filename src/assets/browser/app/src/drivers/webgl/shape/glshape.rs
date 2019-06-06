@@ -1,10 +1,9 @@
 use std::rc::Rc;
 
-use program::{ ProgramAttribs, DataGroupIndex, ProgramType };
-use types::{ Colour };
-use drivers::webgl::{ GLProgs, GLProgData };
-use drivers::webgl::{ Artist, Artwork, Drawing, CarriageCanvases };
-use model::shape::{ ShapeSpec, ColourSpec };
+use program::{ ProgramAttribs, ProgramType };
+use drivers::webgl::GLProgData;
+use drivers::webgl::{ Artist, Artwork };
+use model::shape::ShapeSpec;
 
 pub trait GLShape {
     fn get_artist(&self) -> Option<Rc<Artist>> { None }

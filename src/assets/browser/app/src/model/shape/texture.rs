@@ -1,15 +1,13 @@
 use std::fmt::Debug;
-use std::rc::Rc;
 
-use program::{ ProgramType, PTGeom, PTSkin, PTMethod, ProgramAttribs };
 use types::{
     EPixel, Edge, APixel, AxisSense, Dot, CPixel, 
-    CLeaf, area_centred, Anchors, cfraction, Anchor, cpixel, cleaf
+    Anchors, Anchor, cpixel, cleaf
 };
 
 use model::shape::{ DrawingSpec, ShapeSpec };
 use drivers::webgl::{ 
-    ShapeInstanceData, ShapeShortInstanceData, Facade, 
+    ShapeShortInstanceData, Facade, 
     TypeToShape, FacadeType, ShapeInstanceDataType
 };
 

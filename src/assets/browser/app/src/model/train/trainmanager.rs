@@ -11,7 +11,7 @@
  * render.
  */
 
-use composit::{ Leaf, ActiveSource, Stick, Scale, StateManager };
+use composit::{ Leaf, Stick, Scale, StateManager };
 use controller::output::Report;
 use model::driver::PrinterManager;
 use super::{ Train, TravellerCreator };

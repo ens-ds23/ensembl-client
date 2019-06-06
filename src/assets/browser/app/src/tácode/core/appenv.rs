@@ -1,8 +1,7 @@
-use stdweb::unstable::TryInto;
-
 use tánaiste::{ Environment, ProcessState };
 
 use tácode::TáContext;
+use dom::domutil::browser_time;
 
 pub struct AppEnv {
     tc: TáContext,
@@ -16,7 +15,7 @@ impl AppEnv {
 
 impl Environment for AppEnv {
     fn get_time(&mut self) -> i64 {
-        let t : f64 = js! { return +new Date(); }.try_into().unwrap();
+        let t : f64 = browser_time();
         t as i64
     }
     

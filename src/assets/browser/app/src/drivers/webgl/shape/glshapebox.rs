@@ -4,7 +4,7 @@ use program::{ PTGeom, PTMethod, ProgramType, ProgramAttribs, Input };
 use super::util::{
     despot, vertices_hollowpoly, poly_p, multi_gl, colourspec_to_group 
 };
-use types::{ RLeaf, CFraction, CLeaf, cfraction, cleaf };
+use types::{ CFraction, CLeaf, cfraction, cleaf };
 use model::shape::{ BoxSpec, ColourSpec };
 
 const DELTA_X: &[f32] = &[0.,1.,0.,1.,0.,-1.,0.,-1.];

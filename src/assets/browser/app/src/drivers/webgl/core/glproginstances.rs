@@ -1,7 +1,5 @@
-use super::super::shape::{ Spot, CanvasIdx };
 use super::{ GLProgs, GLProgData };
-use super::super::drawing::{ CarriageCanvases, OneCanvasManager };
-use program::{ CanvasCache, CanvasWeave };
+use super::super::drawing::CarriageCanvases;
 
 use dom::webgl::WebGLRenderingContext as glctx;
 

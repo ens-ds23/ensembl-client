@@ -11,21 +11,33 @@ import styles from './Header.scss';
 
 type HeaderProps = {};
 
+export const HomeLink = () => (
+  <div className={styles.homeLink}>
+    <Link to="/">
+      <img src={homeIcon} alt="" /> Ensembl
+    </Link>
+  </div>
+);
+
+export const ReleaseVersion = () => (
+  <div className={styles.strapline}>Pre-release - March 2019</div>
+);
+
+export const Copyright = () => (
+  <div className={styles.copyright}>
+    <a href="https://www.ebi.ac.uk" target="_blank" rel="noopener noreferrer">
+      © EMBL-EBI
+    </a>
+  </div>
+);
+
 export const Header: FunctionComponent<HeaderProps> = () => (
   <header>
     <div className={styles.topBar}>
       <div>
-        <div className={styles.homeLink}>
-          <Link to="/">
-            <img src={homeIcon} alt="" /> Ensembl
-          </Link>
-        </div>
-        <div className={styles.strapline}>Pre-release - March 2019</div>
-        <div className={styles.copyright}>
-          <a href="https://www.ebi.ac.uk" target="_blank">
-            &copy; EMBL-EBI
-          </a>
-        </div>
+        <HomeLink />
+        <ReleaseVersion />
+        <Copyright />
       </div>
       <HeaderButtons />
     </div>

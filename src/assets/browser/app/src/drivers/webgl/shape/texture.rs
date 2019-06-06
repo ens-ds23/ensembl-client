@@ -1,20 +1,15 @@
-use std::fmt::Debug;
 use std::rc::Rc;
 
 use program::{ ProgramType, PTGeom, PTSkin, PTMethod, ProgramAttribs };
 use types::{
-    EPixel, Edge, APixel, AxisSense, Dot, CPixel, 
-    CLeaf, area_centred, Anchors, cfraction, Anchor, cpixel, cleaf
+    APixel, AxisSense, CPixel, area_centred, cfraction
 };
 
-use drivers::webgl::{ 
-    GLShape, ShapeInstanceData, ShapeShortInstanceData, Facade, 
-    TypeToShape, FacadeType, ShapeInstanceDataType
-};
+use drivers::webgl::GLShape;
 use super::util::{ rectangle_t, multi_gl, vertices_rect };
 
 use drivers::webgl::{ GLProgData, Artist, Artwork };
-use model::shape::{ DrawingSpec, ShapeSpec, TexturePosition, TextureSpec };
+use model::shape::{ DrawingSpec, TexturePosition, TextureSpec };
 
 impl GLShape for TextureSpec {
     fn into_objects(&self, geom: &mut ProgramAttribs, 

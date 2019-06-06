@@ -1,4 +1,4 @@
-use composit::{ Compositor, Stage, StateManager, Leaf };
+use composit::{ Compositor, Stage, Leaf };
 use types::Dot;
 
 use model::driver::SourceResponse;

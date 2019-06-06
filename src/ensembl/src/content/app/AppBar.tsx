@@ -1,13 +1,21 @@
-import React, { FunctionComponent, memo } from 'react';
+import React from 'react';
+import {
+  withRouter,
+  Route,
+  RouteComponentProps,
+  Switch
+} from 'react-router-dom';
+
+import SpeciesSelectorAppBar from 'src/content/app/species-selector/components/species-selector-app-bar/SpeciesSelectorAppBar';
 
 import chevronRightIcon from 'static/img/shared/chevron-right-grey.svg';
 
 import styles from './AppBar.scss';
 
-type AppBarProps = {};
+type AppBarProps = RouteComponentProps;
 
-const AppBar: FunctionComponent<AppBarProps> = memo(() => (
-  <section className={styles.appBar}>
+const MockContent = () => (
+  <>
     <div className={styles.top}>
       <div>Genome browser</div>
     </div>
@@ -26,7 +34,23 @@ const AppBar: FunctionComponent<AppBarProps> = memo(() => (
         </a>
       </div>
     </div>
-  </section>
-));
+  </>
+);
 
-export default AppBar;
+export const AppBar = (props: AppBarProps) => {
+  const { path } = props.match;
+
+  return (
+    <section className={styles.appBar}>
+      <Switch>
+        <Route
+          path={`${path}/species-selector`}
+          component={SpeciesSelectorAppBar}
+        />
+        <Route component={MockContent} />
+      </Switch>
+    </section>
+  );
+};
+
+export default withRouter(AppBar);

@@ -5,19 +5,25 @@ import sortBy from 'lodash/sortBy';
 
 import {
   SearchMatch,
-  MatchedSubstring
+  MatchedSubstring,
+  MatchedFieldName
 } from 'src/content/app/species-selector/types/species-search';
 
 import styles from './SpeciesSearchMatch.scss';
 
 type Props = {
   match: SearchMatch;
-  onClick: () => void;
 };
 
 type SplitterProps = {
   string: string;
-  matchedSubsctrings: MatchedSubstring[];
+  matchedSubstrings: MatchedSubstring[];
+};
+
+type FormattedLabelProps = {
+  match: SearchMatch;
+  matchedFieldName: MatchedFieldName;
+  className?: string;
 };
 
 type FormatStringProps = {
@@ -33,50 +39,69 @@ type SplitSubstring = {
 
 type NumberTuple = [number, number];
 
-const SpeciesSearchMatch = ({ match, onClick }: Props) => {
+const SpeciesSearchMatch = ({ match }: Props) => {
   return (
-    <div className={styles.speciesSearchMatch} onClick={onClick}>
+    <div className={styles.speciesSearchMatch}>
       <CommonName match={match} />
+      <Subtype match={match} />
       <ScientificName match={match} />
     </div>
   );
 };
 
-const CommonName = ({ match }: { match: SearchMatch }) => {
-  const { description, matched_substrings } = match;
+const FormattedLabel = (props: FormattedLabelProps) => {
+  const field = props.match[props.matchedFieldName];
+  const { matched_substrings } = props.match;
 
-  const descriptionMatches = matched_substrings.filter(
-    ({ match }) => match === 'description'
+  const matches = matched_substrings.filter(
+    ({ match }) => match === props.matchedFieldName
   );
 
-  const substrings = sortBy(
-    splitMatch({ string: description, matchedSubsctrings: descriptionMatches }),
-    ({ start }) => start
-  );
+  if (field) {
+    const substrings = sortBy(
+      splitMatch({
+        string: field,
+        matchedSubstrings: matches
+      }),
+      ({ start }) => start
+    );
 
-  return <span>{formatString({ string: description, substrings })}</span>;
+    return (
+      <span className={props.className}>
+        {formatString({ string: field, substrings })}
+      </span>
+    );
+  } else {
+    return null;
+  }
 };
 
-const ScientificName = ({ match }: { match: SearchMatch }) => {
-  const { scientific_name, matched_substrings } = match;
-  if (!scientific_name) return null;
-
-  const scientificNameMatches = matched_substrings.filter(
-    ({ match }) => match === 'scientific_name'
-  );
-
-  const substrings = sortBy(
-    splitMatch({
-      string: scientific_name,
-      matchedSubsctrings: scientificNameMatches
-    }),
-    ({ start }) => start
-  );
-
+const CommonName = (props: Props) => {
   return (
-    <span className={styles.speciesSearchMatchScientificName}>
-      {formatString({ string: scientific_name, substrings })}
-    </span>
+    <FormattedLabel
+      match={props.match}
+      matchedFieldName={MatchedFieldName.COMMON_NAME}
+    />
+  );
+};
+
+const Subtype = (props: Props) => {
+  return (
+    <FormattedLabel
+      match={props.match}
+      matchedFieldName={MatchedFieldName.SUBTYPE}
+      className={styles.subtype}
+    />
+  );
+};
+
+const ScientificName = (props: Props) => {
+  return (
+    <FormattedLabel
+      match={props.match}
+      matchedFieldName={MatchedFieldName.SCIENTIFIC_NAME}
+      className={styles.scientificName}
+    />
   );
 };
 
@@ -85,7 +110,7 @@ const formatString = ({ string, substrings }: FormatStringProps) =>
     ? substrings.map(({ start, end, isMatch }) => (
         <span
           className={classNames({
-            [styles.speciesSearchMatchMatched]: isMatch
+            [styles.matched]: isMatch
           })}
           key={`${start}-${end}`}
         >
@@ -94,9 +119,9 @@ const formatString = ({ string, substrings }: FormatStringProps) =>
       ))
     : string;
 
-const splitMatch = ({ string, matchedSubsctrings }: SplitterProps) => {
-  const matchStartIndices = matchedSubsctrings.map(({ offset }) => offset);
-  const matchEndIndices = matchedSubsctrings.map(
+const splitMatch = ({ string, matchedSubstrings }: SplitterProps) => {
+  const matchStartIndices = matchedSubstrings.map(({ offset }) => offset);
+  const matchEndIndices = matchedSubstrings.map(
     ({ offset, length }) => offset + length
   );
   const matchIndices = zip(matchStartIndices, matchEndIndices) as NumberTuple[];

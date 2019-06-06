@@ -2,7 +2,6 @@ use types::{ CPixel, area_size, cpixel };
 use super::{ FlatCanvas, CarriageCanvases, OneCanvasManager };
 use model::shape::DrawingHash;
 use program::CanvasWeave;
-use drivers::webgl::GLProgData;
 
 /* A Artist can service some class of DrawingImpls.
  * A texture type will create an instance of them. Note that a

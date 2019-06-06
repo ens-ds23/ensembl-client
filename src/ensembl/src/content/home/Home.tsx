@@ -84,15 +84,14 @@ const Home: FunctionComponent<HomeProps> = (props: HomeProps) => {
           release.
         </p>
         <p>
-          Blue icons and text are clickable and will usually &lsquo;do&rsquo;
-          something.
+          Blue icons and text are clickable and will usually 'do' something.
         </p>
         <p>
           Grey icons indicate apps &amp; functionality that is planned, but not
           available yet.
         </p>
         <p className={styles.convoMessage}>
-          It&rsquo;s very early days, but why not join the conversation:
+          It's very early days, but why not join the conversation:
         </p>
         <p>helpdesk@ensembl.org</p>
       </section>

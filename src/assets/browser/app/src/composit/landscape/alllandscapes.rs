@@ -1,6 +1,5 @@
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::{ Mutex };
 
 use util::ValueStore;
 

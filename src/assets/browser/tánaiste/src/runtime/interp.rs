@@ -118,15 +118,15 @@ impl Interp {
         self.unq.clear();
         for pid in &self.runq {
             let status = {
-                let mut ip = self.procs.get_mut(*pid).unwrap();
+                let ip = self.procs.get_mut(*pid).unwrap();
                 ip.status()
             };
             if status.state == ProcessState::Running {
-                let mut ip = self.procs.get_mut(*pid).unwrap();
+                let ip = self.procs.get_mut(*pid).unwrap();
                 ip.run_proc(&mut self.env,self.config.cycles_per_run);
             }
             let status = {
-                let mut ip = self.procs.get_mut(*pid).unwrap();
+                let ip = self.procs.get_mut(*pid).unwrap();
                 ip.status()
             };
             if status.state != ProcessState::Running {
