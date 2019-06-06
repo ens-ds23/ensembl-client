@@ -59,7 +59,7 @@ pub struct InterpConfig {
 }
 
 pub const DEFAULT_CONFIG : InterpConfig = InterpConfig {
-    cycles_per_run: 100,
+    cycles_per_run: 1,
 };
 
 pub struct Interp {

@@ -142,10 +142,10 @@ impl Compositor {
 }
 
 pub fn register_compositor_ticks(ar: &mut AppRunner) {
-    ar.add_timer(|cs,t| {
+    ar.add_timer("compositor",|cs,t,_| {
         cs.with_compo(|co| co.tick(t) );
         let max_y = cs.get_all_landscapes().get_low_watermark();
         cs.with_stage(|s| s.set_limit(&DOWN,max_y as f64));
         vec!{}
-    },None);
+    },2);
 }

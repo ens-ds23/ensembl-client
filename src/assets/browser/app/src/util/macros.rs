@@ -59,12 +59,120 @@ macro_rules! console {
     }}
 }
 
+#[cfg(any(not(deploy),console))]
+macro_rules! bb_time {
+    ($stream:expr,$code:block) => {{
+        let tmp_bb_enabled = ::data::blackbox::blackbox_is_enabled($stream);
+        let tmp_bb_start = if tmp_bb_enabled {
+             Some(::dom::domutil::browser_time())
+        } else {
+            None
+        };
+        let ret = (|| { $code })();
+        if tmp_bb_enabled {
+            let tmp_bb_end = ::dom::domutil::browser_time();
+            ::data::blackbox::blackbox_elapsed($stream,tmp_bb_end-tmp_bb_start.unwrap());
+        }
+        ret
+    }}
+}
+
+#[cfg(all(deploy,not(console)))]
+macro_rules! bb_time {
+    ($stream:expr,$code:block) => {{
+        $code
+    }}
+}
+
+#[cfg(any(not(deploy),console))]
+macro_rules! bb_time_if {
+    ($stream:expr,$code:block) => {{
+        let tmp_bb_enabled = ::data::blackbox::blackbox_is_enabled($stream);
+        let tmp_bb_start = if tmp_bb_enabled {
+             Some(::dom::domutil::browser_time())
+        } else {
+            None
+        };
+        let ret = (|| { $code })();
+        if tmp_bb_enabled && ret {
+            let tmp_bb_end = ::dom::domutil::browser_time();
+            ::data::blackbox::blackbox_elapsed($stream,tmp_bb_end-tmp_bb_start.unwrap());
+        }
+    }}
+}
+
+#[cfg(all(deploy,not(console)))]
+macro_rules! bb_time_if {
+    ($stream:expr,$code:block) => {{
+        $code
+    }}
+}
+
+
+#[cfg(any(not(deploy),console))]
+macro_rules! bb_metronome {
+    ($stream:expr) => {{
+        if !cfg!(deploy) || cfg!(console) {
+            if ::data::blackbox::blackbox_is_enabled($stream) {
+                let tmp_bb = ::dom::domutil::browser_time();
+                ::data::blackbox::blackbox_metronome($stream,tmp_bb);
+            }
+        }
+    }}
+}
+
+#[cfg(all(deploy,not(console)))]
+macro_rules! bb_metronome {
+        ($stream:expr) => {{}}
+}
+
+#[cfg(any(not(deploy),console))]
+macro_rules! bb_log {
+    ($stream:expr,$($arg:tt)*) => {{
+        if !cfg!(deploy) || cfg!(console) {
+            if ::data::blackbox::blackbox_is_enabled($stream) {
+                let s = format!($($arg)*);
+                ::data::blackbox::blackbox_report($stream,&s);
+            }
+        }
+    }}
+}
+
+#[cfg(all(deploy,not(console)))]
+macro_rules! bb_log {
+    ($stream:expr,$($arg:tt)*) => {{}}
+}
+
+#[cfg(any(not(deploy),console))]
+macro_rules! bb_stack {
+    ($level:expr,$code:block) => {{
+        ::data::blackbox::blackbox_push($level);
+        let ret = (|| { $code })();
+        ::data::blackbox::blackbox_pop();
+        ret
+    }}
+}
+
+#[cfg(all(deploy,not(console)))]
+macro_rules! bb_stack {
+    ($level:expr,$code:block) => {{
+        $code
+    }}
+}
+
 macro_rules! debug {
     ($k: expr, $($arg:tt)*) => {{
         if false {
             let s = format!($($arg)*);
             ::debug::debug_panel_entry_add($k,&s);
         }
+    }}
+}
+
+macro_rules! halt {
+    () => {{
+        let s = format!("ENSEMBL ERROR LOCATION {}/{}/{}",file!(),line!(),column!());
+        panic!(s)
     }}
 }
 

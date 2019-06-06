@@ -54,8 +54,8 @@ impl TácodeImpl {
         self.interp.exec(bin,None,Some(&self.procconf))
     }
     
-    pub fn step(&mut self) { 
-        self.interp.run(5);
+    pub fn step(&mut self, remaining: f64) { 
+        self.interp.run(remaining.round() as i64);
     }
     
     pub fn start(&mut self, pid: usize) { self.interp.start(pid); }
@@ -93,9 +93,8 @@ impl Tácode {
         self.0.lock().unwrap().start(pid)
     }
     
-    pub fn step(&self) {
-
-        self.0.lock().unwrap().step()
+    pub fn step(&self, remaining: f64) {
+        self.0.lock().unwrap().step(remaining)
     }
     
     pub fn set_reg(&self, pid: usize, reg: usize, v: Value) {

@@ -49,10 +49,12 @@ impl HttpManager {
         self.0.borrow_mut().add_request(req,data,consumer);
     }
     
-    pub fn tick(&self) {
+    pub fn tick(&self) -> bool {
         let done = self.0.borrow_mut().get_done();
+        let len = done.len();
         for (req,mut cons) in done {
             cons.consume(req);
         }
+        return len != 0
     }
 }

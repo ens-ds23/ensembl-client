@@ -2,6 +2,7 @@ site_name: e2020 Browser App Field Manual
 nav:
     - Home: index.md
     - Description:
+        - Major Components: desc-components.md
         - Source Code Structure: desc-source.md
         - Build System: desc-build.md
         - Integration: desc-integration.md

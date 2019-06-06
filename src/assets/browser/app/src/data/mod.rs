@@ -8,6 +8,15 @@ mod xfercache;
 mod xferclerk;
 mod xferrequest;
 
+#[cfg(any(not(deploy),console))]
+pub mod blackbox;
+
+#[cfg(all(deploy,not(console)))]
+pub mod blackbox {
+    mod stubbbdriver;
+    pub use self::stubbbdriver::BlackBoxDriver;
+}
+
 pub use self::backendconfig::{ BackendConfig, BackendBytecode };
 pub use self::backendconfigbootstrap::{ BackendConfigBootstrap };
 pub use self::backendstickmanager::BackendStickManager;

@@ -78,8 +78,8 @@ impl App {
         &mut self.als
     }
     
-    pub fn tick(&mut self) {
-        self.http_clerk.tick();
+    pub fn tick_xfer(&mut self) -> bool {
+        self.http_clerk.tick()
     }
     
     pub fn get_component(&mut self, name: &str) -> Option<ActiveSource> {

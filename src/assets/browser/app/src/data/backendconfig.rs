@@ -54,7 +54,8 @@ pub struct BackendConfig {
     assets: HashMap<String,Rc<BackendAsset>>,
     tracks: HashMap<String,BackendTrack>,
     sticks: HashMap<String,Stick>,
-    bytecodes: HashMap<String,Rc<BackendBytecode>>
+    bytecodes: HashMap<String,Rc<BackendBytecode>>,
+    debug_url: Option<String>
 }
 
 // TODO simplify with serde; error handling
@@ -75,6 +76,7 @@ impl BackendConfig {
     pub fn get_sticks(&self) -> &HashMap<String,Stick> { &self.sticks }
 
     pub fn get_data_url(&self) -> &str { &self.data_url }
+    pub fn get_debug_url(&self) -> &Option<String> { &self.debug_url }
 
     fn tracks_from_json(ep: &SerdeValue) -> HashMap<String,BackendTrack> {
         let mut out = HashMap::<String,BackendTrack>::new();
@@ -154,6 +156,9 @@ impl BackendConfig {
         let tracks = BackendConfig::tracks_from_json(&data["tracks"]);
         let sticks = BackendConfig::sticks_from_json(&data["sticks"]);
         let data_url = data["data-url"].as_str().unwrap().to_string();
-        Ok(BackendConfig { assets, tracks, sticks, data_url, bytecodes })
+        let debug_url = data.get("debug-url").and_then(|x| x.as_str()).map(|x| x.to_string());
+        Ok(BackendConfig { 
+            assets, tracks, sticks, data_url, bytecodes, debug_url
+        })
     }
 }

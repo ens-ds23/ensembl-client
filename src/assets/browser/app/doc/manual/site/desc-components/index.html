@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Major Components - e2020 Browser App Field Manual</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  <link href="../extra.css" rel="stylesheet">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Major Components";
+    var mkdocs_page_input_path = "desc-components.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> e2020 Browser App Field Manual</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Description</span>
+    <ul class="subnav">
+                <li class=" current">
+                    
+    <a class="current" href="./">Major Components</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#major-components">Major Components</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#mainloop-and-scheduling">Mainloop and Scheduling</a></li>
+        
+            <li><a class="toctree-l4" href="#instrumentation_1">Instrumentation</a></li>
+        
+        </ul>
+    
+
+    </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../desc-source/">Source Code Structure</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../desc-build/">Build System</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../desc-integration/">Integration</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Architecture Decision Records</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../arch/0001-webgl/">0001 Use WebGL</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../arch/0002-wrap-webgl/">0002 Wrap WebGL</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../arch/0003-use-wasm/">0003 Use WASM</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../arch/0004-use-rust/">0004 Use Rust</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../arch/0005-breakpoints/">0005 Scale breakpoints</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../arch/0006-bytecode/">0006 Use a bytecode</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Standards</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../standard-rust/">Rust Coding Standards</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">e2020 Browser App Field Manual</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Description &raquo;</li>
+        
+      
+    
+    <li>Major Components</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="major-components">Major Components</h1>
+<h2 id="mainloop-and-scheduling">Mainloop and Scheduling</h2>
+<p>As much as possible runs out of a mainloop driven by requestanimationframe
+events (hereafter "raf events"). A dedicated scheduler attempts to ensure
+that the raf hanlder returns in plenty of time.</p>
+<h3 id="jank-detection">Jank Detection</h3>
+<p>Visual smoothness benefits from regular updates of visual content even if
+that is less than the maximum available rate. Variable update rates tend
+to be noticable even if correctly timed. To this end draw events are
+scheduled at 20Hz, 30Hz, or 60Hz and no intermediate speed. Raf events
+which correspond to this (parhaps reduced rate) are called on-beats. In
+an on-beat drawing gets the top scheduler priority. The other events,
+off-beats, do not include the drawing callbacks. </p>
+<p>A jank detector updates the optimal rate for the hardware based on a 
+record of performance of earlier events. Each raf is tested to see if
+it has <em>burst</em>, that is met or exceeded its allocated time. This is a
+simple boolean. The record and timing of far bursts is the input to the
+jank detector. The output is the rate of on-requests, known as the "gear"
+or "timesig".</p>
+<p>This behaviour and fix is the result of observed behaviour, not 
+conjecture, and follows various ineffective "simpler" fixes.</p>
+<h3 id="jank-detection-algorithm">Jank Detection Algorithm</h3>
+<p>It has not proved possible to reliably tell which gear minimises raf
+bursts except by applying gears and seeing what happens. The jank-detection
+algorithm takes the raf burst flag and the current time and sets the gear.</p>
+<p>As experimentation is required and it amounts to a "bang-bang" controller
+(ie non-proportional) the best behaviour we can expect to observe is 
+slow "hunting" between an under- and over-performant state (ie a slow
+oscillation).</p>
+<p>The opposite behaviour to "hunting" here is "moving" which is a conserted
+movement through gears in one direction or another. The jank-detection
+algorithm considers to successive changes in the same direction to be moving,
+two in opposite directions to be hunting.</p>
+<p>If the period between changes during "hunting" is too long we will never
+take advantage of performance changes (such as recovery after one-off
+events). If too short, the rate becomes unstable and jank is observed.</p>
+<p>If a burst occurs, the rate is decreased immediately. Following this event,
+a grace period ensures that no opposing rate increase occurs for a fixed
+(wall-clock) time to avoid excessively-quick hunting on a stable, quiescent
+system. Once the grace period expires, the rate is increased again
+to allow potential recovery. The grace period increases exponentially 
+(fibbionacci, to a fixed limit) all the while the rate is hunting, as long as
+a hunt occured during the grace period (indicating that the higher rate is
+not stable). It decreases by the same exponential curve if the hunting period
+is longer than expected (indicating a system stable at the faster rate). This
+ensures that the rate "settles" on a stable system. When moving is detected 
+the rate is reset to allow fast accommodation of changes.</p>
+<h3 id="scheduling-algorithm">Scheduling algorithm</h3>
+<p>The scheduler accepts callbacks which are placed in an on-beat
+or off-beat queues, as requested by the caller, and of a certain priority.
+This priority should be a small, positive integer. The list of on-beat
+queues and the list of off-beat queues (each a <em>queuelist</em>) are combined
+to form the scheduler.</p>
+<p>For an on-beat, the on queuelist is run, followed by the off queuelist.
+For an off-beat only the off queuelist is run.</p>
+<p>An off-beat raf is considered to have burst if the off-beat queuelist
+bursts as it is the only queuelist run in an off-beat.</p>
+<p>An on-beat raf is only considered to have burst if the on-beat queuelist
+bursts as this is all that's "expected" to run on an on-beat. The exception
+is when running in gear one, ie 60Hz. In this case either queuelist
+bursting counts as a burst as there are no other opportunities to run
+off-beat tasks.</p>
+<p>Within a queuelist are queues. Queues are arranged in order of priority.
+Each queue is run from lowest priority to highest in round-robin. Note
+that low-priority queues never get run if high-priorirty queues consume
+all the time, so be cautious with fine-graining priorities. At present
+queues are stored in a vec so please keep priorities ultra-compact.</p>
+<h3 id="code-structure">Code Structure</h3>
+<ul>
+<li><code>controller/scheduler</code> -- the scheduler<ul>
+<li><code>schedgroup.rs</code> -- a group of tasks (which are dropped when the group is)</li>
+<li><code>schedmain.rs</code> -- main implementation of scheduler "tick"</li>
+<li><code>schedqueue.rs</code> -- a queue type in the algorithm above</li>
+<li><code>schedqueuelist.rs</code> -- the queuelist type in the algorithm above</li>
+<li><code>schedrun.rs</code> -- an object passed to the callback to help control the scheduler</li>
+<li><code>schedtask.rs</code> -- the internal datatype used to represent the callback</li>
+<li><code>scheduler.rs</code> -- main entry point to the scheduler</li>
+</ul>
+</li>
+</ul>
+<h3 id="instrumentation">Instrumentation</h3>
+<p>Each queue run and task are integrated with the blackbox via the <code>scheduler-*</code>
+event stream which capture stream performance. The <code>scheduler</code> and
+<code>scheduler-jank</code> streams provide further logging.</p>
+<h3 id="tasks">Tasks</h3>
+<p>The following tasks are currently implemented:</p>
+<ul>
+<li><code>scheduler-task-http-manager</code> -- issuing http requests</li>
+<li><code>scheduler-task-xfer</code> -- http data repsonses</li>
+<li><code>scheduler-task-tácode</code> -- tánaiste interpreter</li>
+<li><code>scheduler-task-blackbox</code> -- blackbox callback</li>
+<li><code>scheduler-task-resizer</code> -- canvas resize detection</li>
+<li><code>scheduler-task-report</code> -- state-reporting javascript events</li>
+<li><code>scheduler-task-viewport-report</code> -- position-reporting javascript events</li>
+<li><code>scheduler-task-physics</code> -- mouse movement (left/right)</li>
+<li><code>scheduler-task-optical</code> -- mouse movement (in/out)</li>
+<li><code>scheduler-task-compositor</code> -- converting shapes into WebGL primitives</li>
+<li><code>scheduler-task-draw</code> -- drawing (on-beat)</li>
+</ul>
+<p>Except for <code>scheduler-task-draw</code> all others are off-beat tasks.</p>
+<h2 id="instrumentation_1">Instrumentation</h2>
+<p>Instrumentation code exists to assist development and debugging of the browser
+app. It is generally not available in deployed builds to reduce file size and
+improve performance.</p>
+<h3 id="black-box">Black Box</h3>
+<p>The black box system periodically sends logs and data sets to the backend
+server. There, the server stores this data in filesi, according to server
+configuration. The backend server also controls which datasets and logs are
+captured, and the frequency of callbacks. These are controlled by a
+configuration file. This file is sent to the client as the response to each
+request containing data.</p>
+<p>The primary use of the black box is to monitor performance.</p>
+<p>Data sets are arranged into streams which are represented by a string. Each
+log or data capture includes the stream to which it belongs. The server
+configures which logs and data to capture and their destination file based on
+the originating stream.</p>
+<p>A stack allows a log message to be contextualised by pusing and popping string
+context as to its location. This allows the same log messages to be divided
+into subsets. The stack mechanism is relatively heavyweight and designed only
+for debugging rather than long-lived instrumentation.</p>
+<p>The blackbox supports abstract drivers. These use different mechanisms to
+report to the server. Currently only an http driver and null driver are
+implemented.</p>
+<h4 id="important-files">Important Files</h4>
+<ul>
+<li><code>app/data/blackbox</code> -- contains rust files implementing the blackbox:<ul>
+<li>core<ul>
+<li><code>blackbox.rs</code> -- high-level static API for use in macros.</li>
+<li><code>blackboxstate.rs</code> -- current state of blackbox on client.</li>
+<li><code>bbreportstream.rs</code> -- implements a single stream's pending contents.</li>
+</ul>
+</li>
+<li>drivers<ul>
+<li><code>blackboxdriver.rs</code> -- facade around driver implementations.</li>
+<li><code>httpblackboxdriver.rs</code> -- driver implementation for HTTP callbacks.</li>
+<li><code>nullblackboxdriver.rs</code> -- no-op driver implementation.</li>
+<li><code>stubdriver.rs</code> -- non-implementation of driver for production builds</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>macros.rs</code> -- macros to use blackbox in code.</li>
+<li><code>debug_mode.yaml</code> -- server side configuration</li>
+<li><code>POST /browser/debug</code> -- API endpoint</li>
+</ul>
+<h4 id="macros">Macros</h4>
+<p>The blackbox is used exclusively through macros.</p>
+<ul>
+<li><code>bb_time(stream,block)</code> -- execute block, timing it and adding to stream dataset.</li>
+<li><code>bb_metronome(stream)</code> -- add to dataset interval between each call to this macro for this stream</li>
+<li><code>bb_log(stream,format,args)</code> -- write formatted log message to stream</li>
+<li><code>bb_stack(string,block)</code> -- push "string" onto stack and execute block</li>
+</ul>
+<h4 id="payload-format-post-browserdebug">Payload Format (POST /browser/debug)</h4>
+<h5 id="client-to-server-payload">Client to Server Payload</h5>
+<p>POST request with raw JSON payload.</p>
+<pre><code>{
+  &quot;instance_id&quot;: &quot;&lt;string&gt;&quot;, /* browser-identifying string */
+  &quot;streams&quot;: {
+    &quot;&lt;stream-name&gt;&quot;: {
+      &quot;reports&quot;: [
+        {
+          &quot;time&quot;: &lt;number&gt;,   /* ms since unix epoch */
+          &quot;text&quot;: &quot;&lt;string&gt;&quot;, /* log contents */
+          &quot;stack&quot;: &quot;&lt;string&gt;&quot; /* stack at time of logging  */
+        },...
+      ],
+      &quot;dataset&quot;: [&lt;number&gt;,...] /* dataset. Key may be absent if not configured */
+      }
+    }, ...
+  }
+}
+</code></pre>
+
+<h5 id="server-to-client">Server to Client</h5>
+<p>POST request response with raw JSON payload. The whole contents of
+<code>debug_mode.yaml</code> are sent (ranscoded), though the server only reacts to some
+keys.</p>
+<pre><code>{
+  &quot;enabled&quot;: [&quot;&lt;string&gt;&quot;,...], /* streams to enable */
+  &quot;dataset&quot;: [&quot;&lt;string&gt;&quot;,...], /* datasets to enable (stream must also be enabled) */
+  &quot;interval&quot;: &lt;number&gt;, /* requested interval (in seconds) between updates */
+}
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../desc-source/" class="btn btn-neutral float-right" title="Source Code Structure">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../desc-source/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../fileurl.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>

@@ -1,11 +1,11 @@
-const MAX_GEAR : u32 = 4;
+const MAX_GEAR : u32 = 3;
 const MAX_GRACE: u32 = 300;
-const JANK_WINDOW: f32 = 60.;
+const JANK_WINDOW: f64 = 60.;
 
 pub struct JankBuster {
     gear: u32,    
     grace_next: (u32,u32),
-    grace_at: f32,
+    grace_at: f64,
     last_down: bool,
     enabled: bool
 }
@@ -40,25 +40,9 @@ impl JankBuster {
         self.last_down = true;
     }
 
-    pub fn disable(&mut self) {
-        if self.enabled {
-            self.enabled = false;
-            //self.gear = MAX_GEAR;
-            debug!("jank gear","lost focus");
-        }
-    }
-    
-    pub fn enable(&mut self) {
-        if !self.enabled {
-            self.enabled = true;
-            //self._reset();
-            debug!("jank gear","gained focus");
-        }
-    }
-
-    pub fn detect(&mut self, delta: u32, time: f32) {
+    pub fn detect(&mut self, burst: bool, time: f64) {
         if !self.enabled { return; }
-        if delta > self.gear as u32 * 20 {
+        if burst {
             if self.gear < MAX_GEAR {
                 /* Go up a gear */
                 if self.last_down {
@@ -76,10 +60,10 @@ impl JankBuster {
                     /* Moving */
                     self.grace_next = (1,1);
                 }
-                self.grace_at = time + self.grace_next.1 as f32;
+                self.grace_at = time + self.grace_next.1 as f64;
                 self.last_down = false;
                 self.gear += 1;
-                debug!("jank gear",">gear {:?} {:?}",self.gear,self.grace_next.1);
+                bb_log!("scheduler-jank",">gear {:?} {:?}",self.gear,self.grace_next.1);
             }
         }
         if self.grace_at <= time && self.gear > 1 {
@@ -91,7 +75,7 @@ impl JankBuster {
             self.grace_at = time + JANK_WINDOW;
             self.last_down = true;
             self.gear -= 1;
-            debug!("jank gear","<gear {:?} {:?}",self.gear,self.grace_next.1);
+            bb_log!("scheduler-jank","<gear {:?} {:?}",self.gear,self.grace_next.1);
         }
     }
     

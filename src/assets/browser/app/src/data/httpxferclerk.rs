@@ -194,12 +194,15 @@ impl XferBatchScheduler {
         self.batch = Some(PendingXferBatch::new(&self.config,&self.url,&self.pace,&self.cache));
     }
     
-    pub fn tick(&mut self) {
+    pub fn tick(&mut self) -> bool {
         if !self.batch.as_ref().unwrap().empty() && self.pace.preflight() {
             let batch = self.batch.take().unwrap();
             batch.fire(&mut self.http_manager);
             self.set_batch();
-        }        
+            true
+        } else {
+            false
+        }
     }
     
     pub fn add_request(&mut self, short_stick: &str, short_pane: &str,
@@ -271,13 +274,15 @@ impl HttpXferClerkImpl {
         }
     }
 
-    pub fn tick(&mut self) {
+    pub fn tick(&mut self) -> bool {
+        let mut any = false;
         if let Some(ref mut batch) = self.batch {
-            batch.tick();
+            any |= batch.tick();
         }
         if let Some(ref mut batch) = self.prime_batch {
-            batch.tick();
+            any |= batch.tick();
         }
+        any
     }
 
     pub fn set_config(&mut self, bc: BackendConfig) {
@@ -351,8 +356,8 @@ impl HttpXferClerk {
         self.0.borrow_mut().set_config(bc);
     }
     
-    pub fn tick(&mut self) {
-        self.0.borrow_mut().tick();
+    pub fn tick(&mut self) -> bool {
+        self.0.borrow_mut().tick()
     }
 }
 

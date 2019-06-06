@@ -7,28 +7,52 @@ use std::sync::{ Arc, Mutex };
 use stdweb::unstable::TryInto;
 use stdweb::web::{ HtmlElement, Element, IHtmlElement, window };
 use url::Url;
+use util::set_instance_id;
 
 use controller::input::{
-    register_startup_events, register_shutdown_events,
-    Timers
+    register_startup_events, register_shutdown_events
 };
 use controller::global::{ AppRunner, Booting };
+use controller::scheduler::{ Scheduler, SchedulerGroup };
 use data::{ BackendConfigBootstrap, HttpManager };
 use dom::domutil;
+use dom::domutil::browser_time;
+
+const SCHEDULER_ALLOC : f64 = 12.; /* ms per raf */
 
 pub struct GlobalImpl {
     apps: HashMap<String,AppRunner>,
     http_manager: HttpManager,
-    timers: Timers
+    scheduler: Scheduler,
+    sched_group: SchedulerGroup
 }
 
 impl GlobalImpl {
     pub fn new() -> GlobalImpl {
-        GlobalImpl {
+        let scheduler = Scheduler::new();
+        let sched_group = scheduler.make_group();
+        let mut out = GlobalImpl {
             apps: HashMap::<String,AppRunner>::new(),
             http_manager: HttpManager::new(),
-            timers: Timers::new()
-        }
+            scheduler,
+            sched_group
+        };
+        out.init();
+        out
+    }
+
+    fn init(&mut self) {
+        self.scheduler.set_timesig(2);
+        let http_manager = self.http_manager.clone();
+        self.sched_group.add("http-manager",Box::new(move |sr| {
+            if !http_manager.tick() {
+                sr.unproductive();
+            }
+        }),3,false);
+    }
+
+    pub fn scheduler_clone(&self) -> Scheduler {
+        self.scheduler.clone()
     }
 
     pub fn destroy(&mut self) {
@@ -81,8 +105,8 @@ impl Global {
     }
     
     pub fn tick(&mut self) {
-        let http_manager = self.0.borrow().http_manager.clone();
-        http_manager.tick();
+        let sched = self.0.borrow_mut().scheduler_clone();
+        sched.beat(SCHEDULER_ALLOC);
         let mut out = self.clone();
         window().request_animation_frame(
             move |t| out.tick()
@@ -116,6 +140,10 @@ impl Global {
         self.0.borrow_mut().register_app(key,ar);
     }
     
+    pub fn scheduler_clone(&self) -> Scheduler {
+        self.0.borrow().scheduler_clone()
+    }
+    
     #[allow(unused,dead_code)]
     pub fn with_apprunner<F,G>(&mut self, key: &str, cb:F) -> Option<G>
             where F: FnOnce(&mut AppRunner) -> G {
@@ -147,6 +175,11 @@ fn find_main_element() -> Option<HtmlElement> {
 }
 
 pub fn setup_global() {
+    let inst_bytes = (browser_time() as i64).to_be_bytes();
+    let mut inst_id = base64::encode_config(&inst_bytes,base64::URL_SAFE_NO_PAD);
+    let len = inst_id.len();
+    let inst_id = inst_id.split_off(len-6);
+    set_instance_id(&inst_id);
     let g = Arc::new(Mutex::new(Global::new()));
     register_startup_events(&g);
     register_shutdown_events(&g);
