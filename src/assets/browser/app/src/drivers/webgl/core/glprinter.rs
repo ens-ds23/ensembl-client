@@ -117,8 +117,7 @@ impl GLPrinterBase {
         let mut vp_sz = Dot(s.0.round() as i32,s.1.round() as i32);
         let mut css = "width: 100%; height: 100%".to_string();
         if self.round_size {
-            vp_sz = Dot(((vp_sz.0+3)/4)*4,((vp_sz.1+3)/4)*4);
-            css = format!("width: {}px; height: {}px",s.0,s.1);
+            css = format!("width: {}px; height: {}px",vp_sz.0,vp_sz.1);
         }
         self.round_size = false;
         let elel: Element =  self.canv_el.clone().into();
