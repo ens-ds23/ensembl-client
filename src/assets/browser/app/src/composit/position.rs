@@ -6,7 +6,7 @@ use types::{ Dot, Direction, LEFT, RIGHT, UP, DOWN, IN, OUT, AxisSense };
 pub struct Position {
     pos: Dot<f64,f64>,
     zoom: Zoom,
-    screen_size: Dot<i32,i32>,
+    screen_size: Dot<f64,f64>,
     max_y: i32,
     min_x: f64,
     max_x: f64,
@@ -15,7 +15,7 @@ pub struct Position {
 }
 
 impl Position {
-    pub fn new(pos: Dot<f64,f64>, screen_size: Dot<i32,i32>) -> Position {
+    pub fn new(pos: Dot<f64,f64>, screen_size: Dot<f64,f64>) -> Position {
         Position {
             screen_size, pos,
             zoom: Zoom::new(0.),
@@ -25,12 +25,13 @@ impl Position {
         }
     }
         
-    pub fn inform_screen_size(&mut self, screen_size: &Dot<i32,i32>) {
+    pub fn inform_screen_size(&mut self, screen_size: &Dot<f64,f64>) {
         self.screen_size = *screen_size;
         self.check_own_limits();
     }
     
     pub fn set_middle(&mut self, pos: &Dot<f64,f64>) {
+        bb_log!("resize","set_middle");
         self.pos = *pos;
         self.check_own_limits();
     }
@@ -56,9 +57,11 @@ impl Position {
     }
     
     pub fn settle(&mut self) {
-        //console!("screen width {}bp {}px",self.get_screen_in_bp(),self.screen_size.0);
-        if self.screen_size.0 > 0 {
-            let x_round = self.get_screen_in_bp() / self.screen_size.0 as f64;
+        bb_log!("resize","settle: screen width {}bp {}px",self.get_screen_in_bp(),self.screen_size.0);
+        if self.screen_size.0 > 0. {
+            let screen_px = self.screen_size.0.round() as i32;
+            let x_round = self.get_screen_in_bp() / screen_px as f64;;
+            bb_log!("resize","round to {:?}bp",x_round);
             self.pos.0 = (self.pos.0 / x_round).round() * x_round;
         }
         self.pos.1 = self.pos.1.round();
@@ -100,6 +103,7 @@ impl Position {
     }
 
     pub fn get_middle(&self) -> Dot<f64,f64> {
+        bb_log!("resize","get_middle={:?}",self.pos);
         Dot(self.pos.0,self.pos.1)
     }
 

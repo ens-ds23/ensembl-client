@@ -159,7 +159,7 @@ impl AppRunner {
             self.add_timer("resizer",move |app,t,sr| {
                 app.check_size();
                 vec![]
-            },4);
+            },0);
         }
         bb_log!("main","debug reporter initialised");
     }

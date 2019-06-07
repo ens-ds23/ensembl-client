@@ -12,7 +12,7 @@ use types::{
 
 #[derive(Debug)]
 pub struct Stage {
-    dims: CPixel,
+    dims: Dot<f64,f64>,
     mouse_pos: CPixel,
     base: f64,
     pos: Position,
@@ -20,7 +20,7 @@ pub struct Stage {
 
 impl Stage {
     pub fn new() -> Stage {
-        let size = cpixel(0,0);
+        let size = Dot(0.,0.);
         Stage {
             pos: Position::new(Dot(0.,0.),size),
             mouse_pos: Dot(0,0),
@@ -122,26 +122,27 @@ impl Stage {
         self.pos.set_middle(pos);
     }
 
-    pub fn get_size(&self) -> CPixel {
+    pub fn get_size(&self) -> Dot<f64,f64> {
         self.dims
     }
 
-    pub fn set_size(&mut self, size: &CPixel) {
+    pub fn set_size(&mut self, size: &Dot<f64,f64>) {
         self.dims = *size;
         self.pos.inform_screen_size(size);
     }
 
     pub fn get_uniforms(&self, leaf: &Leaf, opacity: f32) -> HashMap<&str,UniformValue> {
-        let z = self.pos.get_linear_zoom();
-        let zl = leaf.total_bp();
-        let ls = z as f64 / zl;
-        let middle = self.pos.get_middle();
-        let x = middle.0*ls/z as f64;
+        let bp_per_screen = self.pos.get_linear_zoom();
+        let bp_per_leaf = leaf.total_bp();
+        let leaf_per_screen = bp_per_screen as f64 / bp_per_leaf;
+        let middle_bp = self.pos.get_middle();
+        let middle_leaf = middle_bp.0/bp_per_leaf; // including fraction of leaf
+        let current_leaf_left = (leaf.get_index() as f64);
         hashmap! {
             "uOpacity" => UniformValue::Float(opacity),
-            "uStageHpos" => UniformValue::Float((x - leaf.get_index() as f64) as f32),
-            "uStageVpos" => UniformValue::Float(middle.1 as f32),
-            "uStageZoom" => UniformValue::Float((2_f64/ls) as f32),
+            "uStageHpos" => UniformValue::Float((middle_leaf - current_leaf_left) as f32),
+            "uStageVpos" => UniformValue::Float(middle_bp.1 as f32),
+            "uStageZoom" => UniformValue::Float((2_f64/leaf_per_screen) as f32),
             "uSize" => UniformValue::Vec2F(
                 self.dims.0 as f32/2.,
                 self.dims.1 as f32/2.)

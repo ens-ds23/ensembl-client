@@ -42,7 +42,7 @@ impl Printer for PrinterManager {
     }
     
     /* Set your size to this */
-    fn set_size(&mut self, s: Dot<i32,i32>) {
+    fn set_size(&mut self, s: Dot<f64,f64>) {
         self.0.borrow_mut().printer.set_size(s);
     }
     
@@ -53,7 +53,7 @@ impl Printer for PrinterManager {
     /* How much size is available to expand into, should you be
      * requested to do so?
      */
-    fn get_available_size(&self) -> Dot<i32,i32> {
+    fn get_available_size(&self) -> Dot<f64,f64> {
         self.0.borrow().printer.get_available_size()
     }
     

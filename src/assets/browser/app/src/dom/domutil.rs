@@ -15,7 +15,7 @@ use dom::webgl::{
     WebGLRenderingContext as glctx,
 };
 
-use types::{ CPixel, cpixel, RPixel, area };
+use types::{ CPixel, cpixel, RPixel, area, Dot, Rect };
 
 pub fn query_selector_ok(root: &HtmlElement, sel: &str, message: &str) -> Element {
     let x : Option<Element> = ok!(root.query_selector(sel));
@@ -48,29 +48,29 @@ pub fn query_select(sel: &str) -> Element {
     document().query_selector(sel).unwrap().unwrap()
 }
 
-pub fn size(el: &HtmlElement) -> CPixel {
+pub fn size(el: &HtmlElement) -> Dot<f64,f64> {
     let r = el.get_bounding_client_rect();
-    cpixel(r.get_width() as i32,r.get_height() as i32)
+    Dot(r.get_width(),r.get_height())
 }
 
-pub fn window_size() -> CPixel {
+pub fn window_size() -> Dot<f64,f64> {
     let v : Vec<f64> = js! { 
         return [document.documentElement.clientWidth,
                 document.documentElement.clientHeight];
     }.try_into().unwrap();
-    cpixel(v[0] as i32,v[1] as i32)
+    Dot(v[0],v[1])
 }
 
-pub fn position(el: &HtmlElement) -> RPixel {
+pub fn position(el: &HtmlElement) -> Rect<f64,f64> {
     let r = el.get_bounding_client_rect();
-    area(cpixel(r.get_left() as i32,r.get_top() as i32),
-         cpixel(r.get_right() as i32,r.get_bottom() as i32))
+    area(Dot(r.get_left(),r.get_top()),
+         Dot(r.get_right(),r.get_bottom()))
 }
 
-pub fn window_space(el: &HtmlElement) -> RPixel {
+pub fn window_space(el: &HtmlElement) -> Rect<f64,f64> {
     let pos = position(el).rectangle();
     let wsz = window_size();
-    area(pos[0],cpixel(wsz.0-pos[2].0,wsz.1-pos[2].1))
+    area(pos[0],Dot(wsz.0-pos[2].0,wsz.1-pos[2].1))
 }
 
 pub fn add_attr(el: &Element,key: &str, more: &str) {

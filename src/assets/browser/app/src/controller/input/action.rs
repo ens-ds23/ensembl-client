@@ -9,7 +9,7 @@ pub enum Action {
     Move(Move<f64,f64>),
     Zoom(f64),
     ZoomTo(f64),
-    Resize(Dot<i32,i32>),
+    Resize(Dot<f64,f64>),
     AddComponent(String),
     SetStick(String),
     SetState(String,bool),
@@ -66,14 +66,11 @@ fn exe_zoom_event(app: &App, z: f64, by: bool) {
     app.with_compo(|co| { co.set_zoom(z); co.set_position(middle); });
 }
 
-fn exe_resize(cg: &App, sz: Dot<i32,i32>) {
-    cg.with_stage(|s| {
-        s.set_size(&sz);
-    });
-    cg.force_size();
+fn exe_resize(cg: &mut App, sz: Dot<f64,f64>) {
+    cg.force_size(sz);
 }
 
-fn exe_settled(app: &App) {
+fn exe_settled(app: &mut App) {
    app.settle(); 
 }
 

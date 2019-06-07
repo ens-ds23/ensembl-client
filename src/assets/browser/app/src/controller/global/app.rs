@@ -20,7 +20,7 @@ use model::driver::{ Printer, PrinterManager };
 use tácode::Tácode;
 use types::Dot;
 
-const SETTLE_TIME : f64 = 100.; // ms
+const SETTLE_TIME : f64 = 500.; // ms
 const CANVAS : &str = r##"<canvas id="canvas"></canvas>"##;
 
 pub struct App {
@@ -37,8 +37,9 @@ pub struct App {
     csl: SourceManagerList,
     http_clerk: HttpXferClerk,
     als: AllLandscapes,
-    size: Option<Dot<i32,i32>>,
-    last_resize_at: Option<f64>
+    size: Option<Dot<f64,f64>>,
+    last_resize_at: Option<f64>,
+    stage_resize: Option<Dot<f64,f64>>
 }
 
 impl App {
@@ -69,6 +70,7 @@ impl App {
             http_clerk: clerk,
             als: AllLandscapes::new(),
             size: None,
+            stage_resize: None,
             last_resize_at: None
         };
         let dsm = CombinedSourceManager::new(&tc,config,&out.als,&out.http_clerk);
@@ -179,12 +181,18 @@ impl App {
         }
     }
  
-    pub fn force_size(self: &App) {
-        let stage = self.stage.lock().unwrap();
+    pub fn force_size(self: &mut App, sz: Dot<f64,f64>) {
+        self.stage_resize = Some(sz);
+        let mut stage = self.stage.lock().unwrap();
+        stage.set_size(&sz);
         self.printer.lock().unwrap().set_size(stage.get_size());
     }
     
-    pub fn settle(&self) {
+    pub fn settle(&mut self) {
+        if let Some(size) = self.stage_resize.take() {
+            let mut stage = self.stage.lock().unwrap();
+            stage.set_size(&size);
+        }
         self.printer.lock().unwrap().settle();
     }
 }

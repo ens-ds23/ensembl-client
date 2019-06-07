@@ -13,7 +13,7 @@ pub trait Printer {
     fn destroy(&mut self);
     
     /* Set your size to this */
-    fn set_size(&mut self, s: Dot<i32,i32>);
+    fn set_size(&mut self, s: Dot<f64,f64>);
     
     /* no recent resizes, etc */
     fn settle(&mut self);
@@ -21,7 +21,7 @@ pub trait Printer {
     /* How much size is available to expand into, should you be
      * requested to do so?
      */
-    fn get_available_size(&self) -> Dot<i32,i32>;
+    fn get_available_size(&self) -> Dot<f64,f64>;
     
     fn add_leaf(&mut self, leaf: &Leaf);
     fn remove_leaf(&mut self, leaf: &Leaf);
