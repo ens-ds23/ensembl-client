@@ -15,7 +15,6 @@ type BrowserCogProps = {
   cogActivated: boolean;
   index: string;
   updateSelectedCog: (index: string) => void;
-  ypos: number;
 };
 
 const BrowserCog: FunctionComponent<BrowserCogProps> = (
@@ -62,13 +61,11 @@ const BrowserCog: FunctionComponent<BrowserCogProps> = (
           <img src={cogIcon} style={imgInline} alt="Configure track" />
         </button>
       </div>
-      {cogActivated && <BrowserTrackConfig ypos={props.ypos} />}
-
       {transitions.map(({ item, key, props: style }) => {
         return (
           item && (
             <animated.div key={key} style={style}>
-              {<BrowserTrackConfig ypos={props.ypos} />}
+              <BrowserTrackConfig />
             </animated.div>
           )
         );

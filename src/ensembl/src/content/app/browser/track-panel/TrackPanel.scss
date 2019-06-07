@@ -2,7 +2,8 @@
 
 .trackPanelWrapper {
   @include flex;
-  float: left;
+  position: absolute;
+  right: 0;
 }
 
 .trackPanel {

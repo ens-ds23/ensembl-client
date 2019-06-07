@@ -7,9 +7,18 @@
 }
 
 .browserInnerWrapper {
-  height: calc(100vh - 177px);
   position: absolute;
+  overflow: hidden;
+  width: 100vw;
   @include flex;
+  transition: height 0.3s linear;
+  &.shorter {
+    height: calc(100vh - 194px);
+  }
+
+  &.taller {
+    height: calc(100vh - 146px);
+  }
 }
 
 .browserImageWrapper {

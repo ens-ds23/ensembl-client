@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import TrackPanelBar from './track-panel-bar/TrackPanelBar';
 import TrackPanelList from './track-panel-list/TrackPanelList';
 import TrackPanelModal from './track-panel-modal/TrackPanelModal';
-
+import Drawer from '../drawer/Drawer';
 import { RootState } from 'src/store';
 
 import {
@@ -34,7 +34,7 @@ import { getBreakpointWidth } from 'src/global/globalSelectors';
 import { ChrLocation } from '../browserState';
 import { BreakpointWidth } from 'src/global/globalConfig';
 import { TrackType } from './trackPanelConfig';
-
+import { useSpring, animated } from 'react-spring';
 import styles from './TrackPanel.scss';
 
 type StateProps = {
@@ -78,8 +78,31 @@ const TrackPanel: FunctionComponent<TrackPanelProps> = (
     }
   }, [props.breakpointWidth, props.toggleTrackPanel]);
 
+  const [trackAnimation, setTrackAnimation] = useSpring(() => ({
+    config: { tension: 280, friction: 45 },
+    height: '100%',
+    position: 'absolute' as 'absolute',
+    display: 'block',
+    left: 'calc(-356px + 100vw)'
+  }));
+
+  const getbrowserWidth = (): string => {
+    if (props.drawerOpened) {
+      return 'calc(41px + 0vw)';
+    }
+    return props.trackPanelOpened
+      ? 'calc(-356px + 100vw)'
+      : 'calc(-36px + 100vw)';
+  };
+
+  useEffect(() => {
+    setTrackAnimation({
+      left: getbrowserWidth()
+    });
+  }, [props.drawerOpened, props.trackPanelOpened]);
+
   return (
-    <section className={`${styles.trackPanelWrapper} reactSlideDrawer`}>
+    <animated.div style={trackAnimation}>
       {props.browserActivated && props.ensObjectInfo.associated_object ? (
         <div className={styles.trackPanel}>
           <TrackPanelBar
@@ -114,9 +137,10 @@ const TrackPanel: FunctionComponent<TrackPanelProps> = (
               trackPanelModalView={props.trackPanelModalView}
             />
           ) : null}
+          {props.drawerOpened && <Drawer />}
         </div>
       ) : null}
-    </section>
+    </animated.div>
   );
 };
 
