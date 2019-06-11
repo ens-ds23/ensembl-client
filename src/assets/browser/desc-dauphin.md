@@ -1,4 +1,18 @@
-# Dauphin
+# Dauphin Language Specification
+
+## Design Considerations
+
+Dauphin is an odd language, and it is odd for a reason that should be explained up front.
+
+The design is driven by the need for efficient handling of data in the *interpreter* (tánaiste) in a challenging environment. We have to work our way through an awful lot of data in a real-time, embeded environment, to be able to manipulate the data arbitrarily, but to minimise implementation effort. Without these constraints, many other languages would serve our purposes and dauphin would not exist at all.
+
+The main efficiency bound on tánaiste is to minimise the number of instruction dispatches. Between dispatches, time-consuming operations must take place (such as checking timing). We cannot afford anything which scales the number of dispatches by the data size: we need a vector language.
+
+At the same time, our data is moderately rich and of various complex, structured types (it's not, for example, merely real-valued time series data).
+
+Dauphin is designed to paper over the complexity and strangeness of tánaiste. As a domain-specific application, some consideration is made to making common tasks easy even if it makes rare ones rather odd.
+
+Much of the discussion below specifies the behaviour of the odd corners of tánaiste and dauphin and this document is not a good place to learn the language.
 
 ## Types
 
@@ -11,12 +25,12 @@ Dauphin types are built from atoms. The currently defined atomic types are
 
 Atoms may be assembled into structured types. Permissible structures are:
 
-  * **structs**: records of a defined shape accessed by keys referencing values;
-  * **tuples**: records of a defined length accessed by indexes referencing values;
+  * **structs**: records of a defined shape, accessed by keys referencing values;
+  * **tuples**: records of a defined length, accessed by indexes referencing values;
   * **enums**: descriminated unions of values;
   * **vectors**: sequences of values of the same type;
 
-The above structured types may be nested but not defined recursively (ie they must be of finite, specified depth).
+The above structured types may be nested, but not defined recursively (ie they must be of finite, specified depth).
 
 ## Types
 
@@ -35,41 +49,88 @@ For example:
  * `[[float]]`: a two-dimensional vector of floats
  * `[{ start: float, end: float, strand: boolean }]` a vector of start/end/strand structs
  * `[(float,float)]` a vector of float pairs
- * `[<gene(string), transcript((string,string))>]` a vector of genes or transcripts, genes having one string argument, transcripts a tuple of two.
+ * `[<gene(string), transcript((string,string))>]` a vector of genes or transcripts, genes having one string argument, transcripts a tuple of two strings.
 
-Note that brackets always introduce a tuple and so `(string)` is different to `string`, for example.
+Note that brackets always introduce a tuple, and so `(string)` is different to `string`, for example.
+
+### Reference Expressions
+
+A reference expression accesses the inside of a (potentially complex, structured) type to retrieve, set, update or delete values. In dauphin, reference expressions are always sequences of zero-or-more references. Reference expressions are represented in documentation by the meta-syntactic convention `«x,x,...»` to distinguish it from dauphin syntax.
+
+In particular, the reference expression for a variable `x` is the set `«x»` and qualifiers of 
+
+  * a **struct** replace each value in the reference expression by the value of the corresponding key;
+  * a **tuple** replace each value in the reference expression by the value of the corresponding index;
+  * an **enum** replaces each value in the reference expression which matches the enum with the enum contents and removes any which do not match
+  * a **vector** replaces each value in the reference expression by the union of the set of values matching the given predicate.
+  
+For example, for a variable `x` of type `(float,[<a(string),b(string)>])` and value `(42,[a(1),b(2),a(3)])`:
+
+  * `x` matches `«(42)»`
+  * `x.0` matches `«42»`
+  * `x.1` matches `«[a(1),b(2),a(3)]»`
+  * `x.1[0]` matches `«a(1)]»`
+  * `x.1[@<2]` matches `«a(1),b(2)»`
+  * `x.1[@<2].b` matches `«2»`
+  * `x.1[@=1]` matches `«b(2)»`
+  * `x.1[@=1].a` matches `«»`
+
+Operations are defined in terms of their behaviour with respect to reference expressions, including their behaviour when vectors differ in length. (See the discussion on *driving expressions* below).
+
 
 ## Vectors
 
-Vectors are the fundamental structuring type of dauphin, the only structure which is carried over to dáuphin, the only structure which is not mere syntactic-sugar, and the only structure which can represent an aribtrary length of data.
+Vectors are the fundamental structuring type of dauphin. They are
 
-### Driving Arguments
+  * the only structure which is carried over to tánaiste, 
+  * the only structure which is not mere syntactic-sugar, and 
+  * the only structure which can represent an aribtrary length of data.
 
-As vector operations take as arguments quantities of variable length, a strategy is needed to handle vectors of varying length. The *driving* argument of an operation determines the size of the ultimate output. Other sequences are either incompletely used (if longer than the driving sequence), or wrap around (if shorter).
+### Driving Expressions
 
-For exmaple, consider a hypothetical opertaion `(+)` which adds its arguments and
-for which the first value is its driving argument. In this case 
+As expressions take as arguments quantities of variable length (reference expressions), a strategy is needed to handle arguments of reference expressions of varying length. Most operations use *driving expressions* to manage this. One argument is identified as the driving expression in the operation definition. This driving expression determines the size of the ultimate output. Other expressions are either incompletely used (if longer than the driving expression), or wrap around (if shorter).
 
-  * `[1,2,3,4,5] (+) [1] = [2,3,4,5,6]`
-  * `[1] (+) [1,2,3,4,5] = [2]`
-  * `[1,2,3,4,5] (+) [1,0] = [2,2,4,4,6]`
-  * `[1,0] (+) [1,2,3,4,5] = [2,3]`
+For exmaple, consider the opertaion `(+)` which adds its arguments and for which the *first* value is its driving expression. In this case 
 
-For assignment this rule is generally also held. A special assignment operator `::=` switches the driving argument to the target of the assignment. The current length of the assignment target then being used as the driving length.
-
+  * `«1,2,3,4,5» (+) «1» = «2,3,4,5,6»`
+  * `«1» (+) «1,2,3,4,5» = «2»`
+  * `«1,2,3,4,5» (+) «1,0» = «2,2,4,4,6»`
+  * `«1,0» (+) «1,2,3,4,5» = «2,3»`
+ 
+ For the above examples in concrete syntax (see later secion on *vector predicates*), if `x := [0,1,2,3,4,5]`:
+ 
+  * `x := x[@>0] (+) x[$=1]` then `x: [2,3,4,5,6]`
+  * `x := x[$=1] (+) x[@>0]` then `x: [2]`
+  * `x := x[@>0] (+) x[$=1,$=0]` then `x: [2,2,4,4,6]`
+  * `x := x[$=1,$=0] (+) x[@>0]` then `x: [2,3]`
+ 
 ### Vector Predicates
 
-Vector predicates are fundamental to dauphin. Under the hood most types are mappable to sets of vectors and many apparently unrelated syntaxes to vector predicates.
+A vector predicate is a predicate which filters the indices of a vector of some operation. This predicate can be expressed in terms of its index (through the use of `@`) or its value (throught the use of `$`). For example, for the value `x`
 
-A vector predicate is a predicate which filters the indices of a vector of some operation. This predicated can be expressed in terms of its index (through the use of `@`) or its value (throught the use of `$`). For example, for the value `x`
+* `x[@=1] := 3` sets index 1 of x to 3
+* `x[$=1] := 3` sets all values of x which are 1 to 3
 
-* `x[@==1] := 3` sets index 1 of x to 3
-* `x[$==1] := 3` sets all values of x which are 1 to 3
-* `x[@%2==1 && $!=0] ::= y[@%2==0]` sets the non-zero odd values of x to the even values of y.
+A sequence of predicates, separated by comma, concatenates the lists generated by each predicate in turn. For example, if `x := [1,2,3,4,5]` then `x[@>2,$>1]` creates reference expression `«4,5,2,3,4,5»` where the `4` and `5` refer to the same cell. In this case, if used as an lvalue, those cells would be updated twice! For example, `x := x[@>2,$>1] (+) 1` would set x to `[1,3,4,6,7]`. This behaviour is defined, but is not behaviour to deliberately exploit in clean code.
+
+### Vector Predicate Mini-Language
+
+Essentially all dauphin conditionals occur inside vector predicates. The following values are provided:
+
+ * `@` current position (zero-based)
+ * `$` current value
+ 
+and the following predicates:
+
+ * `=` compare for equality
+ * `>`, `<` greater, less (resp)
+ * `!(pred)` negation of pred
+ * `!=` shorthand for `!(..=..)`
+ * `&`,`|` and, or (resp)
+
+**TODO**: expression mini-language or inherit. Inherit simpler but can we do it given indexes?
 
 # Tánaiste (Dauphin bytecode)
-
-## Design Considerations
 
 ## Types
 
