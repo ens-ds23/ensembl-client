@@ -37,6 +37,7 @@ Test & Build:
   - npm run test
   - export NODE_ENV=production
   - export API_HOST=''
+  - npm cache verify && npm cache clean --force
   - npm run build
 
   artifacts:
