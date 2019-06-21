@@ -23,8 +23,7 @@ Test:
   - npm run test
 
   except:
-  - dev
-  - master
+  - cicd-test
 
 Test & Build:
   image: node:10.15.1
@@ -46,8 +45,7 @@ Test & Build:
     - src/ensembl/dist/
 
   only:
-  - dev
-  - master
+  - cicd-test
 
 Nginx:
   image: docker
@@ -75,8 +73,7 @@ Nginx:
   - docker logout "$GITLAB_REGISTRY_URL"
 
   only:
-  - dev
-  - master
+  - cicd-test
 
 Staging:
   stage: deploy
@@ -100,7 +97,7 @@ Staging:
   - kubectl config use-context ens-stage-ctx
   - kubectl apply -f ensembl-client-caas-deploy/ensembl_client_deployment.yaml
   only:
-  - dev
+  - cicd-test
 
 Live:
   stage: deploy
