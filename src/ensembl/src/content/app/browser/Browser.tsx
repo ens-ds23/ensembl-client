@@ -171,7 +171,9 @@ export const Browser: FunctionComponent<BrowserProps> = (
   }, [props.match.params.genomeId]);
 
   useEffect(() => {
-    props.fetchExampleEnsObjects(props.activeGenomeId);
+    if (props.genomeInfo[props.activeGenomeId]) {
+      props.fetchExampleEnsObjects(props.activeGenomeId);
+    }
   }, [props.genomeInfo]);
 
   useEffect(() => {

@@ -74,6 +74,11 @@ class ApiService {
   }
 
   private async handleResponse(response: Response, options: FetchOptions) {
+    if (response.status >= 400) {
+      return {
+        error: await response.json()
+      };
+    }
     if (options.headers && options.headers['Accept'] === 'application/json') {
       return await response.json();
     } else {
