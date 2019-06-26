@@ -114,7 +114,7 @@ fn custom_make_events(j: &JSONValue) -> Vec<Action> {
             out.append(&mut custom_make_one_event_key(k,v));
         }
     }
-    console!("receive/A {:?}",out);
+    console!("receive/A {}",j);
     out
 }
 

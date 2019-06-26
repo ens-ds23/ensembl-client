@@ -182,16 +182,15 @@ export const Browser: FunctionComponent<BrowserProps> = (
   }, [props.genomeInfo]);
 
   useEffect(() => {
-    const { focus } = props.browserQueryParams;
+    const { focus, location } = props.browserQueryParams;
     const { genomeId } = props.match.params;
-    let location = props.chrLocation[genomeId];
-    if (!location && props.browserQueryParams.location) {
-      location = getChrLocationFromStr(props.browserQueryParams.location);
-    }
-    if (!location || !focus) {
+    const parsedLocation = location && getChrLocationFromStr(location);
+
+    if (!parsedLocation || !focus) {
       return;
     }
-    dispatchBrowserLocation(location);
+
+    dispatchBrowserLocation(parsedLocation);
     props.fetchEnsObject(focus, genomeId);
     props.fetchEnsObjectTracks(focus, genomeId);
     props.updateBrowserActiveEnsObjectIdAndSave(focus);

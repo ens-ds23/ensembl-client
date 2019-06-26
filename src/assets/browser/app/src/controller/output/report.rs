@@ -73,7 +73,6 @@ lazy_static! {
     };
 }
 
-
 pub struct ReportImpl {
     pieces: HashMap<String,String>,
     outputs: HashMap<String,StatusOutput>

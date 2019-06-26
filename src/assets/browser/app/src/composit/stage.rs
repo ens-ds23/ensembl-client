@@ -162,9 +162,9 @@ impl Stage {
                 let se = r.far_offset();
                 bb_log!("zmenu","Q {:?}<={:?}[{:?}+{:?}*{:?}]<={:?} {:?}<={:?}<={:?}",
                             nw.0,pos_bp,left_bp,pos.0,bp_px,se.0,
-                            nw.1,pos.1,se.1);
+                            nw.1,pos.1+top_px as i32,se.1);
                 nw.0 as f64 <= pos_bp && se.0 as f64 >= pos_bp &&
-                nw.1 <= pos.1 && se.1 >= pos.1
+                nw.1 <= pos.1+top_px as i32 && se.1 >= pos.1+top_px as i32
             },
             Placement::Placed(x,y) => {
                 let (x0,x1) = match x {

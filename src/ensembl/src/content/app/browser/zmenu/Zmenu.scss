@@ -12,10 +12,11 @@ $zmenuBackgroundColor: $ens-black;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 5px 20px;
+  padding: 12px 20px;
   color: $ens-white;
   background-color: $zmenuBackgroundColor;
   min-height: 40px;
+  font-size: 13px;
 }
 
 .zmenuTip {
@@ -29,18 +30,17 @@ $zmenuBackgroundColor: $ens-black;
 .zmenuContentFeature {
   margin: 0;
   &:not(:last-of-type) {
-    margin: 0 0 0.5em;
+    margin-bottom: 1em;
   }
 }
 
 .zmenuContentLine {
   display: block;
-  line-height: 1;
 }
 
 .zmenuContentBlock {
   &:not(:last-child) {
-    margin-right: 1em;
+    margin-right: 1.1em;
   }
 }
 

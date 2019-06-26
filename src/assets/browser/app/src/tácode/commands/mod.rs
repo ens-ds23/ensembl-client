@@ -17,6 +17,6 @@ pub use self::ruler::RulerI;
 pub use self::text::{ TextI, Text2I };
 pub use self::twiddle::{
     ElideI, NotI, PickI, AllI, IndexI, RunsI, RunsOfI, GetI, MergeI,
-    AccNI, LengthI, LengthsI, BurstI
+    AccNI, LengthI, LengthsI, BurstI, PicksI
 };
 pub use self::zmenu::{ ZTmplSpecI, ZTmplI, ZMenuI };

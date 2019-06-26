@@ -6,7 +6,7 @@ use super::super::commands::{
     ExtentI, AllI, BinOpI, BinOpType, TextI, IndexI, RunsI, RunsOfI,
     GetI, ScaleI, MergeI, AccNI, MemberI, PlotI, RulerI, AllPlotsI,
     LengthI, SetPartI, ImageI, AssetI, Text2I, LengthsI, BurstI, ZTmplI,
-    ZMenuI
+    ZMenuI, PicksI
 };
 use super::super::shapecmd::ShapeI;
 
@@ -20,6 +20,7 @@ pub fn instruction_bundle_app(tc: &TáContext) -> InstructionBundle {
         Box::new(NotI()),
         Box::new(AllI()),
         Box::new(PickI()),
+        Box::new(PicksI()),
         Box::new(IndexI()),
         Box::new(RunsI()),
         Box::new(RunsOfI()),
