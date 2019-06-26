@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 import { getCommittedSpecies } from 'src/content/app/species-selector/state/speciesSelectorSelectors';
 import {
-  toggleSpeciesUse,
+  toggleSpeciesUseAndSave,
   deleteSpeciesAndSave
 } from 'src/content/app/species-selector/state/speciesSelectorActions';
 import * as urlFor from 'src/shared/helpers/urlHelper';
@@ -15,7 +15,7 @@ import { RootState } from 'src/store';
 import { CommittedItem } from 'src/content/app/species-selector/types/species-search';
 
 import styles from './SpeciesSelectorAppBar.scss';
-import appBarStyles from 'src/content/app/AppBar.scss';
+import appBarStyles from 'src/shared/app-bar/AppBar.scss';
 
 type Props = {
   selectedSpecies: CommittedItem[];
@@ -32,8 +32,10 @@ export const PlaceholderMessage = () => (
 
 export const SpeciesSelectorAppBar = (props: Props) => {
   return (
-    <div>
-      <div className={appBarStyles.top}>Species Selector</div>
+    <div className={appBarStyles.appBar}>
+      <div className={appBarStyles.appBarTop}>
+        <div className={appBarStyles.top}>Species Selector</div>
+      </div>
       <div className={styles.main}>
         {props.selectedSpecies.length > 0 ? (
           <SelectedSpeciesList {...props} />
@@ -46,6 +48,8 @@ export const SpeciesSelectorAppBar = (props: Props) => {
 };
 
 const SelectedSpeciesList = (props: Props) => {
+  const shouldLinkToGenomeBrowser =
+    props.selectedSpecies.filter(({ isEnabled }) => isEnabled).length > 0;
   return (
     <>
       {props.selectedSpecies.map((species) => (
@@ -56,9 +60,11 @@ const SelectedSpeciesList = (props: Props) => {
           onRemove={props.onSpeciesDelete}
         />
       ))}
-      <div className={styles.genomeBrowserLinkContainer}>
-        <Link to={urlFor.browser()}>View in Genome Browser</Link>
-      </div>
+      {shouldLinkToGenomeBrowser && (
+        <div className={styles.genomeBrowserLinkContainer}>
+          <Link to={urlFor.browser()}>View in Genome Browser</Link>
+        </div>
+      )}
     </>
   );
 };
@@ -68,7 +74,7 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 const mapDispatchToProps = {
-  toggleSpeciesUse,
+  toggleSpeciesUse: toggleSpeciesUseAndSave,
   onSpeciesDelete: deleteSpeciesAndSave
 };
 

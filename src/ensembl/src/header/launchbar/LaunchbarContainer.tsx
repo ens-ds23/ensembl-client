@@ -1,7 +1,7 @@
 import React, { FunctionComponent, memo } from 'react';
 import { connect } from 'react-redux';
 
-import { getCommittedSpecies } from 'src/content/app/species-selector/state/speciesSelectorSelectors';
+import { getEnabledCommittedSpecies } from 'src/content/app/species-selector/state/speciesSelectorSelectors';
 
 import Launchbar from './Launchbar';
 import { getLaunchbarExpanded } from '../headerSelectors';
@@ -24,7 +24,7 @@ export const LaunchbarContainer: FunctionComponent<
 
 const mapStateToProps = (state: RootState): StateProps => ({
   launchbarExpanded: getLaunchbarExpanded(state),
-  committedSpecies: getCommittedSpecies(state)
+  committedSpecies: getEnabledCommittedSpecies(state)
 });
 
 export default connect(mapStateToProps)(LaunchbarContainer);

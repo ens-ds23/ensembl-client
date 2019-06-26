@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use program::{ ProgramAttribs, DataGroupIndex, ProgramType, PTSkin, CanvasWeave };
-use program::UniformValue;
+use super::super::program::{ ProgramAttribs, DataGroupIndex, ProgramType, PTSkin, CanvasWeave };
+use super::super::program::UniformValue;
 
 pub struct CanvasIdx {
     group: HashMap<ProgramType,HashMap<CanvasWeave,DataGroupIndex>>,

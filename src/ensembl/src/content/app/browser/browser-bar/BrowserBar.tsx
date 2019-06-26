@@ -1,4 +1,4 @@
-import React, { FunctionComponent, Fragment, useState, useEffect } from 'react';
+import React, { FunctionComponent, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
@@ -12,7 +12,8 @@ import {
   getChrLocation,
   getBrowserActivated,
   getDefaultChrLocation,
-  getGenomeSelectorActive
+  getGenomeSelectorActive,
+  getBrowserActiveGenomeId
 } from '../browserSelectors';
 import { getDrawerOpened } from '../drawer/drawerSelectors';
 import { getEnsObjectInfo } from 'src/ens-object/ensObjectSelectors';
@@ -21,9 +22,10 @@ import {
   getTrackPanelModalOpened,
   getTrackPanelOpened
 } from '../track-panel/trackPanelSelectors';
-import { selectBrowserTab } from '../track-panel/trackPanelActions';
+import { selectBrowserTabAndSave } from '../track-panel/trackPanelActions';
 import { toggleDrawer } from '../drawer/drawerActions';
 import { RootState } from 'src/store';
+import { EnsObject } from 'src/ens-object/ensObjectTypes';
 
 import BrowserReset from '../browser-reset/BrowserReset';
 import BrowserGenomeSelector from '../browser-genome-selector/BrowserGenomeSelector';
@@ -32,20 +34,21 @@ import BrowserTabs from '../browser-tabs/BrowserTabs';
 import styles from './BrowserBar.scss';
 
 type StateProps = {
+  activeGenomeId: string;
   browserActivated: boolean;
   browserNavOpened: boolean;
-  chrLocation: ChrLocation;
-  defaultChrLocation: ChrLocation;
+  chrLocation: { [genomeId: string]: ChrLocation };
+  defaultChrLocation: { [genomeId: string]: ChrLocation };
   drawerOpened: boolean;
   genomeSelectorActive: boolean;
-  ensObjectInfo: any;
-  selectedBrowserTab: TrackType;
+  ensObjectInfo: EnsObject;
+  selectedBrowserTab: { [genomeId: string]: TrackType };
   trackPanelModalOpened: boolean;
   trackPanelOpened: boolean;
 };
 
 type DispatchProps = {
-  selectBrowserTab: (selectedBrowserTab: TrackType) => void;
+  selectBrowserTabAndSave: (selectedBrowserTab: TrackType) => void;
   toggleBrowserNav: () => void;
   toggleDrawer: (drawerOpened: boolean) => void;
   toggleGenomeSelector: (genomeSelectorActive: boolean) => void;
@@ -58,7 +61,7 @@ type OwnProps = {
 type BrowserBarProps = StateProps & DispatchProps & OwnProps;
 
 type BrowserInfoProps = {
-  ensObjectInfo: any;
+  ensObjectInfo: EnsObject;
 };
 
 type BrowserNavigatorButtonProps = {
@@ -71,8 +74,9 @@ export const BrowserBar: FunctionComponent<BrowserBarProps> = (
   props: BrowserBarProps
 ) => {
   const shouldShowBrowserInfo = () => {
-    const [, chrStart, chrEnd] = props.defaultChrLocation;
-    const isLocationOfWholeChromosome = chrStart === 0 && chrEnd === 0;
+    const chrLocationForGenome = props.defaultChrLocation[props.activeGenomeId];
+    const isLocationOfWholeChromosome =
+      chrLocationForGenome === undefined ? true : false;
 
     return !(props.genomeSelectorActive || isLocationOfWholeChromosome);
   };
@@ -121,6 +125,7 @@ export const BrowserBar: FunctionComponent<BrowserBarProps> = (
       <div className={className}>
         <dl className={styles.browserInfoLeft}>
           <BrowserReset
+            activeGenomeId={props.activeGenomeId}
             dispatchBrowserLocation={props.dispatchBrowserLocation}
             chrLocation={props.chrLocation}
             defaultChrLocation={props.defaultChrLocation}
@@ -132,6 +137,7 @@ export const BrowserBar: FunctionComponent<BrowserBarProps> = (
         </dl>
         <dl className={styles.browserInfoRight}>
           <BrowserGenomeSelector
+            activeGenomeId={props.activeGenomeId}
             browserActivated={props.browserActivated}
             dispatchBrowserLocation={props.dispatchBrowserLocation}
             chrLocation={props.chrLocation}
@@ -139,7 +145,7 @@ export const BrowserBar: FunctionComponent<BrowserBarProps> = (
             genomeSelectorActive={props.genomeSelectorActive}
             toggleGenomeSelector={props.toggleGenomeSelector}
           />
-          {!props.genomeSelectorActive && (
+          {!props.genomeSelectorActive && props.ensObjectInfo.genome_id && (
             <BrowserNavigatorButton
               navigator={navigator}
               toggleNavigator={toggleNavigator}
@@ -150,9 +156,11 @@ export const BrowserBar: FunctionComponent<BrowserBarProps> = (
       </div>
       {props.trackPanelOpened && (
         <BrowserTabs
+          activeGenomeId={props.activeGenomeId}
+          ensObjectInfo={props.ensObjectInfo}
           drawerOpened={props.drawerOpened}
           genomeSelectorActive={props.genomeSelectorActive}
-          selectBrowserTab={props.selectBrowserTab}
+          selectBrowserTabAndSave={props.selectBrowserTabAndSave}
           selectedBrowserTab={props.selectedBrowserTab}
           toggleDrawer={props.toggleDrawer}
           trackPanelModalOpened={props.trackPanelModalOpened}
@@ -163,27 +171,42 @@ export const BrowserBar: FunctionComponent<BrowserBarProps> = (
 };
 
 export const BrowserInfo = ({ ensObjectInfo }: BrowserInfoProps) => (
-  <Fragment>
-    <dd className={styles.geneSymbol}>
-      <label>Gene</label>
-      <span className={styles.value}>{ensObjectInfo.obj_symbol}</span>
-    </dd>
-    <dd>
-      <label>Stable ID</label>
-      <span className={styles.value}>{ensObjectInfo.stable_id}</span>
-    </dd>
-    <dd className="show-for-large">
-      <label>Spliced mRNA length</label>
-      <span className={styles.value}>{ensObjectInfo.spliced_length}</span>
-      <label>bp</label>
-    </dd>
-    <dd className={`show-for-large ${styles.nonLabelValue}`}>
-      {ensObjectInfo.bio_type}
-    </dd>
-    <dd className={`show-for-large ${styles.nonLabelValue}`}>
-      {ensObjectInfo.strand} strand
-    </dd>
-  </Fragment>
+  <>
+    {ensObjectInfo.object_type === 'gene' && (
+      <>
+        <dd className={styles.ensObjectLabel}>
+          <label>{ensObjectInfo.object_type}</label>
+          <span className={styles.value}>{ensObjectInfo.label}</span>
+        </dd>
+        <dd>
+          <label>Stable ID</label>
+          <span className={styles.value}>{ensObjectInfo.stable_id}</span>
+        </dd>
+        <dd className="show-for-large">
+          <label>Spliced mRNA length</label>
+          <span className={styles.value}>{ensObjectInfo.spliced_length}</span>
+          <label>bp</label>
+        </dd>
+        <dd className={`show-for-large ${styles.nonLabelValue}`}>
+          {ensObjectInfo.bio_type}
+        </dd>
+        <dd className={`show-for-large ${styles.nonLabelValue}`}>
+          {ensObjectInfo.strand} strand
+        </dd>
+      </>
+    )}
+
+    {ensObjectInfo.object_type === 'region' && (
+      <>
+        <dd className={styles.ensObjectLabel}>
+          <label>Region: </label>
+          <span
+            className={styles.value}
+          >{`${ensObjectInfo.location.chromosome}:${ensObjectInfo.location.start}:${ensObjectInfo.location.end}`}</span>
+        </dd>
+      </>
+    )}
+  </>
 );
 
 export const BrowserNavigatorButton = (props: BrowserNavigatorButtonProps) => (
@@ -195,6 +218,7 @@ export const BrowserNavigatorButton = (props: BrowserNavigatorButtonProps) => (
 );
 
 const mapStateToProps = (state: RootState): StateProps => ({
+  activeGenomeId: getBrowserActiveGenomeId(state),
   browserActivated: getBrowserActivated(state),
   browserNavOpened: getBrowserNavOpened(state),
   chrLocation: getChrLocation(state),
@@ -208,7 +232,7 @@ const mapStateToProps = (state: RootState): StateProps => ({
 });
 
 const mapDispatchToProps: DispatchProps = {
-  selectBrowserTab,
+  selectBrowserTabAndSave,
   toggleBrowserNav,
   toggleDrawer,
   toggleGenomeSelector

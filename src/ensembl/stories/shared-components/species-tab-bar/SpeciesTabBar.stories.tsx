@@ -4,7 +4,7 @@ import { storiesOf } from '@storybook/react';
 import speciesData from './speciesData';
 import juneSpeciesData from './juneSpeciesData';
 
-import SpeciesTabBar from 'src/shared/species-tab-bar/SpeciesTabBar';
+import { SpeciesTabBar } from 'src/shared/species-tab-bar/SpeciesTabBar';
 
 import styles from './SpeciesTabBar.stories.scss';
 

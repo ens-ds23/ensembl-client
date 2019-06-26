@@ -56,7 +56,7 @@ mod test {
     fn pushpop_cmd() {
         let tc = TestContext::new();
         let mut r = command_run(&tc,"pushpop-cmd");
-        assert_eq!("\"hello\"",r.get_reg(2));
+        assert_eq!("[\"hello\"]",r.get_reg(2));
         assert_eq!("[200.0]",r.get_reg(1));
     }    
 }

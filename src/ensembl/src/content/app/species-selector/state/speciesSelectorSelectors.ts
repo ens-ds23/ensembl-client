@@ -55,6 +55,10 @@ export const getCommittedSpecies = (state: RootState) => {
   return state.speciesSelector.committedItems;
 };
 
+export const getEnabledCommittedSpecies = (state: RootState) => {
+  return getCommittedSpecies(state).filter(({ isEnabled }) => isEnabled);
+};
+
 export const getPopularSpecies = (state: RootState) => {
   return state.speciesSelector.popularSpecies;
 };

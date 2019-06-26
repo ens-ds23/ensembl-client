@@ -18,7 +18,7 @@ pub struct TácodeImpl {
 
 fn app_interp(tc: &TáContext) -> Interp {
     let mut cfg = DEFAULT_CONFIG.clone();
-    cfg.cycles_per_run = 1000000;
+    cfg.cycles_per_run = 100;
     let env = Box::new(AppEnv::new(tc.clone()));
     Interp::new(env,cfg)
 }

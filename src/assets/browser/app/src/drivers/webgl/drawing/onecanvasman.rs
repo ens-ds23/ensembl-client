@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use types::{ CPixel, RPixel, area_size, cpixel };
 use super::alloc::{ Ticket, Allocator };
 use super::{ FlatCanvas, Drawing, Artist,  AllCanvasAllocator };
-use program::CanvasWeave;
+use super::super::program::CanvasWeave;
 use model::shape::DrawingHash;
 
 struct DrawingMemory {

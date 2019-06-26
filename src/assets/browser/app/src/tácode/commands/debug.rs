@@ -12,7 +12,7 @@ impl Command for ConsolePrint {
         if self.1 {
             console!("{:?}",rt.registers().get(self.0));
         } else {
-            debug!("bytecode","{:?}",rt.registers().get(self.0));
+            bb_log!("bytecode","{:?}",rt.registers().get(self.0));
         }
         return 10
     }

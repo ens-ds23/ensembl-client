@@ -30,16 +30,15 @@ lazy_static! {
 #[derive(Debug)]
 pub struct External {
     code_reg: usize,
-    stdout_reg: usize,
-    stderr_reg: usize,
+    out_reg: usize,
     command_reg: usize
 }
 
 impl External {
-    pub fn new(code_reg: usize, stdout_reg: usize, stderr_reg: usize,
+    pub fn new(code_reg: usize, out_reg: usize,
                command_reg: usize) -> Box<Command> {
         Box::new(External {
-            code_reg, stdout_reg, stderr_reg, command_reg
+            code_reg, out_reg, command_reg
         })
     }
 }
@@ -55,13 +54,9 @@ impl Command for External {
             data.registers().set(self.code_reg,Value::new_from_float(vec! {
                 res.exit_code as f64
             }));
-            if self.stdout_reg > 0 {
-                data.registers().set(self.stdout_reg,
-                    Value::new_from_string(res.stdout));
-            }
-            if self.stderr_reg > 0 {
-                data.registers().set(self.stderr_reg,
-                    Value::new_from_string(res.stderr));
+            if self.out_reg > 0 {
+                data.registers().set(self.out_reg,
+                    Value::new_from_string(vec![res.stdout,res.stderr]));
             }
             return 0;
         }
@@ -73,7 +68,7 @@ impl Command for External {
         let res = RESULTS.clone();
         thread::spawn(move || {
             let c = process::Command::new("bash")
-                        .arg("-c").arg(cmd_str)
+                        .arg("-c").arg(&cmd_str[0])
                         .stdout(process::Stdio::piped())
                         .stderr(process::Stdio::piped())
                         .spawn().ok().unwrap();
@@ -94,10 +89,9 @@ impl Command for External {
 pub struct ExternalI();
 
 impl Instruction for ExternalI {
-    fn signature(&self) -> Signature { Signature::new("extern","rrrr") }
+    fn signature(&self) -> Signature { Signature::new("extern","rrr") }
     fn build(&self, args: &Vec<Argument>) -> Box<Command> {
-        External::new(args[0].reg(),args[1].reg(),args[2].reg(),
-                          args[3].reg())
+        External::new(args[0].reg(),args[1].reg(),args[2].reg())
     }
 }
 
@@ -126,7 +120,7 @@ impl Command for PoExternal {
         let res = RESULTS.clone();
         thread::spawn(move || {
             let c = process::Command::new("bash")
-                        .arg("-c").arg(cmd_str)
+                        .arg("-c").arg(&cmd_str[0])
                         .stdout(process::Stdio::piped())
                         .stderr(process::Stdio::piped())
                         .spawn().ok().unwrap();
@@ -154,13 +148,13 @@ impl Instruction for PoExternalI {
 }
 
 #[derive(Debug)]
-//                       code stdout stderr group id
-pub struct PoExternalRes(usize,usize,usize,usize,usize);
+//                       code  out   group id
+pub struct PoExternalRes(usize,usize,usize,usize);
 
 impl Command for PoExternalRes {
     fn execute(&self, data: &mut DataState, proc: Arc<Mutex<ProcState>>) -> i64 {
-        let g = data.registers().get(self.3).as_floats(|f| *f.get(0).unwrap_or(&0.));
-        let id = data.registers().get(self.4).as_floats(|f| *f.get(0).unwrap_or(&0.));
+        let g = data.registers().get(self.2).as_floats(|f| *f.get(0).unwrap_or(&0.));
+        let id = data.registers().get(self.3).as_floats(|f| *f.get(0).unwrap_or(&0.));
         let map_id = (proc.lock().unwrap().get_ipid(), g as usize, id as usize);
         if let Some(r_idx) = ID_MAP.lock().unwrap().remove(&map_id) {
             let s = &mut RESULTS.lock().unwrap();
@@ -169,10 +163,7 @@ impl Command for PoExternalRes {
                 res.exit_code as f64
             }));
             if self.1 > 0 {
-                data.registers().set(self.1,Value::new_from_string(res.stdout));
-            }
-            if self.2 > 0 {
-                data.registers().set(self.2,Value::new_from_string(res.stderr));
+                data.registers().set(self.1,Value::new_from_string(vec![res.stdout,res.stderr]));
             }
         }
         return 100;
@@ -182,10 +173,10 @@ impl Command for PoExternalRes {
 pub struct PoExternalResI();
 
 impl Instruction for PoExternalResI {
-    fn signature(&self) -> Signature { Signature::new("poexternres","rrrrr") }
+    fn signature(&self) -> Signature { Signature::new("poexternres","rrrr") }
     fn build(&self, args: &Vec<Argument>) -> Box<Command> {
         Box::new(PoExternalRes(args[0].reg(),args[1].reg(),args[2].reg(),
-                               args[3].reg(),args[4].reg()))
+                               args[3].reg()))
     }
 }
 
@@ -199,8 +190,8 @@ mod test {
         let mut r = command_run(&tc,"extern");
         assert_eq!("[0.0]",r.get_reg(1));
         assert_eq!("[1.0]",r.get_reg(2));
-        assert_eq!("\"\"",r.get_reg(4));
-        assert_ne!("\"\"",r.get_reg(5));
+        assert_eq!("[\"/tmp/x\\n\", \"\"]",r.get_reg(4));
+        assert_ne!("[\"\"]",r.get_reg(5));
         r.run();
     }
 
@@ -208,7 +199,7 @@ mod test {
     fn po_external() {   
         let tc = TestContext::new();
         let mut r = command_run(&tc,"po-extern");
-        assert_eq!("\"hello\\n\"",r.get_reg(8));
+        assert_eq!("[\"hello\\n\", \"\"]",r.get_reg(8));
         assert_eq!("[0.0]",r.get_reg(9));
     }
 }

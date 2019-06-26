@@ -3,8 +3,7 @@ use debug::support::closuresource::{ ClosureSource, closure_add, closure_done, c
 use composit::Source;
 use drivers::webgl::{
     FCFont, FontVariety,
-    TypeToShape, 
-    ShapeInstanceData, Facade, ShapeShortInstanceData
+    Facade, ShapeShortInstanceData
 };
 use model::shape::{
     PinRectTypeSpec, StretchRectTypeSpec, text_texture,
@@ -30,7 +29,7 @@ pub fn leafcard_source(leaf_marks: bool) -> impl Source {
             under: 0,
             spot: false
         };
-        
+                
         for (offset,height,text) in ruler {
             if let Some(text) = text {
                 let tx = text_texture(&text,&font,&Colour(199,208,213),&Colour(255,255,255));

@@ -1,12 +1,12 @@
 ;;; --cut-- [smoke]
 
-    const #1,"boo"
+    const #1,{"boo"}
     halt
 .start:
-    const #1,"hello, tánaiste!"
+    const #1,{"hello, tánaiste!"}
     dprint #1
     halt
-    const #1,"NOOOO!"
+    const #1,{"NOOOO!"}
     dprint #1
 
 ;;; --cut-- [parse-error-1]
@@ -24,56 +24,56 @@
 
 ;;; --cut-- [inst-error-2]
 
-    dprint "hello"
+    dprint {"hello"}
 
 ;; --cut-- [extern]
 
-    const #4, "running"
+    const #4, {"running"}
     dprint #4
     const #1, [4]
     const #2, [4]
-    const #6, "touch /tmp/x"
-    const #7, "ls /tmp/x ; rm /tmp/x"
-    extern #3, #0, #0, #6
-    extern #1, #0, #4, #7
-    extern #2, #0, #5, #7
-    const #8, "finished"
+    const #6, {"touch /tmp/x"}
+    const #7, {"ls /tmp/x ; rm /tmp/x"}
+    extern #3, #0, #6
+    extern #1, #4, #7
+    extern #2, #5, #7
+    const #8, {"finished"}
     dprint #8
     dprint #4
     dprint #5
 
 ;;; --cut-- [const]
 
-    const #1,"hi"
+    const #1,{"hi"}
 
 ;;; --cut-- [move]
 
-    const #1,"hi"
-    const #2,"lo"
+    const #1,{"hi"}
+    const #2,{"lo"}
     move #2,#1
 
 ;;; --cut-- [sleep]
 
-    const #1, "sleeping"
+    const #1, {"sleeping"}
     dprint #1
     const #2, [100]
     sleep #2
-    const #1, "waking"
+    const #1, {"waking"}
     dprint #1
 
 ;;; --cut-- [sleep-inter]
 
-    const #1, "sleeping"
+    const #1, {"sleeping"}
     dprint #1
     const #2, [10000]
     sleep #2
-    const #1, "waking"
+    const #1, {"waking"}
     dprint #1
 
 ;;; --cut-- [concat]
 
-    const #1, "hello "
-    const #2, "world!"
+    const #1, {"hello "}
+    const #2, {"world!"}
     concat #3, #1, #2
     dprint #1
     dprint #2
@@ -82,7 +82,7 @@
 ;;; --cut-- [interp-smoke]
 
     const #1, [0,200]
-    const #2, "Success!"
+    const #2, {"Success!"}
 
 ;;; --cut-- [multi-1]
 
@@ -92,7 +92,7 @@
     sleep #1
     sleep #1
     sleep #1
-    const #2, "multi-1"
+    const #2, {"multi-1"}
     dprint #2
 
 ;;; --cut-- [multi-2]
@@ -103,31 +103,31 @@
     sleep #1
     sleep #1
     sleep #1
-    const #2, "multi-2"
+    const #2, {"multi-2"}
     dprint #2
 
 ;;; --cut-- [interp-sleep-wake]
 
-    const #1, "sleeping"
+    const #1, {"sleeping"}
     dprint #1
     const #1, [100]
     sleep #1
-    const #2, "awoke"
+    const #2, {"awoke"}
     dprint #2
 
 ;;; --cut-- [interp-status]
 
-    const #1, "sleeping"
+    const #1, {"sleeping"}
     dprint #1
     const #1, [100]
     sleep #1
-    const #2, "awoke"
+    const #2, {"awoke"}
     dprint #2
 
 ;;; --cut-- [cycle-count]
 
-    const #1, "hello "
-    const #2, "world!"
+    const #1, {"hello "}
+    const #2, {"world!"}
     concat #3, #1, #2
     concat #3, #3, #3
     concat #3, #3, #3
@@ -159,7 +159,7 @@
 
 ;;; --cut-- [pushpop-cmd]
 
-    const #1,"hello"
+    const #1,{"hello"}
     const #2,[200]
     push #2
     push #1
@@ -192,27 +192,27 @@
     pollmake #1
 
     ; first command
-    const #2, "echo \"hello\""
+    const #2, {"echo \"hello\""}
     poextern #3,#1,#2
     
     ; second command
-    const #2, "sleep 1"
+    const #2, {"sleep 1"}
     poextern #4,#1,#2
     
     ; wait for either (will get 1st) and store code/output in #7/#8
     pollany #5,#1
     pollreset #1,#5
-    poexternres #7,#8,#0,#1,#5
+    poexternres #7,#8,#1,#5
     
-    const #2, "1st"
+    const #2, {"1st"}
     dprint #2
     dprint #8
     
     ; wait for either (will get 2nd) and store code/output in #9/#10
     pollany #6,#1
-    poexternres #9,#10,#0,#1,#6
+    poexternres #9,#10,#1,#6
     
-    const #2, "2nd"
+    const #2, {"2nd"}
     dprint #2
     dprint #9
     

@@ -3,17 +3,29 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { RootState } from 'src/store';
+import { EnsObject } from 'src/ens-object/ensObjectTypes';
+import { GenomeInfoData } from 'src/genome/genomeTypes';
+
+import { getBrowserActiveGenomeId } from '../../../browserSelectors';
+import { getGenomeInfo } from 'src/genome/genomeSelectors';
+import { fetchExampleEnsObjects } from 'src/ens-object/ensObjectActions';
 import { getExampleEnsObjects } from 'src/ens-object/ensObjectSelectors';
-import { fetchExampleEnsObjectsData } from 'src/ens-object/ensObjectActions';
+import * as urlFor from 'src/shared/helpers/urlHelper';
+
+import { ExampleEnsObjectsData } from 'src/ens-object/ensObjectTypes';
+
+import upperFirst from 'lodash/upperFirst';
 
 import styles from '../TrackPanelModal.scss';
 
 type StateProps = {
-  exampleEnsObjects: any;
+  activeGenomeId: string;
+  genomeInfo: GenomeInfoData;
+  exampleEnsObjects: ExampleEnsObjectsData;
 };
 
 type DispatchProps = {
-  fetchExampleEnsObjectsData: () => void;
+  fetchExampleEnsObjects: (objectId: string) => void;
 };
 
 type OwnProps = {};
@@ -21,34 +33,28 @@ type OwnProps = {};
 type TrackPanelBookmarksProps = StateProps & DispatchProps & OwnProps;
 
 export const TrackPanelBookmarks = (props: TrackPanelBookmarksProps) => {
-  const exampleObjectsTotal = Object.keys(props.exampleEnsObjects).length;
-
   useEffect(() => {
-    if (exampleObjectsTotal === 0) {
-      props.fetchExampleEnsObjectsData();
-    }
-  }, [props.exampleEnsObjects]);
+    props.fetchExampleEnsObjects(props.activeGenomeId);
+  }, [props.activeGenomeId]);
 
-  const getExampleObjectNode = (exampleObject: any) => {
-    const {
-      assembly,
-      chromosome,
-      display_name,
-      location,
-      object_type,
-      species,
-      stable_id
-    } = exampleObject;
-    const assemblyStr = `${assembly.name}_demo`;
-    const regionStr = `${chromosome}:${location.start}-${location.end}`;
-    const path = `/app/browser/${assemblyStr}/${stable_id}?region=${regionStr}`;
+  const getPreviouslyViewed = () => {
+    return Object.values(props.exampleEnsObjects[props.activeGenomeId]).map(
+      (exampleObject: EnsObject) => {
+        const locationStr = `${exampleObject.location.chromosome}:${exampleObject.location.start}-${exampleObject.location.end}`;
+        const path = urlFor.browser({
+          genomeId: props.activeGenomeId,
+          focus: exampleObject.ensembl_object_id,
+          location: locationStr
+        });
 
-    return (
-      <dd key={stable_id}>
-        <Link to={path}>
-          {species} {object_type} {display_name}
-        </Link>
-      </dd>
+        return (
+          <dd key={exampleObject.ensembl_object_id}>
+            <Link to={path}>
+              {upperFirst(exampleObject.object_type)}: {exampleObject.label}
+            </Link>
+          </dd>
+        );
+      }
     );
   };
 
@@ -56,13 +62,10 @@ export const TrackPanelBookmarks = (props: TrackPanelBookmarksProps) => {
     <section className="trackPanelBookmarks">
       <h3>Bookmarks</h3>
       <p>Save multiple browser configurations</p>
-      <p>Not ready yet &hellip;</p>
-      {exampleObjectsTotal ? (
+      {props.exampleEnsObjects[props.activeGenomeId] ? (
         <dl className={styles.previouslyViewed}>
           <dt>Previously viewed</dt>
-          {Object.values(props.exampleEnsObjects).map((exampleObject) =>
-            getExampleObjectNode(exampleObject)
-          )}
+          {getPreviouslyViewed()}
         </dl>
       ) : null}
     </section>
@@ -70,11 +73,13 @@ export const TrackPanelBookmarks = (props: TrackPanelBookmarksProps) => {
 };
 
 const mapStateToProps = (state: RootState) => ({
+  activeGenomeId: getBrowserActiveGenomeId(state),
+  genomeInfo: getGenomeInfo(state),
   exampleEnsObjects: getExampleEnsObjects(state)
 });
 
 const mapDispatchToProps = {
-  fetchExampleEnsObjectsData
+  fetchExampleEnsObjects
 };
 
 export default connect(

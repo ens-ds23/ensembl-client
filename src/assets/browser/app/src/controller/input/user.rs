@@ -5,9 +5,10 @@ use stdweb::web::{ Element, HtmlElement, IHtmlElement };
 use stdweb::traits::IEvent;
 
 use controller::global::{ App, AppRunner };
+use controller::input::{ actions_run, Action };
 use controller::input::physics::MousePhysics;
 use controller::input::optical::Optical;
-use types::Dot;
+use types::{ Dot, CPixel };
 
 pub struct UserEventListener {
     canv_el: HtmlElement,
@@ -29,6 +30,13 @@ impl UserEventListener {
         }
     }
     
+    fn mouse_rel_box(&self, cp: &CPixel) -> CPixel {
+        let pos = domutil::position(&self.canv_el);
+        let offset = pos.offset();
+        let offset = Dot(offset.0 as i32,offset.1 as i32);
+        *cp - offset
+    }
+    
     fn wheel(&mut self, amt: f64) {
         let app = &mut self.cs.lock().unwrap();
         let (y,pos_bp,pos_prop) = app.with_stage(|s|
@@ -39,6 +47,13 @@ impl UserEventListener {
 
         let pos = Dot(pos_bp,y);
         self.optical.lock().unwrap().move_by(amt,pos,pos_prop);
+    }
+    
+    fn zmenu(&mut self, pos: &CPixel) {
+        let mut app = &mut self.cs.lock().unwrap();
+        actions_run(&mut app,&vec![
+            Action::ZMenu(*pos)
+        ]); 
     }
 }
 
@@ -54,15 +69,16 @@ impl EventListener<()> for UserEventListener {
                 self.canv_el.focus();
                 domutil::clear_selection();
                 e.stop_propagation();
-                self.mouse.lock().unwrap().down(e.at());
+                self.mouse.lock().unwrap().down(self.mouse_rel_box(&e.at()));
             },
             EventData::MouseEvent(EventType::MouseMoveEvent,_,e) => { 
-                self.mouse.lock().unwrap().move_to(e.at());
+                self.mouse.lock().unwrap().move_to(self.mouse_rel_box(&e.at()));
                 self.cs.lock().unwrap().with_stage(|s| 
                     s.set_mouse_pos(&e.at())
                 );
             },
             EventData::MouseEvent(EventType::MouseClickEvent,_,e) => {
+                self.zmenu(&self.mouse_rel_box(&e.at()));
                 e.stop_propagation();
             },
             EventData::MouseEvent(EventType::MouseDblClickEvent,_,e) => {

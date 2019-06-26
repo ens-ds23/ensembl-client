@@ -85,6 +85,7 @@ impl TrainManager {
         let scale = Scale::best_for_screen(bp_per_screen);
         self.each_train(|x| x.set_active(false));
         self.current_train = Some(Train::new(&self.printer,st,scale));
+        self.current_train.as_mut().unwrap().enter_service();
         self.current_train.as_mut().unwrap().set_zoom(bp_per_screen);
         self.current_train.as_mut().unwrap().set_current();
         self.transition_train = None;
@@ -154,7 +155,7 @@ impl TrainManager {
         if let Some(ref mut future_train) = self.future_train {
             cb(future_train);
         }
-        for mut train in &mut self.outer_train {
+        for train in &mut self.outer_train {
             if let Some(ref mut train) = train {
                 cb(train);
             }
@@ -261,18 +262,6 @@ impl TrainManager {
         self.transition_prop.unwrap_or(0.) as f32
     }
     
-    /* used by printer to determine responsibilities */
-    pub fn all_printing_leafs(&self) -> Vec<Leaf> {
-        let mut out = Vec::<Leaf>::new();
-        if let Some(ref transition_train) = self.transition_train {
-            out.append(&mut transition_train.leafs());
-        }
-        if let Some(ref current_train) = self.current_train {
-            out.append(&mut current_train.leafs());
-        }
-        out
-    }
-
     /* used by printer for actual printing */
     pub fn get_current_train(&mut self) -> Option<&mut Train> {
         self.current_train.as_mut()

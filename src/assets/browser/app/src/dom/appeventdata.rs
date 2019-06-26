@@ -16,7 +16,6 @@ impl AppEventData {
     
     pub fn get_simple_str(&self, key: &str, default: Option<&str>) -> Option<String> {
         let default = default.map(|v| v.to_string());
-        let value : Option<String> = None;
         let empty = JSONValue::Object(JSONMap::new());
         let obj = self.detail.as_ref().unwrap_or(&empty);
         let json_value = obj.get(key);
@@ -27,7 +26,6 @@ impl AppEventData {
     }
 
     pub fn get_simple_bool(&self, key: &str, default: Option<bool>) -> Option<bool> {
-        let value : Option<String> = None;
         let empty = JSONValue::Object(JSONMap::new());
         let obj = self.detail.as_ref().unwrap_or(&empty);
         let json_value = obj.get(key);

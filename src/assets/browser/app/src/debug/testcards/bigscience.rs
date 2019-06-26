@@ -31,10 +31,7 @@ use model::shape::{
 };
 use model::train::PartyResponses;
 
-use drivers::webgl::{
-    ShapeInstanceData, TypeToShape, Facade, ShapeShortInstanceData,
-    stretch_texture
-};
+use drivers::webgl::{ Facade, ShapeShortInstanceData, stretch_texture };
 
 use controller::global::App;
 
@@ -149,7 +146,6 @@ fn source_odd() -> ClosureSource {
                     }
                 }
                 if start_leaf < 100000 && end_leaf > 0 {
-                    debug!("bug","A");
                     let start_prop = prop(leaf,0);
                     let srts = StretchRectTypeSpec { spot: true, hollow: false };
                     closure_add_opt(lc,&srts.new_short_shape(&ShapeShortInstanceData {

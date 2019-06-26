@@ -2,8 +2,8 @@
 
 .speciesSearchPanel {
   background-color: $ens-light-grey;
-  height: 300px;
-  padding: 40px;
+  height: 270px;
+  padding: 65px 40px;
   padding-left: 100px; // FIXME: should this be shared variable? it will be reused by PopularSpeciesPanel
 }
 

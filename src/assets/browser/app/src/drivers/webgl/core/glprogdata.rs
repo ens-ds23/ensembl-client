@@ -1,7 +1,7 @@
 use super::super::shape::{ Spot, CanvasIdx };
 use super::GLProgs;
 use super::super::drawing::{ CarriageCanvases };
-use program::CanvasCache;
+use super::super::program::CanvasCache;
 
 pub struct GLProgData {
     spot: Spot,

@@ -1,5 +1,6 @@
 import React, { FunctionComponent, RefObject, useEffect } from 'react';
 import { connect } from 'react-redux';
+import { useSpring, animated } from 'react-spring';
 
 import TrackPanelBar from './track-panel-bar/TrackPanelBar';
 import TrackPanelList from './track-panel-list/TrackPanelList';
@@ -22,32 +23,43 @@ import {
 import { getDrawerView, getDrawerOpened } from '../drawer/drawerSelectors';
 import {
   getBrowserActivated,
-  getDefaultChrLocation
+  getDefaultChrLocation,
+  getBrowserActiveGenomeId
 } from '../browserSelectors';
 import {
   getExampleEnsObjects,
   getEnsObjectInfo,
-  getTrackCategories
+  getEnsObjectTracks
 } from 'src/ens-object/ensObjectSelectors';
 import { getLaunchbarExpanded } from 'src/header/headerSelectors';
 import { getBreakpointWidth } from 'src/global/globalSelectors';
 import { ChrLocation } from '../browserState';
 import { BreakpointWidth } from 'src/global/globalConfig';
-import { TrackType } from './trackPanelConfig';
-import { useSpring, animated } from 'react-spring';
+import { TrackType, TrackStates } from './trackPanelConfig';
+
+import { GenomeTrackCategory } from 'src/genome/genomeTypes';
+import { getGenomeTrackCategories } from 'src/genome/genomeSelectors';
+import {
+  EnsObject,
+  EnsObjectTrack,
+  ExampleEnsObjectsData
+} from 'src/ens-object/ensObjectTypes';
+
 import styles from './TrackPanel.scss';
 
 type StateProps = {
+  activeGenomeId: string;
   breakpointWidth: BreakpointWidth;
   browserActivated: boolean;
-  defaultChrLocation: ChrLocation;
+  defaultChrLocation: { [genomeId: string]: ChrLocation };
   drawerOpened: boolean;
   drawerView: string;
-  ensObjectInfo: any;
-  exampleEnsObjects: any;
+  ensObjectInfo: EnsObject;
+  ensObjectTracks: EnsObjectTrack;
+  exampleEnsObjects: ExampleEnsObjectsData;
   launchbarExpanded: boolean;
-  selectedBrowserTab: TrackType;
-  trackCategories: [];
+  selectedBrowserTab: { [genomeId: string]: TrackType };
+  genomeTrackCategories: GenomeTrackCategory[];
   trackPanelModalOpened: boolean;
   trackPanelModalView: string;
   trackPanelOpened: boolean;
@@ -63,6 +75,7 @@ type DispatchProps = {
 
 type OwnProps = {
   browserRef: RefObject<HTMLDivElement>;
+  trackStates: TrackStates;
 };
 
 type TrackPanelProps = StateProps & DispatchProps & OwnProps;
@@ -103,7 +116,7 @@ const TrackPanel: FunctionComponent<TrackPanelProps> = (
 
   return (
     <animated.div style={trackAnimation}>
-      {props.browserActivated && props.ensObjectInfo.associated_object ? (
+      {props.browserActivated && props.ensObjectInfo.ensembl_object_id ? (
         <div className={styles.trackPanel}>
           <TrackPanelBar
             closeTrackPanelModal={props.closeTrackPanelModal}
@@ -116,17 +129,19 @@ const TrackPanel: FunctionComponent<TrackPanelProps> = (
             trackPanelModalView={props.trackPanelModalView}
             trackPanelOpened={props.trackPanelOpened}
           />
-
           <TrackPanelList
+            activeGenomeId={props.activeGenomeId}
             browserRef={props.browserRef}
             defaultChrLocation={props.defaultChrLocation}
             drawerOpened={props.drawerOpened}
             drawerView={props.drawerView}
             launchbarExpanded={props.launchbarExpanded}
             ensObjectInfo={props.ensObjectInfo}
+            ensObjectTracks={props.ensObjectTracks}
             selectedBrowserTab={props.selectedBrowserTab}
             toggleDrawer={props.toggleDrawer}
-            trackCategories={props.trackCategories}
+            trackStates={props.trackStates}
+            genomeTrackCategories={props.genomeTrackCategories}
             updateDrawerView={props.changeDrawerView}
           />
 
@@ -145,16 +160,20 @@ const TrackPanel: FunctionComponent<TrackPanelProps> = (
 };
 
 const mapStateToProps = (state: RootState): StateProps => ({
+  activeGenomeId: getBrowserActiveGenomeId(state),
   breakpointWidth: getBreakpointWidth(state),
   browserActivated: getBrowserActivated(state),
   defaultChrLocation: getDefaultChrLocation(state),
   drawerOpened: getDrawerOpened(state),
   drawerView: getDrawerView(state),
   ensObjectInfo: getEnsObjectInfo(state),
+  ensObjectTracks: getEnsObjectTracks(state),
   exampleEnsObjects: getExampleEnsObjects(state),
   launchbarExpanded: getLaunchbarExpanded(state),
   selectedBrowserTab: getSelectedBrowserTab(state),
-  trackCategories: getTrackCategories(state),
+  genomeTrackCategories: getGenomeTrackCategories(state)[
+    getBrowserActiveGenomeId(state)
+  ],
   trackPanelModalOpened: getTrackPanelModalOpened(state),
   trackPanelModalView: getTrackPanelModalView(state),
   trackPanelOpened: getTrackPanelOpened(state)

@@ -31,7 +31,11 @@ export default function trackPanel(
     case getType(trackPanelActions.selectBrowserTab):
       return {
         ...state,
-        selectedBrowserTab: action.payload,
+        selectedBrowserTab: Object.assign(
+          {},
+          state.selectedBrowserTab,
+          action.payload
+        ),
         trackPanelModalOpened: false,
         trackPanelModalView: ''
       };

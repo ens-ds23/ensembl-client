@@ -10,10 +10,11 @@ pub struct Concat(usize,usize,usize);
 impl Command for Concat {
     fn execute(&self, rt: &mut DataState, _proc: Arc<Mutex<ProcState>>) -> i64 {
         let regs = rt.registers();
-        let mut c = regs.get(self.1).as_string(|a| a.clone());
-        regs.get(self.2).as_string(|b| c.push_str(b));
+        let mut c : String = regs.get(self.1).as_string(|a| a[0].clone());
+        regs.get(self.2).as_string(|b| c.push_str(&b[0]));
         let len = c.len() as i64;
-        regs.set(self.0,Value::new_from_string(c));
+        regs.set(self.0,Value::new_from_string(vec![c]));
+        println!("concat cost {}",len);
         len
     }
 }
@@ -35,6 +36,6 @@ mod test {
     fn commands() {
         let tc = TestContext::new();
         let mut r = command_run(&tc,"concat");
-        assert_eq!("\"hello world!\"",r.get_reg(3));
+        assert_eq!("[\"hello world!\"]",r.get_reg(3));
     }
 }

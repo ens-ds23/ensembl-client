@@ -95,7 +95,7 @@ export const fetchPopularSpecies: ActionCreator<
     dispatch(fetchPopularSpeciesAsyncActions.request());
 
     const url = '/api/popular_genomes';
-    const response = await apiService.fetch(url, { preserveEndpoint: true });
+    const response = await apiService.fetch(url);
 
     dispatch(
       fetchPopularSpeciesAsyncActions.success({
@@ -133,6 +133,14 @@ export const commitSelectedSpeciesAndSave: ActionCreator<
 export const toggleSpeciesUse = createStandardAction(
   'species_selector/toggle_species_use'
 )<string>();
+
+export const toggleSpeciesUseAndSave: ActionCreator<
+  ThunkAction<void, any, null, Action<string>>
+> = (genomeId: string) => (dispatch, getState) => {
+  dispatch(toggleSpeciesUse(genomeId));
+  const committedSpecies = getCommittedSpecies(getState());
+  speciesSelectorStorageService.saveSelectedSpecies(committedSpecies);
+};
 
 export const deleteSpecies = createStandardAction(
   'species_selector/delete_species'

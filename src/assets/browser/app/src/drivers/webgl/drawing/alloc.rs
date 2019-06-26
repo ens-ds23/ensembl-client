@@ -171,7 +171,7 @@ impl Half {
         if self.spaces.len() >= h {
             let mut frags : Option<Vec<Tranche>> = None;
             for i in h-1..len {
-                let mut result = self.spaces[i].alloc(size.0,self.width);
+                let result = self.spaces[i].alloc(size.0,self.width);
                 if let Some(tranche) = result {
                     frags = Some(tranche.chop(size,self.width));
                     break

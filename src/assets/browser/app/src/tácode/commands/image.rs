@@ -42,7 +42,7 @@ impl Command for Asset {
                 let regs = rt.registers();
                 regs.get(self.2).as_string(|name| {
                     regs.get(self.3).as_floats(|index| {
-                        regs.set(self.1,load_asset(cfg,name,index[0] as usize));
+                        regs.set(self.1,load_asset(cfg,&name[0],index[0] as usize));
                     });
                 });
             }
@@ -61,7 +61,7 @@ impl Command for Image {
                 regs.get(self.2).as_floats(|dims| {
                     regs.get(self.3).as_string(|data| {
                         regs.get(self.4).as_string(|cache| {
-                            regs.set(self.1,Value::new_from_float(image(tx,dims,data,cache)));
+                            regs.set(self.1,Value::new_from_float(image(tx,dims,&data[0],&cache[0])));
                         });
                     });
                 });

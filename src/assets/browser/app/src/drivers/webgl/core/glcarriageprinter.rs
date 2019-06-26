@@ -1,15 +1,16 @@
 use std::collections::HashSet;
 use std::rc::Rc;
 
-use super::{ GLSourceResponse, GLProgs, GLProgInstances };
-use program::ProgramType;
+use super::{ GLTravellerResponse, GLProgs, GLProgInstances };
+use super::super::program::ProgramType;
 use model::train::Carriage;
 use composit::{ Leaf, Stage };
 use super::super::drawing::{ CarriageCanvases, AllCanvasAllocator };
 use dom::webgl::WebGLRenderingContext as glctx;
+use drivers::zmenu::ZMenuLeaf;
 
 pub struct GLCarriagePrinter {
-    srr: HashSet<GLSourceResponse>,
+    srr: HashSet<GLTravellerResponse>,
     prev_cc: Option<CarriageCanvases>,
     leaf: Leaf,
     progs: Option<GLProgs>,
@@ -17,9 +18,9 @@ pub struct GLCarriagePrinter {
 }
 
 impl GLCarriagePrinter {
-    pub fn new(acm: &mut AllCanvasAllocator, leaf: &Leaf, progs: &GLProgs, ctx: &Rc<glctx>) -> GLCarriagePrinter {
+    pub fn new(leaf: &Leaf, progs: &GLProgs, ctx: &Rc<glctx>) -> GLCarriagePrinter {
         GLCarriagePrinter {
-            srr: HashSet::<GLSourceResponse>::new(),
+            srr: HashSet::<GLTravellerResponse>::new(),
             prev_cc: None,
             leaf: leaf.clone(),
             progs: Some(progs.clean_instance()),
@@ -27,11 +28,11 @@ impl GLCarriagePrinter {
         }
     }
 
-    pub fn new_sr(&mut self, sr: &GLSourceResponse) {
+    pub fn new_sr(&mut self, sr: &GLTravellerResponse) {
         self.srr.insert(sr.clone());
     }
 
-    pub fn remove_sr(&mut self, sr: &mut GLSourceResponse) {
+    pub fn remove_sr(&mut self, sr: &mut GLTravellerResponse) {
         self.srr.remove(sr);
     }
     
@@ -50,7 +51,7 @@ impl GLCarriagePrinter {
         cc
     }
     
-    fn redraw_objects(&mut self,e: &mut GLProgInstances) {
+    fn redraw_objects(&mut self, e: &mut GLProgInstances) {
         for sr in self.srr.iter() {
             sr.redraw_objects(e);
         }
@@ -70,14 +71,11 @@ impl GLCarriagePrinter {
         self.progs = Some(progs);
     }
     
-    pub fn prepare(&mut self,
-                        carriage: &mut Carriage,
-                        aca: &mut AllCanvasAllocator,
-                        stage: &Stage, opacity: f32) {
-        if carriage.needs_refresh() {
-            carriage.reset_needs_refresh();
-            self.redraw_travellers(aca);
-        }
+    pub fn redraw(&mut self,aca: &mut AllCanvasAllocator) {
+        self.redraw_travellers(aca);
+    }
+
+    pub fn set_context(&mut self,stage: &Stage, opacity: f32) {        
         let progs = self.progs.as_mut().unwrap();
         for k in &progs.order {
             let prog = progs.map.get_mut(k).unwrap();

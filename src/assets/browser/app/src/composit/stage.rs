@@ -2,10 +2,10 @@ use std::collections::HashMap;
 
 use composit::{ Leaf, Position, Wrapping };
 use controller::output::{ Report, ViewportReport };
-use program::UniformValue;
+use drivers::webgl::program::UniformValue;
 use types::{
-    CPixel, cpixel, Move, Dot, Direction, 
-    LEFT, RIGHT, UP, DOWN, IN, OUT
+    CPixel, Move, Dot, Direction,
+    LEFT, RIGHT, UP, DOWN, IN, OUT, XPosition, YPosition, Placement
 };
 
 // XXX TODO avoid big-minus-big type calculations which accumulate error
@@ -31,11 +31,11 @@ impl Stage {
 
     fn bumped(&self, direction: &Direction) -> bool {
         let mul : f64 = direction.1.into();
-        self.pos.get_edge(direction).floor() * mul >= self.pos.get_limit_of_edge(direction).floor() * mul
+        self.pos.get_edge(direction,true).floor() * mul >= self.pos.get_limit_of_edge(direction).floor() * mul
     }
 
     pub fn update_report(&self, report: &Report) {
-        let (left,right) = (self.pos.get_edge(&LEFT),self.pos.get_edge(&RIGHT));
+        let (left,right) = (self.pos.get_edge(&LEFT,true),self.pos.get_edge(&RIGHT,true));
         report.set_status("start",&left.floor().to_string());
         report.set_status("end",&right.ceil().to_string());
         report.set_status_bool("bumper-left",self.bumped(&LEFT));
@@ -47,7 +47,7 @@ impl Stage {
     }
 
     pub fn update_viewport_report(&self, report: &ViewportReport) {
-        report.set_delta_y(-self.pos.get_edge(&UP) as i32);
+        report.set_delta_y(-self.pos.get_edge(&UP,false) as i32);
     }
 
     pub fn set_wrapping(&mut self, w: &Wrapping) {
@@ -137,7 +137,7 @@ impl Stage {
         let leaf_per_screen = bp_per_screen as f64 / bp_per_leaf;
         let middle_bp = self.pos.get_middle();
         let middle_leaf = middle_bp.0/bp_per_leaf; // including fraction of leaf
-        let current_leaf_left = (leaf.get_index() as f64);
+        let current_leaf_left = leaf.get_index() as f64;
         hashmap! {
             "uOpacity" => UniformValue::Float(opacity),
             "uStageHpos" => UniformValue::Float((middle_leaf - current_leaf_left) as f32),
@@ -146,6 +146,51 @@ impl Stage {
             "uSize" => UniformValue::Vec2F(
                 self.dims.0 as f32/2.,
                 self.dims.1 as f32/2.)
+        }
+    }
+    
+    pub fn intersects(&self, pos: Dot<i32,i32>, area: &Placement) -> bool {
+        let screen_bp = self.get_screen_in_bp();
+        let screen_px = self.dims;
+        let bp_px = screen_bp / screen_px.0;
+        let left_bp = self.pos.get_edge(&LEFT,false);
+        let top_px = self.pos.get_edge(&UP,false);
+        match area {
+            Placement::Stretch(r) => {
+                let pos_bp = left_bp + pos.0 as f64 * bp_px;
+                let nw = r.offset();
+                let se = r.far_offset();
+                bb_log!("zmenu","Q {:?}<={:?}[{:?}+{:?}*{:?}]<={:?} {:?}<={:?}<={:?}",
+                            nw.0,pos_bp,left_bp,pos.0,bp_px,se.0,
+                            nw.1,pos.1,se.1);
+                nw.0 as f64 <= pos_bp && se.0 as f64 >= pos_bp &&
+                nw.1 <= pos.1 && se.1 >= pos.1
+            },
+            Placement::Placed(x,y) => {
+                let (x0,x1) = match x {
+                    XPosition::Base(bp,s,e) => {
+                        let px = (bp-left_bp) / bp_px;
+                        (px+*s as f64,px+*e as f64)
+                    },
+                    XPosition::Pixel(s,e) => {
+                        (s.min_dist(screen_px.0 as i32) as f64,
+                         e.min_dist(screen_px.0 as i32) as f64)
+                    }
+                };
+                let (y0,y1) = match y {
+                    YPosition::Page(s,e) => {
+                        (*s as f64-top_px, *e as f64-top_px)
+                    }
+                    YPosition::Pixel(s,e) => {
+                        (s.min_dist(screen_px.1 as i32) as f64,
+                         e.min_dist(screen_px.1 as i32) as f64)
+                    }
+                };
+                bb_log!("zmenu","P {:?}<={:?}<={:?} {:?}<={:?}<={:?}",
+                            x0,pos.0,x1, y0,pos.1,y1);
+                x0 <= pos.0 as f64 && x1 >= pos.0 as f64 &&
+                y0 <= pos.1 as f64 && y1 >= pos.1 as f64
+            }
         }
     }
 }

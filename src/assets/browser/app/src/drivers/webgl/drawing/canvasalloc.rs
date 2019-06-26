@@ -6,7 +6,7 @@ use stdweb::unstable::TryInto;
 
 use dom::domutil;
 use super::{  CarriageCanvases, FlatCanvas };
-use program::{ CanvasCache, CanvasWeave };
+use super::super::program::{ CanvasCache, CanvasWeave };
 use types::Dot;
 
 #[derive(Debug)]
@@ -27,7 +27,9 @@ fn new_canvas(root: &Element) -> CanvasElement {
 }
 
 fn free_canvas(el: &CanvasElement) {
-    el.parent_node().unwrap().remove_child(el).ok();
+    if let Some(parent) = el.parent_node() {
+        parent.remove_child(el).ok();
+    }
 }
 
 pub struct AllCanvasAllocator {

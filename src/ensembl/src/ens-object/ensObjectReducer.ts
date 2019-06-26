@@ -3,39 +3,67 @@ import { combineReducers } from 'redux';
 
 import * as objectActions from './ensObjectActions';
 import {
-  ExampleEnsObjectState,
-  defaultExampleEnsObjectState,
   EnsObjectInfoState,
-  defaultEnsObjectInfoState
+  defaultEnsObjectInfoState,
+  EnsObjectTracksState,
+  defaultEnsObjectTracksState,
+  ExampleEnsObjectsState,
+  defaultExampleEnsObjectsState
 } from './ensObjectState';
+import { ExampleEnsObjectsData } from './ensObjectTypes';
 
 function ensObjectInfo(
   state: EnsObjectInfoState = defaultEnsObjectInfoState,
   action: ActionType<typeof objectActions>
 ): EnsObjectInfoState {
   switch (action.type) {
-    case getType(objectActions.fetchEnsObject.failure):
-      return { ...state, ensObjectFetchFailed: true };
-    case getType(objectActions.fetchEnsObject.request):
+    case getType(objectActions.fetchEnsObjectAsyncActions.failure):
       return {
         ...state,
-        ensObjectFetchFailed: false,
-        ensObjectFetching: true
+        ensObjectInfoFetchFailed: true,
+        ensObjectInfoFetching: false
       };
-    case getType(objectActions.fetchEnsObject.success):
-      type Payload = {
-        object_info: {};
-        track_categories: [];
-      };
-
-      const json = action.payload as Payload;
-
+    case getType(objectActions.fetchEnsObjectAsyncActions.request):
       return {
         ...state,
-        ensObject: json.object_info,
-        ensObjectFetchFailed: false,
-        ensObjectFetching: false,
-        trackCategories: json.track_categories
+        ensObjectInfoFetchFailed: false,
+        ensObjectInfoFetching: true
+      };
+    case getType(objectActions.fetchEnsObjectAsyncActions.success):
+      return {
+        ...state,
+        ensObjectInfoData: action.payload.ensembl_object,
+        ensObjectInfoFetchFailed: false,
+        ensObjectInfoFetching: false
+      };
+    default:
+      return state;
+  }
+}
+
+function ensObjectTracks(
+  state: EnsObjectTracksState = defaultEnsObjectTracksState,
+  action: ActionType<typeof objectActions>
+): EnsObjectTracksState {
+  switch (action.type) {
+    case getType(objectActions.fetchEnsObjectTracksAsyncActions.failure):
+      return {
+        ...state,
+        ensObjectTracksFetchFailed: true,
+        ensObjectTracksFetching: false
+      };
+    case getType(objectActions.fetchEnsObjectTracksAsyncActions.request):
+      return {
+        ...state,
+        ensObjectTracksFetchFailed: false,
+        ensObjectTracksFetching: true
+      };
+    case getType(objectActions.fetchEnsObjectTracksAsyncActions.success):
+      return {
+        ...state,
+        ensObjectTracksData: action.payload.object_tracks,
+        ensObjectTracksFetchFailed: false,
+        ensObjectTracksFetching: false
       };
     default:
       return state;
@@ -43,30 +71,46 @@ function ensObjectInfo(
 }
 
 function exampleEnsObjects(
-  state: ExampleEnsObjectState = defaultExampleEnsObjectState,
+  state: ExampleEnsObjectsState = defaultExampleEnsObjectsState,
   action: ActionType<typeof objectActions>
-): ExampleEnsObjectState {
+): ExampleEnsObjectsState {
   switch (action.type) {
-    case getType(objectActions.fetchExampleEnsObjects.failure):
-      return { ...state, exampleEnsObjectsFetchFailed: true };
-    case getType(objectActions.fetchExampleEnsObjects.request):
+    case getType(objectActions.fetchExampleEnsObjectsAsyncActions.failure):
+      return {
+        ...state,
+        exampleEnsObjectsFetchFailed: true,
+        exampleEnsObjectsFetching: false
+      };
+    case getType(objectActions.fetchExampleEnsObjectsAsyncActions.request):
       return {
         ...state,
         exampleEnsObjectsFetchFailed: false,
         exampleEnsObjectsFetching: true
       };
-    case getType(objectActions.fetchExampleEnsObjects.success):
-      type Payload = {
-        examples: {};
-      };
-
-      const json = action.payload as Payload;
-
+    case getType(objectActions.fetchExampleEnsObjectsAsyncActions.success):
       return {
         ...state,
+        exampleEnsObjectsData: exampleEnsObjectsData(
+          state.exampleEnsObjectsData,
+          action
+        ),
         exampleEnsObjectsFetchFailed: false,
-        exampleEnsObjectsFetching: false,
-        examples: json.examples
+        exampleEnsObjectsFetching: false
+      };
+    default:
+      return state;
+  }
+}
+
+function exampleEnsObjectsData(
+  state: ExampleEnsObjectsData = {},
+  action: ActionType<typeof objectActions>
+): ExampleEnsObjectsData {
+  switch (action.type) {
+    case getType(objectActions.fetchExampleEnsObjectsAsyncActions.success):
+      return {
+        ...state,
+        ...action.payload
       };
     default:
       return state;
@@ -75,5 +119,6 @@ function exampleEnsObjects(
 
 export default combineReducers({
   ensObjectInfo,
+  ensObjectTracks,
   exampleEnsObjects
 });

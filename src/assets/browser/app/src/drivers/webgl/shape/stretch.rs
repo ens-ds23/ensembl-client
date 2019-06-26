@@ -4,7 +4,7 @@ use types::{ RLeaf, cfraction, cleaf, area_size };
 use super::GLShape;
 use super::util::{ rectangle_g, rectangle_t, vertices_rect };
 
-use program::{ PTGeom, PTMethod, PTSkin, ProgramType, ProgramAttribs };
+use super::super::program::{ PTGeom, PTMethod, PTSkin, ProgramType, ProgramAttribs };
 use drivers::webgl::GLProgData;
 use drivers::webgl::{ Artist, Artwork };
 
@@ -59,8 +59,8 @@ impl GLShape for StretchTextureSpec {
         }
     }
     
-    fn get_geometry(&self) -> ProgramType {
-        ProgramType(PTGeom::Stretch,PTMethod::Triangle,PTSkin::Texture)
+    fn get_geometry(&self) -> Option<ProgramType> {
+        Some(ProgramType(PTGeom::Stretch,PTMethod::Triangle,PTSkin::Texture))
     }
 
     fn get_artist(&self) -> Option<Rc<Artist>> { Some(self.aspec.to_artist()) }

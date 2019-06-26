@@ -7,6 +7,7 @@ mod psychic;
 mod xfercache;
 mod xferclerk;
 mod xferrequest;
+mod xferurlbuilder;
 
 #[cfg(any(not(deploy),console))]
 pub mod blackbox;
@@ -26,3 +27,4 @@ pub use self::psychic::{ Psychic, PsychicPacer };
 pub use self::xfercache::XferCache;
 pub use self::xferclerk::{ XferClerk, XferConsumer };
 pub use self::xferrequest::XferRequest;
+pub use self::xferurlbuilder::XferUrlBuilder;

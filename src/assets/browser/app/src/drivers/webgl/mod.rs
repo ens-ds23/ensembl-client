@@ -1,5 +1,6 @@
 mod core;
 mod drawing;
+pub mod program; /* XXX only while stage has a ref to the driver */
 mod shape;
 
 pub use self::core::{ 
@@ -11,10 +12,7 @@ pub use self::drawing::{
     collage, mark_rectangle, OneCanvasManager
 };
 pub use self::shape::{
-    FacadeType, ShapeInstanceDataType,
-    ShapeLongInstanceData,
     stretch_texture,
-    ShapeInstanceData, TypeToShape, Facade, ShapeShortInstanceData,
     rectangle_g, rectangle_t, vertices_rect,
     GLShape, StretchTextureSpec,
 };

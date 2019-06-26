@@ -8,7 +8,9 @@ use rand::rngs::SmallRng;
 use rand::SeedableRng;
 
 use composit::Leaf;
-use types::{ CLeaf, cleaf, Colour };
+use types::{ CLeaf, cleaf };
+#[cfg(not(deploy))]
+use types::Colour;
 
 #[cfg(not(deploy))]
 fn bytes_of_u64(v: u64) -> [u8;8] {
@@ -32,6 +34,7 @@ pub fn prop(leaf: &Leaf, pos: i32) -> f32 {
 
 const RNG_BLOCK_SIZE : i32 = 1000000;
 
+#[cfg(not(deploy))]
 pub fn rng_pos(kind: [u8;8], start: i32, end: i32, sep: i32, size: i32) -> Vec<[i32;2]> {
     let mut out = Vec::<[i32;2]>::new();
     let start_block = (start as f32/RNG_BLOCK_SIZE as f32).floor() as i32;
@@ -62,6 +65,7 @@ pub fn rng_pos(kind: [u8;8], start: i32, end: i32, sep: i32, size: i32) -> Vec<[
     out
 }
 
+#[cfg(not(deploy))]
 pub fn rng_seq(kind: [u8;8], start: i32, end: i32) -> String {
     let mut out = String::new();
     let start_block = (start as f32/RNG_BLOCK_SIZE as f32).floor() as i32;
@@ -88,6 +92,7 @@ pub fn rng_seq(kind: [u8;8], start: i32, end: i32) -> String {
     out
 }
 
+#[cfg(not(deploy))]
 fn start_hash(kind: [u8;8], start: &[i32;2]) -> u64 {
     let mut h = DefaultHasher::new();
     h.write(&kind);
@@ -111,7 +116,9 @@ pub fn rng_colour(kind: [u8;8], start: &[i32;2]) -> Colour {
     Colour(b[0] as u32,b[1] as u32,b[2] as u32)
 }
 
+#[cfg(not(deploy))]
 const MANY : u64 = 1000000000;
+#[cfg(not(deploy))]
 pub fn rng_prob(kind: [u8;8], start: &[i32;2], prob: f32) -> bool {
     let b = start_hash(kind,start);
     (b%MANY) < (prob * MANY as f32) as u64

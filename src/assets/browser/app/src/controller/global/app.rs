@@ -11,7 +11,7 @@ use composit::{
 };
 use controller::input::{ Action, actions_run, startup_actions };
 use controller::global::{ AppRunnerWeak, AppRunner };
-use controller::output::{ Report, ViewportReport };
+use controller::output::{ Report, ViewportReport, ZMenuReports };
 use data::{ BackendConfig, BackendStickManager, HttpManager, HttpXferClerk, XferCache };
 use debug::add_debug_sticks;
 use dom::domutil;
@@ -34,6 +34,7 @@ pub struct App {
     sticks: Box<StickManager>,
     report: Option<Report>,
     viewport: Option<ViewportReport>,
+    zmenu_reports: Option<ZMenuReports>,
     csl: SourceManagerList,
     http_clerk: HttpXferClerk,
     als: AllLandscapes,
@@ -43,10 +44,8 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(tc: &Tácode, config: &BackendConfig, http_manager: &HttpManager, browser_el: &HtmlElement, config_url: &Url, outer_el: &HtmlElement) -> App {
+    pub fn new(tc: &Tácode, config: &BackendConfig, http_manager: &HttpManager, browser_el: &HtmlElement, config_url: &Url) -> App {
         let browser_el = browser_el.clone();
-        let bottle_el = domutil::query_selector2(&outer_el.clone().into(),".bottle");
-        let swarm_el = domutil::query_selector2(&outer_el.clone().into(),".swarm");
         domutil::inner_html(&browser_el.clone().into(),CANVAS);
         let canv_el : HtmlElement = domutil::query_selector(&browser_el.clone().into(),"canvas").try_into().unwrap();
         let bsm = BackendStickManager::new(config);
@@ -66,6 +65,7 @@ impl App {
             sticks: Box::new(csm),
             report: None,
             viewport: None,
+            zmenu_reports: None,
             csl: SourceManagerList::new(),
             http_clerk: clerk,
             als: AllLandscapes::new(),
@@ -73,7 +73,10 @@ impl App {
             stage_resize: None,
             last_resize_at: None
         };
-        let dsm = CombinedSourceManager::new(&tc,config,&out.als,&out.http_clerk);
+        let dsm = {
+            let compo = &out.compo.lock().unwrap();
+            CombinedSourceManager::new(&tc,config,&compo.get_zmr(),&out.als,&out.http_clerk)
+        };
         out.csl.add_compsource(Box::new(dsm));
         out.run_actions(&startup_actions());        
         out
@@ -112,6 +115,14 @@ impl App {
     
     pub fn set_viewport_report(&mut self, report: ViewportReport) {
         self.viewport = Some(report);
+    }
+    
+    pub fn set_zmenu_reports(&mut self, report: ZMenuReports) {
+        self.zmenu_reports = Some(report);
+    }    
+    
+    pub fn get_zmenu_reports(&mut self) -> Option<&mut ZMenuReports> {
+        self.zmenu_reports.as_mut()
     }
     
     pub fn with_apprunner<F,G>(&mut self, cb:F) -> Option<G>
@@ -180,7 +191,11 @@ impl App {
             }
         }
     }
- 
+
+    pub fn check_gone(self: &mut App) -> bool {
+        !domutil::in_page(&self.canv_el)
+    }
+
     pub fn force_size(self: &mut App, sz: Dot<f64,f64>) {
         self.stage_resize = Some(sz);
         let mut stage = self.stage.lock().unwrap();

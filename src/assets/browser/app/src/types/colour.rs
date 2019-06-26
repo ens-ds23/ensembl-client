@@ -1,4 +1,4 @@
-use program::{ UniformValue, Input };
+use drivers::webgl::program::{ UniformValue, Input };
 use hsl::HSL;
 
 /* Colour */
@@ -39,3 +39,4 @@ impl Input for Colour {
         dest.extend_from_slice(&self.to_frac());
     }
 }
+

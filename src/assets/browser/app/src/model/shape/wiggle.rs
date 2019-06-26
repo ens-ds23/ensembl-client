@@ -1,11 +1,10 @@
 use types::{ CLeaf, Colour, cleaf };
 
-use drivers::webgl::{
-    Facade, FacadeType, ShapeLongInstanceData, 
-    TypeToShape, ShapeInstanceDataType,
+use model::shape::{
+    ShapeSpec, Facade, FacadeType, ShapeInstanceDataType,
+    ShapeShortInstanceData, TypeToShape, ShapeLongInstanceData,
+    GenericShape
 };
-
-use model::shape::ShapeSpec;
 
 #[derive(Clone,Debug)]
 pub struct StretchWiggle {
@@ -13,6 +12,8 @@ pub struct StretchWiggle {
     pub y: i32,
     pub group: Colour
 }
+
+impl GenericShape for StretchWiggle {}
 
 impl StretchWiggle {
     pub fn new(points: Vec<CLeaf>, group: Colour, y: i32) -> StretchWiggle {

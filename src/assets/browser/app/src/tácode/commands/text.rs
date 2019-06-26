@@ -42,6 +42,16 @@ fn texts(tx: &mut Vec<DrawingSpec>, font_name: &str, meta: &Vec<f64>,
     out
 }
 
+fn texts2(tx: &mut Vec<DrawingSpec>, font_name: &str, meta: &Vec<f64>,
+         strings: &Vec<String>) -> Vec<f64> {
+    let (font,fgd,bgd) = process_meta(font_name,meta);
+    let mut out = Vec::<f64>::new();
+    for s in strings {
+        out.push(text(tx,&font,&fgd,&bgd,&s) as f64);
+    }
+    out
+}
+
 // text #target, #font, #meta, #texts, #sizes
 pub struct Text(TáContext,usize,usize,usize,usize,usize);
 
@@ -56,7 +66,7 @@ impl Command for Text {
                     regs.get(self.3).as_floats(|meta| {
                         regs.get(self.4).as_string(|strings| {
                             regs.get(self.5).as_floats(|lens| {
-                                regs.set(self.1,Value::new_from_float(texts(tx,font_name,meta,strings,lens)));
+                                regs.set(self.1,Value::new_from_float(texts(tx,&font_name[0],meta,&strings[0],lens)));
                             });
                         });
                     });
@@ -74,5 +84,38 @@ impl Instruction for TextI {
     fn build(&self, args: &Vec<Argument>) -> Box<Command> {
         Box::new(Text(self.0.clone(),args[0].reg(),args[1].reg(),
                       args[2].reg(),args[3].reg(),args[4].reg()))
+    }
+}
+
+// text2 #target, #font, #meta, #texts
+pub struct Text2(TáContext,usize,usize,usize,usize);
+
+impl Command for Text2 {
+    #[allow(irrefutable_let_patterns)]
+    fn execute(&self, rt: &mut DataState, proc: Arc<Mutex<ProcState>>) -> i64 {
+        let pid = proc.lock().unwrap().get_pid().unwrap();
+        self.0.with_task(pid,|task| {
+            if let TáTask::MakeShapes(_,_,_,ref mut tx,_,_,_) = task {
+                let regs = rt.registers();
+                regs.get(self.2).as_string(|font_name| {
+                    regs.get(self.3).as_floats(|meta| {
+                        regs.get(self.4).as_string(|strings| {
+                            regs.set(self.1,Value::new_from_float(texts2(tx,&font_name[0],meta,strings)));
+                        });
+                    });
+                });
+            }
+        });
+        return 1;
+    }
+}
+
+pub struct Text2I(pub TáContext);
+
+impl Instruction for Text2I {
+    fn signature(&self) -> Signature { Signature::new("text2","rrrrr") }
+    fn build(&self, args: &Vec<Argument>) -> Box<Command> {
+        Box::new(Text2(self.0.clone(),args[0].reg(),args[1].reg(),
+                      args[2].reg(),args[3].reg()))
     }
 }

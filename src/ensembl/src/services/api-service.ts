@@ -30,7 +30,7 @@ class ApiService {
   private host: string;
 
   public constructor(config: ApiServiceConfig) {
-    this.host = config.host;
+    this.host = config.host || '';
   }
 
   // temporary method, for easy testing, until we choose a library

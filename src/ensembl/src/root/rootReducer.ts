@@ -3,6 +3,7 @@ import { connectRouter } from 'connected-react-router';
 
 import browser from '../content/app/browser/browserReducer';
 import drawer from '../content/app/browser/drawer/drawerReducer';
+import genome from '../genome/genomeReducer';
 import customDownload from '../content/app/custom-download/state/customDownloadReducer';
 import global from '../global/globalReducer';
 import header from '../header/headerReducer';
@@ -16,6 +17,7 @@ const rootReducer = (history: any) =>
     drawer,
     customDownload,
     ensObject,
+    genome,
     global,
     header,
     router: connectRouter(history),

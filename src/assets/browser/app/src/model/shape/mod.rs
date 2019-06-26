@@ -2,6 +2,8 @@ mod bitmap;
 mod collage;
 mod poly;
 mod rect;
+mod pinrect;
+mod stretchrect;
 mod shapespec;
 mod text;
 mod texture;
@@ -20,15 +22,23 @@ pub use self::poly::{
 };
 
 pub use self::rect::{
-    BoxSpec,
-    RectPosition,
-    RectSpec,
+    RectSpec,  ZMenuRectSpec,
+    RectPosition, ZPosition, PatinaSpec
+};
+
+pub use self::pinrect::{
     PinRectTypeSpec,
-    StretchRectTypeSpec,
+};
+
+pub use self::stretchrect::{
+    StretchRectTypeSpec, BoxSpec,
 };
 
 pub use self::shapespec::{ 
-    ColourSpec, DrawingSpec, ShapeSpec, MathsShape, DrawingHash
+    ColourSpec, DrawingSpec, ShapeSpec, MathsShape, DrawingHash,
+    Facade, FacadeType, ShapeInstanceDataType,
+    ShapeShortInstanceData, TypeToShape, ShapeLongInstanceData,
+    GenericShape
 };
 
 pub use self::text::{

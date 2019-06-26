@@ -12,11 +12,11 @@ use dom::event::{ EventListener, EventType, EventData, EventControl, Target };
 use dom::AppEventData;
 
 pub struct StartupEventListener {
-    g: Arc<Mutex<Global>>
+    g: Global
 }
 
 impl StartupEventListener {
-    pub fn new(g: &Arc<Mutex<Global>>) -> StartupEventListener {
+    pub fn new(g: &Global) -> StartupEventListener {
         StartupEventListener {
             g: g.clone()
         }
@@ -25,7 +25,6 @@ impl StartupEventListener {
 
 impl EventListener<()> for StartupEventListener {
     fn receive(&mut self, _el: &Target,  e: &EventData, _idx: &()) {
-        let mut g = unwrap!(self.g.lock());
         match e {
             EventData::CustomEvent(_,cx,name,data) => {
                 let aed = AppEventData::new(data);
@@ -39,7 +38,7 @@ impl EventListener<()> for StartupEventListener {
                             console!("BROWSER APP REFUSING TO START UP! No config-url supplied");
                         }
                         let config_url = ok!(Url::parse(&unwrap!(config_url)));
-                        g.register_app(&key,&unwrap!(cx.target().try_into()),debug,&config_url);
+                        self.g.trigger_app(&key,&unwrap!(cx.target().try_into()),debug,&config_url);
                     },
                     _ => ()
                 }
@@ -49,7 +48,7 @@ impl EventListener<()> for StartupEventListener {
     }
 }
 
-pub fn register_startup_events(g: &Arc<Mutex<Global>>) {
+pub fn register_startup_events(g: &Global) {
     let uel = StartupEventListener::new(g);
     let mut ec_start = EventControl::new(Box::new(uel),());
     ec_start.add_event(EventType::CustomEvent("bpane-activate".to_string()));

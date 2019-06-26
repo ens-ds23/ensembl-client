@@ -58,13 +58,13 @@ mod test {
     fn const_cmd() {   
         let tc = TestContext::new();
         let mut r = command_run(&tc,"const");
-        assert_eq!("\"hi\"",r.get_reg(1));
+        assert_eq!("[\"hi\"]",r.get_reg(1));
     }
     
     #[test]
     fn move_cmd() {
         let tc = TestContext::new();
         let mut r = command_run(&tc,"move");
-        assert_eq!("\"hi\"",r.get_reg(2));
+        assert_eq!("[\"hi\"]",r.get_reg(2));
     }
 }

@@ -43,7 +43,8 @@ describe('<BrowserBar />', () => {
     obj_type: 'gene',
     spliced_length: 84793,
     stable_id: 'ENSG00000139618',
-    strand: 'forward'
+    strand: 'forward',
+    genome_id: 'homo_sapiens_grch38'
   };
 
   const defaultProps = {
@@ -93,9 +94,19 @@ describe('<BrowserBar />', () => {
   });
 
   describe('behaviour', () => {
-    test('shows BrowserInfo panel by default', () => {
+    test('does not show BrowserInfo panel by default', () => {
       const renderedBrowserBar = mount(renderBrowserBar());
-      expect(renderedBrowserBar.find(BrowserInfo)).toHaveLength(1);
+      expect(renderedBrowserBar.find(BrowserInfo)).toHaveLength(0);
+    });
+
+    test('shows BrowserInfo panel if gene location is provided', () => {
+      const renderedBrowserBar = mount(
+        renderBrowserBar({
+          activeGenomeId: 'homo_sapiens_grch38',
+          defaultChrLocation: { homo_sapiens_grch38: ['13', 100, 100] }
+        })
+      );
+      expect(renderedBrowserBar.find(BrowserInfo).length).toBe(1);
     });
 
     test('hides BrowserInfo panel if gene location is not provided', () => {
@@ -125,6 +136,11 @@ describe('<BrowserBar />', () => {
       const renderedBrowserBar = mount(
         renderBrowserBar({ genomeSelectorActive: true })
       );
+      expect(renderedBrowserBar.find(BrowserNavigatorButton).length).toBe(0);
+    });
+
+    test('hides BrowserNavigatorButton if there is no focus object', () => {
+      const renderedBrowserBar = mount(renderBrowserBar({ ensObjectInfo: {} }));
       expect(renderedBrowserBar.find(BrowserNavigatorButton).length).toBe(0);
     });
 

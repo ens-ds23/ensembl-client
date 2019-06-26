@@ -1,6 +1,6 @@
 use stdweb::unstable::TryInto;
 
-use stdweb::web::{ HtmlElement, INode };
+use stdweb::web::HtmlElement;
 
 use dom::{ domutil, Bling };
 
@@ -8,7 +8,6 @@ pub const PLAINSTAGE : &str = r##"
 <div class="bpane-container">
     <div class="bpane-canv">
     </div>
-    <div class="swarm"></div>
     <div class="managedcanvasholder"></div>
 </div>
 "##;
@@ -51,15 +50,11 @@ impl NoBling {
 impl Bling for NoBling {
     fn apply_bling(&self, el: &HtmlElement) -> HtmlElement {
         let el = el.clone().into();
-        let bottle = domutil::query_selector2(&el,".bottle");
         domutil::inner_html(&el,PLAINSTAGE);
-        if let Some(bottle) = bottle {
-            el.append_child(&bottle);
-        }
         if let Some(old) = domutil::query_selector2(&el,"#bpane-css") {
             domutil::remove(&old);
         }       
-        let css = domutil::append_element(&domutil::query_select("head"),"style");
+        let css = domutil::append_element(&domutil::query_selector_ok_doc("head","no head element"),"style");
         domutil::add_attr(&css,"id","bpane-css");
         domutil::inner_html(&css,PLAINSTAGE_CSS);
         domutil::query_selector(&el.clone().into(),".bpane-canv").clone().try_into().unwrap()

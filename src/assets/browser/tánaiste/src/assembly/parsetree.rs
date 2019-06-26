@@ -6,7 +6,7 @@ use super::escapes::string_escape;
 #[derive(Clone,Debug)]
 pub enum Argument {
     Reg(usize),
-    Str(String),
+    Str(Vec<String>),
     Floats(Vec<f64>)
 }
 
@@ -20,7 +20,7 @@ impl Argument {
     
     pub fn value(&self) -> Value {
         match self {
-            Argument::Str(s) => Value::new_from_string(s.to_string()),
+            Argument::Str(s) => Value::new_from_string(s.to_vec()),
             Argument::Floats(f) => Value::new_from_float(f.to_vec()),
             _ => panic!(format!("not a value {:?}",self))            
         }
@@ -83,8 +83,11 @@ impl fmt::Display for Argument {
         match self {
             Argument::Reg(r) =>
                 write!(f,"#{}",r),
-            Argument::Str(s) =>
-                write!(f,"\"{}\"",string_escape(s,false)),
+            Argument::Str(s) => {
+                let s : Vec<String> = s.iter().map(|x| 
+                    format!("\"{}\"",string_escape(x,false))).collect();
+                write!(f,"{{{}}}",s.join(", "))
+            },
             Argument::Floats(ff) => {
                 let mut ff_s = Vec::<String>::new();
                 for f in ff {

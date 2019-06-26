@@ -1,6 +1,6 @@
 use std::fmt::Debug;
-use types::{ Dot, Edge, Anchors, RFraction, TOPLEFT };
-use super::{ MathsShape, ColourSpec, ShapeSpec };
+use types::{ Dot, Edge, Anchors };
+use super::{ MathsShape, ColourSpec, ShapeSpec, GenericShape };
 
 #[derive(Clone,Copy,Debug)]
 pub enum PolyPosition<T: Clone+Copy+Debug> {
@@ -10,7 +10,7 @@ pub enum PolyPosition<T: Clone+Copy+Debug> {
     Page(Dot<Edge<i32>,i32>)
 }
 
-#[derive(Clone,Copy,Debug)]
+#[derive(Clone,Debug)]
 pub struct PinPolySpec {
     pub origin: PolyPosition<f32>,
     pub anchor: Anchors,
@@ -20,6 +20,9 @@ pub struct PinPolySpec {
     pub colspec: ColourSpec
 }
 
+impl GenericShape for PinPolySpec {}
+
+#[allow(unused)]
 pub fn pin_mathsshape(origin: &Dot<f32,i32>,
                       anchor: Anchors,
                       size: f32, width: Option<f32>, ms: MathsShape,

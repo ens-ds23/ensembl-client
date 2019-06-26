@@ -1,14 +1,13 @@
 import { RootState } from 'src/store';
-import { TrackType } from './trackPanelConfig';
 
-export const getTrackPanelModalOpened = (state: RootState): boolean =>
+export const getTrackPanelModalOpened = (state: RootState) =>
   state.trackPanel.trackPanelModalOpened;
 
-export const getTrackPanelModalView = (state: RootState): string =>
+export const getTrackPanelModalView = (state: RootState) =>
   state.trackPanel.trackPanelModalView;
 
-export const getSelectedBrowserTab = (state: RootState): TrackType =>
+export const getSelectedBrowserTab = (state: RootState) =>
   state.trackPanel.selectedBrowserTab;
 
-export const getTrackPanelOpened = (state: RootState): boolean =>
+export const getTrackPanelOpened = (state: RootState) =>
   state.trackPanel.trackPanelOpened;

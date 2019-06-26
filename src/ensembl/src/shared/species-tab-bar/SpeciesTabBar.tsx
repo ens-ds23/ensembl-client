@@ -1,18 +1,27 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 import SpeciesTab from 'src/shared/species-tab/SpeciesTab';
 
+import { CommittedItem } from 'src/content/app/species-selector/types/species-search';
+import { RootState } from 'src/store';
+import { getEnabledCommittedSpecies } from 'src/content/app/species-selector/state/speciesSelectorSelectors';
+
 import styles from './SpeciesTabBar.scss';
 
-import { CommittedItem } from 'src/content/app/species-selector/types/species-search';
-
-type Props = {
+type StateProps = {
   species: CommittedItem[]; // list of species
+};
+
+type OwnProps = {
   activeGenomeId: string; // id of the species that is currently active
   onTabSelect: (genomeId: string) => void;
 };
 
-const SpeciesTabBar = (props: Props) => {
+type SpeciesTabBarProps = StateProps & OwnProps;
+
+export const SpeciesTabBar = (props: SpeciesTabBarProps) => {
   return (
     <div className={styles.speciesTabBar}>
       {props.species.map((species) => (
@@ -23,8 +32,15 @@ const SpeciesTabBar = (props: Props) => {
           onActivate={props.onTabSelect}
         />
       ))}
+      <div className={styles.addSpeciesLink}>
+        <Link to={'/app/species-selector'}>Change</Link>
+      </div>
     </div>
   );
 };
 
-export default SpeciesTabBar;
+const mapStateToProps = (state: RootState) => ({
+  species: getEnabledCommittedSpecies(state)
+});
+
+export default connect(mapStateToProps)(SpeciesTabBar);

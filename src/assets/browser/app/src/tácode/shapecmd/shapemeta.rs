@@ -13,7 +13,10 @@
  * not to configure a two-anchor shape to grow (such as a floating
  * rectangle), but they can.
  * 
- * colour-type is one of colour = 0; spot = 1. It is ignored for textures.
+ * colour-type is one of colour = 0; spot = 1; zmenu=2. It is ignored for textures.
+ * zmenu coloured items are not drawn but act as zmenu regions. For
+ * zmenus, the "colour" variable should actually be a string variable
+ * giving the region IDs.
  * 
  * Two-anchor shapes:
  * There then follows two pairs representing the axis of each of the
@@ -56,10 +59,9 @@
  * the first two arguments are used.
  */
 
-use drivers::webgl::{ TypeToShape };
 use model::shape::{
     StretchWiggleTypeSpec, PinRectTypeSpec, StretchRectTypeSpec, 
-    TextureTypeSpec
+    TextureTypeSpec, TypeToShape, PatinaSpec
 };
 use types::AxisSense;
 
@@ -89,6 +91,16 @@ fn ship(meta: &Vec<f64>, idx: usize) -> (Option<AxisSense>,i32) {
     },meta[idx+1] as i32)
 }
 
+fn cs_to_patina(val: f64) -> PatinaSpec {
+    if val == 1. {
+        PatinaSpec::Spot
+    } else if val == 2. {
+        PatinaSpec::ZMenu
+    } else {
+        PatinaSpec::Colour
+    }
+}
+
 fn make_rectangle(meta: &Vec<f64>) -> Option<Box<TypeToShape>> {
     Some(Box::new(PinRectTypeSpec {
         sea_x: sea(meta,2),
@@ -96,14 +108,14 @@ fn make_rectangle(meta: &Vec<f64>) -> Option<Box<TypeToShape>> {
         ship_x: ship(meta,6),
         ship_y: ship(meta,8),
         under: meta[10] as i32,
-        spot: meta[1]!=0.
+        spot: cs_to_patina(meta[1])
     }))
 }
 
 fn make_stretchtangle(meta: &Vec<f64>) -> Option<Box<TypeToShape>> {
     Some(Box::new(StretchRectTypeSpec {
         hollow: meta[0] == 2.,
-        spot: meta[1]!=0.
+        spot: cs_to_patina(meta[1])
     }))
 }
 

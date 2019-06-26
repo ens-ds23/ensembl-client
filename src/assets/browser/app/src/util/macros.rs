@@ -51,6 +51,7 @@ macro_rules! console_force {
     }}
 }
 
+#[deprecated(note="use blackbox")]
 macro_rules! console {
     ($($arg:tt)*) => {{
         if !cfg!(deploy) || cfg!(console) {
@@ -144,6 +145,24 @@ macro_rules! bb_log {
 }
 
 #[cfg(any(not(deploy),console))]
+macro_rules! bb_if_log {
+    ($stream:expr,$code:block) => {{
+        if !cfg!(deploy) || cfg!(console) {
+            if ::data::blackbox::blackbox_is_enabled($stream) {
+                $code
+            }
+        }
+    }}
+}
+
+#[cfg(all(deploy,not(console)))]
+macro_rules! bb_if_log {
+    ($stream:expr,$code:block) => {{}}
+}
+
+
+#[allow(unused_macros)]
+#[cfg(any(not(deploy),console))]
 macro_rules! bb_stack {
     ($level:expr,$code:block) => {{
         ::data::blackbox::blackbox_push($level);
@@ -153,26 +172,11 @@ macro_rules! bb_stack {
     }}
 }
 
+#[allow(unused_macros)]
 #[cfg(all(deploy,not(console)))]
 macro_rules! bb_stack {
     ($level:expr,$code:block) => {{
         $code
-    }}
-}
-
-macro_rules! debug {
-    ($k: expr, $($arg:tt)*) => {{
-        if false {
-            let s = format!($($arg)*);
-            ::debug::debug_panel_entry_add($k,&s);
-        }
-    }}
-}
-
-macro_rules! halt {
-    () => {{
-        let s = format!("ENSEMBL ERROR LOCATION {}/{}/{}",file!(),line!(),column!());
-        panic!(s)
     }}
 }
 

@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use program::{ ProgramType, PTGeom, PTSkin, PTMethod, ProgramAttribs };
+use super::super::program::{ ProgramType, PTGeom, PTSkin, PTMethod, ProgramAttribs };
 use types::{
     APixel, AxisSense, CPixel, area_centred, cfraction
 };
@@ -23,7 +23,7 @@ impl GLShape for TextureSpec {
             let mut offset = self.offset.as_fraction();
             let mut bounds_check = false;
             match self.origin {
-                TexturePosition::Pin(origin) => {
+                TexturePosition::Pin(_) => {
                     bounds_check = true;
                 },
                 TexturePosition::Tape(origin) => {
@@ -73,7 +73,7 @@ impl GLShape for TextureSpec {
         }
     }
 
-    fn get_geometry(&self) -> ProgramType {
+    fn get_geometry(&self) -> Option<ProgramType> {
         let gt = match self.origin {
             TexturePosition::Pin(_) => PTGeom::Pin,
             TexturePosition::Tape(_) => PTGeom::Tape,
@@ -83,7 +83,7 @@ impl GLShape for TextureSpec {
             TexturePosition::Page(_) => PTGeom::Page,
             TexturePosition::PageUnderAll(_) => PTGeom::PageUnderAll,
         };
-        ProgramType(gt,PTMethod::Triangle,PTSkin::Texture)
+        Some(ProgramType(gt,PTMethod::Triangle,PTSkin::Texture))
     }
 
     fn get_artist(&self) -> Option<Rc<Artist>> { 

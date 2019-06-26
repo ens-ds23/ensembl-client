@@ -1,11 +1,13 @@
 @import 'src/styles/common';
 
 .main {
+  color: $ens-black;
   margin-left: 2em;
+  line-height: 2.5em;
 }
 
 .placeholderMessage {
-  color: $ens-grey;
+  font-size: 14px;
 }
 
 .genomeBrowserLinkContainer {

@@ -99,7 +99,7 @@ $global-button-cursor: auto;
 $global-color-pick-contrast-tolerance: 0;
 $print-transparent-backgrounds: true;
 
-$ens-black: #2c343a;
+$ens-black: #17354e;
 $ens-shadow-color: rgba(0, 0, 0, 0.4);
 
 $ens-light-blue: #e5f5ff; // text highlight
@@ -132,6 +132,7 @@ $ens-white: #fff;
   ens-light-grey: $ens-light-grey;
   ens-green: $ens-green;
   ens-white: $ens-white;
+  ens-shadow-color: $ens-shadow-color;
 }
 /* stylelint-enable */
 

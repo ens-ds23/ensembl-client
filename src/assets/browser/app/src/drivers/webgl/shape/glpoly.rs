@@ -1,6 +1,6 @@
 use std::f32;
 
-use program::{
+use super::super::program::{
     ProgramAttribs, DataBatch, PTGeom, PTMethod, ProgramType,
     Input
 };
@@ -57,13 +57,13 @@ impl GLShape for PinPolySpec {
         ppd.draw(geom_a, _art, e);
     }
 
-    fn get_geometry(&self) -> ProgramType {
+    fn get_geometry(&self) -> Option<ProgramType> {
         let mt = if self.width.is_some() {
             PTMethod::Strip
         } else {
             PTMethod::Triangle
         };
-        despot(program_type(&self),mt,&self.colspec)
+        Some(despot(program_type(&self),mt,&self.colspec))
     }
 }
 
@@ -177,6 +177,4 @@ impl PinPolyDraw {
             self.add(b,geom,v,self.points+1);
         }
     }
-
-    fn get_geometry(&self) -> ProgramType { self.geom }
 }

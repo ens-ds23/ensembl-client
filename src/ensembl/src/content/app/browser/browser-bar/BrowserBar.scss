@@ -74,8 +74,9 @@
       text-align: right;
     }
 
-    .geneSymbol {
+    .ensObjectLabel {
       margin-left: 14px;
+      text-transform: capitalize;
 
       .value {
         font-size: 13px;

@@ -52,11 +52,6 @@ export default function speciesSelectorReducer(
   action: ActionType<typeof speciesSelectorActions>
 ): SpeciesSelectorState {
   switch (action.type) {
-    case getType(speciesSelectorActions.fetchSpeciesSearchResults.request):
-      return {
-        ...state,
-        search: initialState.search
-      };
     case getType(speciesSelectorActions.fetchSpeciesSearchResults.success):
       return {
         ...state,

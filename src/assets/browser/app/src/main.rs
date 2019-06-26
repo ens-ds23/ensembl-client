@@ -30,7 +30,6 @@ mod debug;
 mod dom;
 mod drivers;
 mod model;
-mod program;
 mod tácode;
 mod types;
 
@@ -40,7 +39,6 @@ use util::build_summary;
 fn main() {
     stdweb::initialize();
     global::setup_global();
-    debug!("global","{}",build_summary());
     console_force!("{}",build_summary());
     stdweb::event_loop();
 }

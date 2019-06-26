@@ -2,9 +2,10 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use composit::{ Leaf, Stage, Compositor };
-use model::driver::SourceResponse;
+use model::train::TravellerResponse;
 use types::Dot;
 use super::Printer;
+use drivers::zmenu::ZMenuLeaf;
 
 struct PrinterManagerImpl {
     printer: Box<Printer>
@@ -69,7 +70,11 @@ impl Printer for PrinterManager {
         self.0.borrow_mut().printer.set_current(leaf);
     }
     
-    fn make_partial(&mut self, leaf: &Leaf) -> Box<SourceResponse> {
-        self.0.borrow_mut().printer.make_partial(leaf)
-    }   
+    fn make_traveller_response(&mut self, leaf: &Leaf) -> Box<TravellerResponse> {
+        self.0.borrow_mut().printer.make_traveller_response(leaf)
+    }
+    
+    fn redraw_carriage(&mut self, leaf: &Leaf) {
+        self.0.borrow_mut().printer.redraw_carriage(leaf);
+    }
 }

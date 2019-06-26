@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 
 use super::{ OneCanvasManager, FlatCanvas, AllCanvasAllocator };
-use program::{ CanvasCache, CanvasWeave };
+use super::super::program::{ CanvasCache, CanvasWeave };
 
 pub struct CarriageCanvases {
     ds_idx: u32,
@@ -53,7 +53,7 @@ impl CarriageCanvases {
     pub fn finalise(&mut self, aca: &mut AllCanvasAllocator) {
         for (ref weave,ref mut ocm) in &mut self.canvases {                    
             let size = ocm.allocate();
-            let mut canv = aca.flat_allocate(size,*weave);
+            let canv = aca.flat_allocate(size,*weave);
             ocm.draw(aca,canv);
         }
     }

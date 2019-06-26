@@ -35,4 +35,8 @@
   @include breakpoint(medium) {
     display: inline-block;
   }
+
+  a {
+    color: $ens-blue;
+  }
 }

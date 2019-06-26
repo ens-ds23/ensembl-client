@@ -1,8 +1,8 @@
 use std::cmp::{ Ordering, PartialOrd };
 use std::fmt::Debug;
-use std::ops::{ Add, Neg };
+use std::ops::{ Add, Neg, Sub };
 
-use program::Input;
+use drivers::webgl::program::Input;
 use types::{ Dot, area, Rect };
 
 #[derive(Clone,Copy,Debug,PartialEq,Eq)]
@@ -137,6 +137,15 @@ impl AxisSense {
 impl<T: Clone+Copy+Debug> Edge<T> {
     pub fn corner(self) -> AxisSense { self.0 }
     pub fn quantity(self) -> T { self.1 }
+}    
+
+impl<T: Clone+Copy+Debug+ Sub<T, Output=T>> Edge<T> {
+    pub fn min_dist(self, size: T) -> T {
+        match self.0 {
+            AxisSense::Max => self.1,
+            AxisSense::Min => size-self.1
+        }
+    }
 }
 
 impl<T: Clone+Copy+Debug> Anchored<T> {

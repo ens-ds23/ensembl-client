@@ -1,13 +1,17 @@
 use composit::{ Compositor, Stage, Leaf };
 use types::Dot;
 
-use model::driver::SourceResponse;
+use model::train::{ Traveller, TravellerResponse };
+use drivers::zmenu::ZMenuLeaf;
 
 pub trait Printer {
     /* Print one run of objects from compositor with given stage and
      * state.
      */
     fn print(&mut self, stage: &Stage, compo: &mut Compositor);
+    
+    /* Redraw one carriage */
+    fn redraw_carriage(&mut self, leaf: &Leaf);
     
     /* Finished with printer */
     fn destroy(&mut self);
@@ -26,5 +30,5 @@ pub trait Printer {
     fn add_leaf(&mut self, leaf: &Leaf);
     fn remove_leaf(&mut self, leaf: &Leaf);
     fn set_current(&mut self, leaf: &Leaf);
-    fn make_partial(&mut self, leaf: &Leaf) -> Box<SourceResponse>;
+    fn make_traveller_response(&mut self, leaf: &Leaf) -> Box<TravellerResponse>;
 }

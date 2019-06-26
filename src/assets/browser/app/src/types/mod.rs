@@ -26,7 +26,7 @@ pub use types::area::{
     RFraction,
     RPixel,
     area, Rect, area_size, area_centred,
-    Bounds,
+    Bounds, Placement, XPosition, YPosition
 };
 
 pub use types::colour::{

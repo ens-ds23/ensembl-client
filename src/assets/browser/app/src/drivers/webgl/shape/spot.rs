@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use program::{ ProgramAttribs, DataGroupIndex, ProgramType, PTSkin };
+use super::super::program::{ ProgramAttribs, DataGroupIndex, ProgramType, PTSkin };
 use types::Colour;
 
 pub struct Spot {

@@ -14,7 +14,7 @@ pub fn command_compile(what: &str, tc: &TestContext) -> BinaryCode {
         instruction_bundle_native(),
         instruction_bundle_test(tc)
     });
-    assemble(&is,&TEST_CODE[what]).ok().unwrap()
+    assemble(&is,&TEST_CODE[what]).expect("compile failed")
 }
 
 pub fn command_make(tc: &TestContext, what: &str) -> Process {

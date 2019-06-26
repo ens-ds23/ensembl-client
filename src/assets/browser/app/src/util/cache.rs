@@ -3,7 +3,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::marker::PhantomData;
 
 /* 4-bit true LRU via bitmask: see lrugen.py */
-const cache_lru : [u8;64] = [
+const CACHE_LRU : [u8;64] = [
   3,  3,  9,  3,  3,  9,  3,  3,
   9,  9,  9,  0,  9,  9,  9,  0,
   9,  9,  9,  9,  1,  9,  1,  9,
@@ -35,7 +35,7 @@ impl<K,V> Cache<K,V> where K:Eq+Hash {
         }
         let mut values = Vec::<Option<(u64,V)>>::new();
         values.reserve(size);
-        for i in 0..size {
+        for _ in 0..size {
             values.push(None);
         }
         let lru = std::iter::repeat(67).take(size/4).collect();
@@ -60,7 +60,7 @@ impl<K,V> Cache<K,V> where K:Eq+Hash {
             c -= 1;
             (66 - c) as usize
         } else {
-            let p = cache_lru[c as usize];
+            let p = CACHE_LRU[c as usize];
             if p == 9 { console!("Bad lookup ({:?})!",c); panic!("EEK"); }
             c &= CACHE_USE_KEEP[p as usize];
             c |= CACHE_USE_SET[p as usize];

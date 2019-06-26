@@ -1,14 +1,16 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
 
 import { TrackType } from '../track-panel/trackPanelConfig';
-
+import { EnsObject } from 'src/ens-object/ensObjectTypes';
 import styles from './BrowserTabs.scss';
 
 type BrowserTabsProps = {
+  activeGenomeId: string;
+  ensObjectInfo: EnsObject;
   drawerOpened: boolean;
   genomeSelectorActive: boolean;
-  selectBrowserTab: (selectedBrowserTab: TrackType) => void;
-  selectedBrowserTab: TrackType;
+  selectBrowserTabAndSave: (selectedBrowserTab: TrackType) => void;
+  selectedBrowserTab: { [genomeId: string]: TrackType };
   toggleDrawer: (drawerOpened: boolean) => void;
   trackPanelModalOpened: boolean;
 };
@@ -24,14 +26,20 @@ const BrowserTabs: FunctionComponent<BrowserTabsProps> = (
   const [clickHandlers, setClickHandlers] = useState(initClickHandlers);
 
   const getBrowserTabClasses = (trackType: TrackType) => {
+    const { activeGenomeId, drawerOpened, trackPanelModalOpened } = props;
+    const selectedBrowserTab =
+      props.selectedBrowserTab[activeGenomeId] || TrackType.GENOMIC;
     let classNames = styles.browserTab;
 
     if (
-      props.selectedBrowserTab === trackType &&
-      props.drawerOpened === false &&
-      props.trackPanelModalOpened === false
+      props.ensObjectInfo.genome_id &&
+      selectedBrowserTab === trackType &&
+      drawerOpened === false &&
+      trackPanelModalOpened === false
     ) {
       classNames += ` ${styles.browserTabActive} ${styles.browserTabArrow}`;
+    } else if (!props.ensObjectInfo.genome_id) {
+      classNames = styles.browserTabDisabled;
     }
 
     return classNames;
@@ -42,7 +50,10 @@ const BrowserTabs: FunctionComponent<BrowserTabsProps> = (
 
     Object.values(TrackType).forEach((value: TrackType) => {
       callbacks[value] = () => {
-        if (props.genomeSelectorActive === true) {
+        if (
+          props.genomeSelectorActive === true ||
+          !props.ensObjectInfo.genome_id
+        ) {
           return;
         }
 
@@ -50,7 +61,7 @@ const BrowserTabs: FunctionComponent<BrowserTabsProps> = (
           props.toggleDrawer(false);
         }
 
-        props.selectBrowserTab(value);
+        props.selectBrowserTabAndSave(value);
       };
     });
 

@@ -1,16 +1,16 @@
 use std::sync::{ Arc, Mutex };
 
 use tánaiste::{
-    Argument, Command, DataState, Instruction, ProcState, Signature
+    Argument, Command, DataState, Instruction, ProcState, Signature,
+    Value
 };
 
 use composit::{ Leaf };
-use drivers::webgl::{
+use model::shape::{
     Facade, FacadeType, TypeToShape, ShapeShortInstanceData,
-    ShapeInstanceDataType, ShapeLongInstanceData
+    ShapeInstanceDataType, ShapeLongInstanceData, DrawingSpec
 };
-use model::shape::DrawingSpec;
-use model::train::PartyResponses;
+use composit::source::SourceResponse;
 use tácode::core::{ TáContext, TáTask };
 use super::super::shapecmd::{ build_meta };
 use types::Colour;
@@ -37,7 +37,7 @@ fn do_scale(spec: &Box<TypeToShape>, leaf: &Leaf, x_start: f64, x_aux: f64) -> O
     }
 }
 
-fn make_facade(spec: &Box<TypeToShape>, colour: &Vec<f64>, tx: &Vec<DrawingSpec>, i: usize) -> Facade {
+fn make_colour_facade(spec: &Box<TypeToShape>, colour: &Vec<f64>, tx: &Vec<DrawingSpec>, i: usize) -> Facade {
     let col_len = colour.len();
     match spec.get_facade_type() {
         FacadeType::Colour => {
@@ -49,17 +49,30 @@ fn make_facade(spec: &Box<TypeToShape>, colour: &Vec<f64>, tx: &Vec<DrawingSpec>
         FacadeType::Drawing => {
             let idx = colour[i%col_len];
             Facade::Drawing(tx[idx as usize].clone())
-        }
+        },
+        FacadeType::ZMenu => panic!("bad call 1")
     }
 }
 
-fn make_facades(spec: &Box<TypeToShape>, colour: &Vec<f64>, tx: &Vec<DrawingSpec>) -> Vec<Facade> {
+fn make_facade(spec: &Box<TypeToShape>, colour: &Value, tx: &Vec<DrawingSpec>, i: usize) -> Facade {
+    match spec.get_facade_type() {
+        FacadeType::Colour | FacadeType::Drawing => {
+            colour.as_floats(|colour| {
+                make_colour_facade(spec,colour,tx,i)
+            })
+        },
+        FacadeType::ZMenu => Facade::ZMenu("FIX ME".to_string())
+    }    
+}
+
+fn make_colour_facades(spec: &Box<TypeToShape>, colour: &Vec<f64>, tx: &Vec<DrawingSpec>) -> Vec<Facade> {
     let mut out = Vec::<Facade>::new();
     let col_len = colour.len();
     let type_ = spec.get_facade_type();
     let num_items = match type_ {
         FacadeType::Colour => col_len/3,
-        FacadeType::Drawing => col_len
+        FacadeType::Drawing => col_len,
+        FacadeType::ZMenu => panic!("bad call 3")
     };
     for i in 0..num_items {
         out.push(match type_ {
@@ -72,17 +85,34 @@ fn make_facades(spec: &Box<TypeToShape>, colour: &Vec<f64>, tx: &Vec<DrawingSpec
             FacadeType::Drawing => {
                 let idx = colour[i];
                 Facade::Drawing(tx[idx as usize].clone())
-            }
+            },
+            FacadeType::ZMenu => panic!("bad call 2")
         });
     }
     out
 }
 
+fn make_facades(spec: &Box<TypeToShape>, colour: &Value, tx: &Vec<DrawingSpec>) -> Vec<Facade> {
+    match spec.get_facade_type() {
+        FacadeType::Colour | FacadeType::Drawing => {
+            colour.as_floats(|colour| {
+                make_colour_facades(spec,colour,tx)
+            })
+        }
+        FacadeType::ZMenu => {
+            let out : Vec<Facade> = colour.as_string(|ids| {
+                ids.iter().map(|x| Facade::ZMenu(x.to_string())).collect()
+            });
+            out
+        }
+    }
+}
+
 /* TODO switch long to use make_facades. Can do it, but no time */
-fn draw_long_shapes(spec: Box<TypeToShape>, leaf: &mut Leaf, lc: &mut PartyResponses, 
+fn draw_long_shapes(spec: Box<TypeToShape>, leaf: &mut Leaf, lc: &mut SourceResponse, 
                 tx: &Vec<DrawingSpec>,x_start: &Vec<f64>,
                 x_aux: &Vec<f64>, y_start: &Vec<f64>, y_aux: &Vec<f64>,
-                colour: &Vec<f64>, part: &Option<String>) {
+                colour: &Value, part: &Option<String>) {
     if colour.len() == 0 { return; }
     let facade = make_facade(&spec,colour,tx,0);
     let mut x_start_scaled = Vec::<f64>::new();
@@ -102,53 +132,53 @@ fn draw_long_shapes(spec: Box<TypeToShape>, leaf: &mut Leaf, lc: &mut PartyRespo
         facade
     };
     if let Some(shape) = spec.new_long_shape(&data) {
-        if let Some(lc) = lc.get_mut(part) {
-            lc.add_shape(shape);
-        }
-    }    
+        lc.update_data(part,|data| data.add_shape(shape));
+    }
 }
 
-fn draw_short_shapes(spec: Box<TypeToShape>, leaf: &mut Leaf, lc: &mut PartyResponses, 
+fn draw_short_shapes(spec: Box<TypeToShape>, leaf: &mut Leaf, lc: &mut SourceResponse, 
                 tx: &Vec<DrawingSpec>,x_start: &Vec<f64>,
                 x_aux: &Vec<f64>, y_start: &Vec<f64>, y_aux: &Vec<f64>,
-                colour: &Vec<f64>, part: &Option<String>) {
+                colour: &Value, part: &Option<String>) {
     if colour.len() == 0 { return; }
     let facades = make_facades(&spec,colour,tx);
     let mut f_iter = facades.iter().cycle();
     let y_start_len = y_start.len();
     let x_aux_len = x_aux.len();
     let y_aux_len = y_aux.len();
-    if let Some(lc) = lc.get_mut(part) {
-        lc.expect(x_start.len());
-    }
+    let mut drops = 0;
     for i in 0..x_start.len() {
         if let Some((x_pos_v,x_aux_v)) = 
                 do_scale(&spec,leaf,x_start[i],x_aux[i%x_aux_len]) {
-            //let facade = make_facade(&spec,colour,tx,i);
             let facade = f_iter.next();
             let data = ShapeShortInstanceData {
                 pos_x: x_pos_v,
                 pos_y: y_start[i%y_start_len] as i32,
                 aux_x: x_aux_v,
                 aux_y: y_aux[i%y_aux_len] as i32,
-                facade: facade.cloned().unwrap()
+                facade: unwrap!(facade.cloned())
             };
             if let Some(shape) = spec.new_short_shape(&data) {
-                if let Some(lc) = lc.get_mut(part) {
-                    lc.add_shape(shape);
-                }
+                lc.update_data(part,|data| data.add_shape(shape));
+            } else {
+                drops += 1;
             }
         }
     }
-    if let Some(lc) = lc.get_mut(part) {
-        lc.expect(0);
-    }
+    bb_if_log!("performance",{
+        bb_log!("performance","{:?} {} shapes",leaf.get_short_spec(),x_start.len());
+        if drops * 10 > x_start.len() {
+            bb_log!("performance","Excessive drops! {:?} {}/{}",
+                leaf.get_short_spec(),
+                drops,x_start.len());
+        }
+    });
 }
 
-fn draw_shapes(meta: &Vec<f64>,leaf: &mut Leaf, lc: &mut PartyResponses, 
+fn draw_shapes(meta: &Vec<f64>,leaf: &mut Leaf, lc: &mut SourceResponse, 
                 tx: &Vec<DrawingSpec>,x_start: &Vec<f64>,
                 x_aux: &Vec<f64>, y_start: &Vec<f64>, y_aux: &Vec<f64>,
-                colour: &Vec<f64>, part: &Option<String>) {
+                colour: &Value, part: &Option<String>) {
     let mut meta_iter = meta.iter().cycle();
     if let Some(spec) = build_meta(&mut meta_iter) {
         match spec.sid_type() {
@@ -166,6 +196,7 @@ fn draw_shapes(meta: &Vec<f64>,leaf: &mut Leaf, lc: &mut PartyResponses,
 pub struct Shape(TáContext,usize,usize,usize,usize,usize,usize);
 
 impl Command for Shape {
+    #[allow(irrefutable_let_patterns)]
     fn execute(&self, rt: &mut DataState, proc: Arc<Mutex<ProcState>>) -> i64 {
         let pid = proc.lock().unwrap().get_pid().unwrap();
         self.0.with_task(pid,|task| {
@@ -176,10 +207,8 @@ impl Command for Shape {
                         regs.get(self.3).as_floats(|x_size| {
                             regs.get(self.4).as_floats(|y_start| {
                                 regs.get(self.5).as_floats(|y_size| {
-                                    regs.get(self.6).as_floats(|colour| {
-                                        draw_shapes(meta,leaf,lc,tx,x_start,x_size,
-                                                y_start,y_size,colour,part);
-                                    });
+                                    draw_shapes(meta,leaf,lc,tx,x_start,x_size,
+                                            y_start,y_size,&regs.get(self.6),part);
                                 });
                             });
                         });

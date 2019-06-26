@@ -6,7 +6,7 @@ use std::char;
 pub enum ValueImpl {
     Bytes(Vec<u8>),
     Float(Vec<f64>),
-    String(String)
+    String(Vec<String>)
 }
 
 impl ValueImpl {
@@ -20,7 +20,7 @@ impl ValueImpl {
     }
     
     pub fn as_string<F,R>(&self, cb: F) -> R 
-                where F: FnOnce(&String) -> R {
+                where F: FnOnce(&Vec<String>) -> R {
         match self {
             ValueImpl::Bytes(b)  => cb(&bytes_to_string(&b)),
             ValueImpl::Float(f)  => cb(&float_to_string(&f)),
@@ -41,17 +41,23 @@ impl ValueImpl {
         match self {
             ValueImpl::Bytes(b) => b.len(),
             ValueImpl::Float(f) => f.len(),
-            ValueImpl::String(s) => s.len()
+            ValueImpl::String(s) => 
+            {
+                let sum: usize = s.iter().map(|x| x.len()).sum();
+                s.len() + sum
+            }
         }
     }
 }
 
-fn float_to_string(data: &Vec<f64>) -> String {
-    data.iter().map(|s| char::from_u32(*s as u32).unwrap_or('\u{FFFD}')).collect()
+fn float_to_string(data: &Vec<f64>) -> Vec<String> {
+    vec![data.iter().map(|s| char::from_u32(*s as u32).unwrap_or('\u{FFFD}')).collect()]
 }
 
-fn string_to_float(data: &String) -> Vec<f64> {
-    data.chars().map(|s| s as u32 as f64).collect()
+fn string_to_float(data: &Vec<String>) -> Vec<f64> {
+    data.iter().map(|s|
+        s.chars().nth(0).map(|x| x as u32 as f64).unwrap_or(0.)
+    ).collect()
 }
 
 fn float_to_bytes(data: &Vec<f64>) -> Vec<u8> {
@@ -62,12 +68,12 @@ fn bytes_to_float(data: &Vec<u8>) -> Vec<f64> {
     string_to_float(&bytes_to_string(data))
 }
 
-fn string_to_bytes(data: &String) -> Vec<u8> {
-    data.as_bytes().to_vec()
+fn string_to_bytes(data: &Vec<String>) -> Vec<u8> {
+    data[0].as_bytes().to_vec()
 }
 
-fn bytes_to_string(data: &Vec<u8>) -> String {
-    String::from_utf8_lossy(data).to_string()
+fn bytes_to_string(data: &Vec<u8>) -> Vec<String> {
+    vec![String::from_utf8_lossy(data).to_string()]
 }
 
 #[derive(Clone)]
@@ -86,7 +92,7 @@ impl Value {
         Value(Rc::new(RefCell::new(ValueImpl::Float(data))))
     }
     
-    pub fn new_from_string(data: String) -> Value {
+    pub fn new_from_string(data: Vec<String>) -> Value {
         Value(Rc::new(RefCell::new(ValueImpl::String(data))))
     }
 
@@ -95,7 +101,7 @@ impl Value {
     }
 
     pub fn as_string<F,R>(&self, cb: F) -> R 
-                where F: FnOnce(&String) -> R {
+                where F: FnOnce(&Vec<String>) -> R {
         self.0.borrow().as_string(cb)                    
     }
 
@@ -175,13 +181,13 @@ mod test {
             104.,101.,108.,108.,111.,32.,
             116.,225.,110.,97.,105.,115.,116.,101.
         });
-        assert_eq!("\"hello tánaiste\"",format!("{:?}",v_f.as_string(|s| s.clone())));
+        assert_eq!("[\"hello tánaiste\"]",format!("{:?}",v_f.as_string(|s| s.clone())));
         assert_eq!("[104.0, 101.0, 108.0, 108.0, 111.0, 32.0, 116.0, 225.0, 110.0, 97.0, 105.0, 115.0, 116.0, 101.0]",v_f.as_floats(|f| format!("{:?}",f)));
-        let v_s = Value::new_from_string("hello tánaiste".to_string());
-        assert_eq!("\"hello tánaiste\"",format!("{:?}",v_s));
-        assert_eq!("\"hello tánaiste\"",format!("{:?}",v_s.as_string(|s| s.clone())));
+        let v_s = Value::new_from_string(vec!["hello tánaiste".to_string()]);
+        assert_eq!("[\"hello tánaiste\"]",format!("{:?}",v_s));
+        assert_eq!("[\"hello tánaiste\"]",format!("{:?}",v_s.as_string(|s| s.clone())));
         assert_eq!("[104.0, 101.0, 108.0, 108.0, 111.0, 32.0, 116.0, 225.0, 110.0, 97.0, 105.0, 115.0, 116.0, 101.0]",v_s.as_floats(|f| format!("{:?}",f)));
-        let mut vc_s = Value::new_from_string("hello tánaiste".to_string());
+        let mut vc_s = Value::new_from_string(vec!["hello tánaiste".to_string()]);
         vc_s.coerce_to_float(); /* s->f */
         assert_eq!("[104.0, 101.0, 108.0, 108.0, 111.0, 32.0, 116.0, 225.0, 110.0, 97.0, 105.0, 115.0, 116.0, 101.0]",format!("{:?}",vc_s));
         vc_s.coerce_to_bytes(); /* f->b */
@@ -192,7 +198,7 @@ mod test {
             116.,225.,110.,97.,105.,115.,116.,101.
         });
         vc_f.coerce_to_string(); /* f->s */
-        assert_eq!("\"hello tánaiste\"",format!("{:?}",vc_f));        
+        assert_eq!("[\"hello tánaiste\"]",format!("{:?}",vc_f));        
         let by = vec!{
             104,101,108,108,111,32,116,195,161,110,97,105,115,116,101
         };
@@ -200,7 +206,7 @@ mod test {
         assert_eq!("[104.0, 101.0, 108.0, 108.0, 111.0, 32.0, 116.0, 225.0, 110.0, 97.0, 105.0, 115.0, 116.0, 101.0]",format!("{:?}",vc_f));
         let mut vc_b = Value::new_from_bytes(by);
         vc_b.coerce_to_string(); /* b->s */
-        assert_eq!("\"hello tánaiste\"",format!("{:?}",vc_b));
+        assert_eq!("[\"hello tánaiste\"]",format!("{:?}",vc_b));
         vc_b.coerce_to_bytes(); /* s->b */
         assert_eq!("[104, 101, 108, 108, 111, 32, 116, 195, 161, 110, 97, 105, 115, 116, 101]",
             format!("{:?}",vc_b));

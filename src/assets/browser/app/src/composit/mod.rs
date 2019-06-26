@@ -5,7 +5,7 @@ mod combinedstickmanager;
 mod componentset;
 mod landscape;
 mod leaf;
-mod source;
+pub mod source;
 mod stage;
 mod stick;
 mod stickmanager;
@@ -14,7 +14,7 @@ mod position;
 mod wrapping;
 
 pub use self::source::{
-    CombinedSource, Source, SourceResponseData, ActiveSource, 
+    CombinedSource, Source, ActiveSource, 
     SourceManager, SourceManagerList, CombinedSourceManager
 };
 pub use self::combinedstickmanager::CombinedStickManager;

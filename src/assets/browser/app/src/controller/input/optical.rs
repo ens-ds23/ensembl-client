@@ -30,7 +30,7 @@ impl OpticalImpl {
         }
     }
 
-    fn tick(&mut self, app: &mut App, t: f64) {
+    fn tick(&mut self, app: &mut App, _t: f64) {
         if self.missing.abs() > EPS {
             let this_time = self.missing * LETHARGY;
             self.missing -= this_time;

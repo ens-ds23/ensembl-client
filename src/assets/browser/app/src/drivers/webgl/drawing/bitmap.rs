@@ -1,7 +1,7 @@
 use std::cmp::{ min, max };
 
 use super::{ FlatCanvas, Artist, CarriageCanvases, OneCanvasManager };
-use program::CanvasWeave;
+use super::super::program::CanvasWeave;
 use model::shape::{ BitmapArtist, DrawingHash };
 use types::{ CPixel, area_size, cpixel };
 

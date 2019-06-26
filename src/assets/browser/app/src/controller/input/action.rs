@@ -1,5 +1,7 @@
-use types::{ Move, Units, Axis, Dot, cdfraction, LEFT, RIGHT };
+use types::{ Move, Units, Axis, Dot, cdfraction, LEFT, RIGHT, CPixel };
 use controller::global::App;
+
+use serde_json::Value as JSONValue;
 
 #[derive(Debug,Clone)]
 pub enum Action {
@@ -13,7 +15,18 @@ pub enum Action {
     AddComponent(String),
     SetStick(String),
     SetState(String,bool),
-    Settled
+    Settled,
+    ZMenu(CPixel),
+    ShowZMenu(String,Dot<i32,i32>,JSONValue)
+}
+
+impl Action {
+    fn active(&self) -> bool {
+        match self {
+            Action::Noop | Action::Settled => false,
+            _ => true
+        }
+    }
 }
 
 fn exe_pos_event(app: &App, v: Dot<f64,f64>, prop: Option<f64>) {
@@ -93,6 +106,8 @@ fn exe_set_stick(a: &mut App, name: &str) {
             
         });
         exe_pos_event(a,cdfraction(0.,0.),None);
+    } else {
+        console_force!("NO SUCH STICK {}",name);
     }
 }
 
@@ -102,9 +117,34 @@ fn exe_set_state(a: &mut App, name: &str, on: bool) {
     });
 }
 
+fn exe_zmenu(a: &mut App, pos: &CPixel) {
+    console!("click {:?}",pos);
+    let acts = a.with_compo(|co|
+        a.with_stage(|s|
+            co.intersects(s,*pos)
+        )
+    );
+    actions_run(a,&acts);
+}
+
+fn exe_deactivate(a: &mut App) {
+    if let Some(zr) = a.get_zmenu_reports() {
+        zr.deactivate();
+    }
+}
+
+fn exe_zmenu_show(a: &mut App, id: &str, pos: Dot<i32,i32>, payload: JSONValue) {
+    if let Some(zr) = a.get_zmenu_reports() {
+        zr.add_activate(id,pos,payload);
+    }
+}
+
 pub fn actions_run(cg: &mut App, evs: &Vec<Action>) {
     for ev in evs {
         let ev = ev.clone();
+        if ev.active() {
+            exe_deactivate(cg);
+        }
         match ev {
             Action::Pos(v,prop) => exe_pos_event(cg,v,prop),
             Action::PosRange(x_start,x_end,y) => exe_pos_range_event(cg,x_start,x_end,y),
@@ -116,6 +156,8 @@ pub fn actions_run(cg: &mut App, evs: &Vec<Action>) {
             Action::SetStick(name) => exe_set_stick(cg,&name),
             Action::SetState(name,on) => exe_set_state(cg,&name,on),
             Action::Settled => exe_settled(cg),
+            Action::ZMenu(pos) => exe_zmenu(cg,&pos),
+            Action::ShowZMenu(id,pos,payload) => exe_zmenu_show(cg,&id,pos,payload),
             Action::Noop => ()
         }
     }

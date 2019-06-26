@@ -18,7 +18,7 @@ export default [
     isEnabled: true
   },
   {
-    genome_id: 'triticum_aestivum',
+    genome_id: 'triticum_aestivum_GCA_900519105_1',
     reference_genome_id: null,
     common_name: 'Wheat',
     scientific_name: 'Triticum aestivum',

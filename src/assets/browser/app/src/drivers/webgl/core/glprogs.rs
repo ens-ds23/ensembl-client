@@ -4,7 +4,7 @@ use dom::webgl::WebGLRenderingContext as glctx;
 
 use drivers::webgl::GLProgData;
 
-use program::{ Program, GPUSpec, ProgramType };
+use super::super::program::{ Program, GPUSpec, ProgramType };
 
 pub struct GLProgs {
     pub order: Vec<ProgramType>,
@@ -18,7 +18,7 @@ impl GLProgs {
         let order = ProgramType::all();
         let mut map = HashMap::<ProgramType,Program>::new();
         for pt in &order {
-            debug!("webgl programs","=== {:?} ===",&pt);
+            bb_log!("webgl-programs","=== {:?} ===",&pt);
             map.insert(*pt,pt.to_program(&gpuspec,&ctx));
         }
         GLProgs { order, map }

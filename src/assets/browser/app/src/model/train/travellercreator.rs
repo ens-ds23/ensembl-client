@@ -2,10 +2,8 @@ use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 
 use model::driver::PrinterManager;
-use super::{ PartyResponses, Traveller };
-
-const MAX_PENDING : i32 = 0;
-const CACHE_SIZE : usize = 10;
+use composit::source::SourceResponse;
+use super::Traveller;
 
 use composit::{
     ActiveSource, Leaf
@@ -17,7 +15,6 @@ pub struct TravellerCreator {
 }
 
 impl TravellerCreator {
-    /* compositor/new() */
     pub fn new(pm: &PrinterManager) -> TravellerCreator {
         TravellerCreator {
             pm: pm.clone(),
@@ -25,7 +22,6 @@ impl TravellerCreator {
         }
     }
        
-    /* compositor/add_component() */
     pub fn add_source(&mut self, c: ActiveSource) {
         let name = c.get_name().to_string();
         if let Entry::Vacant(e) = self.components.entry(name) {
@@ -33,27 +29,22 @@ impl TravellerCreator {
         }
     }
 
-    /* compositor/tick() */
     pub fn remove_source(&mut self, k: &str) {
         self.components.remove(k);
     }
     
-    /* train/add_component() */
-    pub fn make_party(&mut self, c: &ActiveSource, leaf: &Leaf) -> Vec<Traveller> {
-        let party = PartyResponses::new(&self.pm,&c.list_parts(),leaf);
-        let source = c.get_source().clone();
-        let out = c.make_party(&self.pm,&party,leaf);
-        source.populate(c,party,leaf);
-        out
+    pub fn make_travellers_for_source(&mut self, acs: &mut ActiveSource, leaf: &Leaf) -> Vec<Traveller> {
+        let mut tt = acs.make_travellers(leaf);
+        let source_response = SourceResponse::new(&mut self.pm,leaf,&mut tt);
+        acs.request_data(source_response,leaf);
+        tt
     }
     
-    /* train/manage_leafs() */
-    pub fn make_leaf_parties(&mut self, leaf: Leaf) -> Vec<Traveller> {
+    pub fn make_travellers_for_leaf(&mut self, leaf: &Leaf) -> Vec<Traveller> {
         let mut lcomps = Vec::<Traveller>::new();
-        debug!("redraw","make_carriages {:?}",leaf);
-        let comps : Vec<ActiveSource> = self.components.values().cloned().collect();
-        for c in &comps {
-            lcomps.append(&mut self.make_party(c,&leaf));
+        let mut comps : Vec<ActiveSource> = self.components.values().cloned().collect();
+        for c in &mut comps {
+            lcomps.append(&mut self.make_travellers_for_source(c,leaf));
         }
         lcomps
     }    

@@ -1,4 +1,4 @@
-import React, { FunctionComponent, Fragment } from 'react';
+import React, { FunctionComponent } from 'react';
 
 import styles from '../Drawer.scss';
 
@@ -49,7 +49,7 @@ const DrawerTranscript: FunctionComponent<DrawerTranscriptProps> = (
         <label htmlFor="">Description</label>
         <div className={styles.details}>
           {selectedInfo === 'MANE Select' ? (
-            <Fragment>
+            <>
               <p>
                 MANE Select transcripts match GRCh38 and are 100% identical
                 between Ensembl-GENCODE and RefSeq for 5' UTR, CDS, splicing and
@@ -62,7 +62,7 @@ const DrawerTranscript: FunctionComponent<DrawerTranscriptProps> = (
                 representative of biology, and is well-supported, expressed and
                 conserved.
               </p>
-            </Fragment>
+            </>
           ) : (
             <p>
               The Selected transcript is defined as either the longest CDS (if

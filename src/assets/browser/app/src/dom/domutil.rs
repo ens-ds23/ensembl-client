@@ -15,29 +15,45 @@ use dom::webgl::{
     WebGLRenderingContext as glctx,
 };
 
-use types::{ CPixel, cpixel, RPixel, area, Dot, Rect };
+use types::{ area, Dot, Rect };
 
-pub fn query_selector_ok(root: &HtmlElement, sel: &str, message: &str) -> Element {
-    let x : Option<Element> = ok!(root.query_selector(sel));
+fn _to_html(el: Option<Element>) -> Option<HtmlElement> {
+    el.and_then(|el| el.try_into().ok())
+}
+
+pub fn query_selector_ok(root: &HtmlElement, sel: &str, message: &str) -> HtmlElement {
+    let x : Option<HtmlElement> = _to_html(ok!(root.query_selector(sel)));
     ok!(x.ok_or_else(|| message.to_string()))
 }
 
-pub fn query_selector_new(sel: &str) -> Option<Element> {
+pub fn query_selector_ok_doc(sel: &str, message: &str) -> HtmlElement {
+    let root : HtmlElement = document().document_element()
+            .expect("No root element").try_into().expect("no root element");
+    query_selector_ok(&root,sel,message)
+}
+
+pub fn query_selector_new(sel: &str) -> Option<HtmlElement> {
     if let Some(Some(el)) = document().query_selector(sel).ok() {
-        Some(el)
+        el.try_into().ok()
     } else {
         None
     }
 }
 
-pub fn query_selector2(root: &Element, sel: &str) -> Option<Element> {
+pub fn query_selector2(root: &HtmlElement, sel: &str) -> Option<HtmlElement> {
     if let Ok(Some(el)) = root.query_selector(sel) {
-        Some(el)
+        el.try_into().ok()
     } else {
         None
     }
 }
 
+pub fn in_page(el: &HtmlElement) -> bool {
+    let b = js! {
+        return document.body.contains(@{el.as_ref()});
+    };
+    b.try_into().unwrap()
+}
 
 #[deprecated(note="use query_selector_ok instead")]
 pub fn query_selector(el: &Element, sel: &str) -> Element {
@@ -73,7 +89,7 @@ pub fn window_space(el: &HtmlElement) -> Rect<f64,f64> {
     area(pos[0],Dot(wsz.0-pos[2].0,wsz.1-pos[2].1))
 }
 
-pub fn add_attr(el: &Element,key: &str, more: &str) {
+pub fn add_attr(el: &HtmlElement,key: &str, more: &str) {
     let val = match el.get_attribute(key) {
         Some(x) => x+" ",
         None => "".to_string(),
@@ -81,7 +97,7 @@ pub fn add_attr(el: &Element,key: &str, more: &str) {
     el.set_attribute(key,&val).ok();
 }
 
-pub fn remove_attr(el: &Element,key: &str, togo: &str) {
+pub fn remove_attr(el: &HtmlElement,key: &str, togo: &str) {
     let val = match el.get_attribute(key) {
         Some(x) => x,
         None => "".to_string(),
@@ -91,7 +107,7 @@ pub fn remove_attr(el: &Element,key: &str, togo: &str) {
 }
 
 #[allow(unused)]
-pub fn add_style(el: &Element, key: &str, value: &str) {
+pub fn add_style(el: &HtmlElement, key: &str, value: &str) {
     add_attr(el,"style",&format!("{}: {};",key,value));
 }
 
@@ -99,22 +115,22 @@ pub fn get_inner_html(el: &Element) -> String {
     return js! { return @{el.as_ref()}.innerHTML; }.try_into().unwrap();
 }
 
-pub fn inner_html(el: &Element, value: &str) {
+pub fn inner_html(el: &HtmlElement, value: &str) {
     js! { @{el.as_ref()}.innerHTML = @{value} };
 }
 
-pub fn text_content(el: &Element, value: &str) {
+pub fn text_content(el: &HtmlElement, value: &str) {
     js! { @{el.as_ref()}.textContent = @{value} };
 }
 
-pub fn append_element(el: &Element, name: &str) -> Element {
+pub fn append_element(el: &HtmlElement, name: &str) -> HtmlElement {
     let doc = el.owner_document().unwrap();
     let new = doc.create_element(name).ok().unwrap();
     el.append_child(&new);
-    new
+    unwrap!(new.try_into())
 }
 
-pub fn remove(el: &Element) {
+pub fn remove(el: &HtmlElement) {
     let parent: Element = el.parent_node().unwrap().try_into().ok().unwrap();
     parent.remove_child(el).unwrap_or(el.clone().into());
 }
@@ -123,7 +139,7 @@ pub fn scroll_to_bottom(el: &Element) {
     js! { @{el.as_ref()}.scrollTop = @{el.as_ref()}.scrollHeight; };
 }
 
-pub fn send_custom_event(el: &Element, name: &str, data: &JSONValue) {
+pub fn send_custom_event(el: &HtmlElement, name: &str, data: &JSONValue) {
     let v: Value = data.clone().try_into().unwrap();
     js! {
         var e = new CustomEvent(@{name},{ detail: @{&v}, bubbles: true });

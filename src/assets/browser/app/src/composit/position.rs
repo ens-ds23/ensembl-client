@@ -67,19 +67,24 @@ impl Position {
         self.pos.1 = self.pos.1.round();
     }
 
-    pub fn middle_to_edge(&self, which: &Direction) -> f64 {
+    pub fn middle_to_edge(&self, which: &Direction, bump: bool) -> f64 {
         let bp = self.get_screen_in_bp();
+        let (bump_min,bump_max) = if bump {
+            (self.px_to_bp(self.min_x_bumper),self.px_to_bp(self.max_x_bumper))
+        } else {
+            (0.,0.)
+        };
         match *which {
-            LEFT =>  - bp/2. + self.px_to_bp(self.min_x_bumper),
-            RIGHT => bp/2. - self.px_to_bp(self.max_x_bumper),
+            LEFT =>  - bp/2. + bump_min,
+            RIGHT => bp/2. - bump_max,
             UP =>    - self.screen_size.1 as f64/2.,
             DOWN =>  self.screen_size.1 as f64/2.,
             IN|OUT => 0.
         }
     }
 
-    pub fn get_edge(&self, which: &Direction) -> f64 {
-        let delta = self.middle_to_edge(which);
+    pub fn get_edge(&self, which: &Direction, bump: bool) -> f64 {
+        let delta = self.middle_to_edge(which,bump);
         match *which {
             LEFT|RIGHT => self.pos.0 + delta,
             UP|DOWN    => self.pos.1 + delta,
@@ -88,7 +93,7 @@ impl Position {
     }
 
     pub fn get_limit_of_middle(&self, which: &Direction) -> f64 {
-        self.get_limit_of_edge(which) -  self.middle_to_edge(which)
+        self.get_limit_of_edge(which) -  self.middle_to_edge(which,true)
     }
 
     pub fn get_limit_of_edge(&self, which: &Direction) -> f64 {

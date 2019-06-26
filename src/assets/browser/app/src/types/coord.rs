@@ -3,10 +3,10 @@ use std::fmt::Debug;
 use std::ops::{ Add, Sub, Mul, Div, Neg };
 
 use composit::Stage;
-use program::Input;
+use drivers::webgl::program::Input;
 use types::{
     Rect, Anchored, Axis, Edge, Corner, Anchor, Direction,
-    RIGHT, LEFT, DOWN, UP
+    RIGHT, LEFT, DOWN, UP, Placement, XPosition, YPosition
 };
 
 /***** Direction types *****/

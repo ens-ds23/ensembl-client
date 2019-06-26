@@ -11,7 +11,7 @@ use tánaiste::Value;
 use url::Url;
 
 use super::{ 
-    XferClerk, XferConsumer, XferRequest, XferCache,
+    XferClerk, XferConsumer, XferRequest, XferCache, XferUrlBuilder,
     HttpResponseConsumer, HttpManager, BackendConfig
 };
 
@@ -105,10 +105,8 @@ impl PendingXferBatch {
         let mut url = self.base.clone();
         let mut url_builder = XferUrlBuilder::new();
         for (short_stick,short_pane,compo) in self.requests.keys() {
-            let part = format!("{}^{}/{}",short_stick,short_pane,compo);
             url_builder.add(compo,short_stick,short_pane);
         }
-        //console!("url: {:?}",url_builder.emit());
         {
             let mut path = url.path_segments_mut().unwrap();
             path.push(&url_builder.emit());
@@ -126,17 +124,23 @@ impl PendingXferBatch {
             if val.is_array() {
                 for cell in unwrap!(val.as_array()) {
                     if cell.is_f64() {
-                        row.push(cell.as_f64().unwrap());
+                        row.push(unwrap!(cell.as_f64()));
                     } else if cell.is_i64() {
-                        row.push(cell.as_i64().unwrap() as f64);
+                        row.push(unwrap!(cell.as_i64()) as f64);
                     } else if cell.is_boolean() {
-                        row.push(if cell.as_bool().unwrap() { 1. } else { 0. } );
+                        row.push(if unwrap!(cell.as_bool()) { 1. } else { 0. } );
                     }
                 }
                 out.push(Value::new_from_float(row));
-            } else if val.is_string() {
-                out.push(Value::new_from_string(val.as_str().unwrap().to_string()));
-            }            
+            } else if val.is_object() {
+                if let Some(string) = unwrap!(val.as_object()).get("string") {
+                    let values : Vec<String> = 
+                            unwrap!(string.as_array()).iter()
+                            .map(|x| unwrap!(x.as_str()).to_string())
+                            .collect();
+                    out.push(Value::new_from_string(values));
+                }
+            }
         }
         out
     }
@@ -148,14 +152,14 @@ impl HttpResponseConsumer for PendingXferBatch {
         let value : TypedArray<u8> = value.into();
         let data = ok!(String::from_utf8(value.to_vec()));
         let data : SerdeValue = ok!(serde_json::from_str(&data));
-        for resp in data.as_array().unwrap() {
-            let key = (resp[0].as_str().unwrap().to_string(),
-                       resp[1].as_str().unwrap().to_string(),
-                       resp[2].as_str().unwrap().to_string());
+        for resp in unwrap!(data.as_array()) {
+            let key = (unwrap!(resp[0].as_str()).to_string(),
+                       unwrap!(resp[1].as_str()).to_string(),
+                       unwrap!(resp[2].as_str()).to_string());
             if let Some(mut requests) = self.requests.remove(&key) {
-                let codename = resp[3].as_str().unwrap().to_string();
+                let codename = unwrap!(resp[3].as_str()).to_string();
                 let bytecode = ok!(self.config.get_bytecode(&codename)).clone();
-                let mut recv = (codename,self.marshal(&resp[4]));
+                let recv = (codename,self.marshal(&resp[4]));
                 self.cache.put(&key.2,&key.0,&key.1,recv.clone());
                 for mut req in requests.drain(..) {
                     req.go(bytecode.clone(),recv.1.clone());
@@ -213,44 +217,6 @@ impl XferBatchScheduler {
     }
 }
 
-pub struct XferUrlBuilder {
-    data: HashMap<String,Vec<(String,String)>>
-}
-
-impl XferUrlBuilder {
-    pub fn new() -> XferUrlBuilder {
-        XferUrlBuilder {
-            data: HashMap::<String,Vec<(String,String)>>::new()
-        }
-    }
-    
-    pub fn add(&mut self, wire: &str, chrom: &str, leaf: &str) {
-        let set = self.data.entry(chrom.to_string()).or_insert_with(||
-            Vec::<(String,String)>::new()
-        );
-        set.push((wire.to_string(),leaf.to_string()));
-    }
-    
-    fn emit_chrom(&self, values: &Vec<(String,String)>) -> String {
-        let mut data = values.clone();
-        data.sort();
-        data.iter().map(|(wire,leaf)| format!("{}{}",wire,leaf)).join("")
-    }
-    
-    pub fn emit(&self) -> String {
-        let mut chroms = Vec::<(String,String)>::new();
-        for (chrom,v) in &self.data {
-            chroms.push((chrom.to_string(),self.emit_chrom(v)));
-        }
-        chroms.sort();
-        let chroms : Vec<String> = chroms
-                .iter()
-                .map(|(chrom,value)| format!("{}:{}",chrom,value))
-                .collect();
-        chroms.iter().join(",")
-    }
-}
-
 pub struct HttpXferClerkImpl {
     http_manager: HttpManager,
     config: Option<BackendConfig>,
@@ -301,12 +267,12 @@ impl HttpXferClerkImpl {
     
     pub fn run_request(&mut self, request: XferRequest, mut consumer: Box<XferConsumer>, prime: bool) {
         let leaf = request.get_leaf().clone();
-        let (wire,compo) = {
+        let wire = {
             let compo = request.get_source_name();
             let leaf = request.get_leaf().clone();
             let cfg =  self.config.as_ref().unwrap().clone();
             let track = cfg.get_track(compo).clone();
-            (track.and_then(|x| x.get_wire().clone()),compo.clone())
+            track.and_then(|x| x.get_wire().clone())
         };
         if let Some(wire) = wire {
             let (short_stick,short_pane) = leaf.get_short_spec();
@@ -317,7 +283,7 @@ impl HttpXferClerkImpl {
                 };
                 consumer.consume(bytecode,recv.1);
             } else {
-                let mut batch = if prime { &mut self.prime_batch } else { &mut self.batch };
+                let batch = if prime { &mut self.prime_batch } else { &mut self.batch };
                 if let Some(ref mut batch) = batch {
                     batch.add_request(&short_stick,&short_pane,&wire,consumer);
                 }

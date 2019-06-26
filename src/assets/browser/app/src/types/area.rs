@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use std::ops::{ Add, Sub, Mul, Div, Neg };
-use program::Input;
-use types::{ Dot, Edge, AxisSense, Corner };
+use drivers::webgl::program::Input;
+use types::{ Dot, Edge, AxisSense, Corner, CLeaf };
 
 /***** Rect types *****/
 
@@ -99,13 +99,13 @@ impl<T: Copy+Clone+Debug,
         }
         out
     }
+    pub fn offset(&self) -> Dot<T,U> { self.0 }
+    pub fn far_offset(&self) -> Dot<T,U> { self.1 }
 }
 
 impl<T: Copy+Clone+Debug + Sub<T,Output=T>,
      U: Copy+Clone+Debug + Sub<U,Output=U>> Rect<T,U> {
 
-    pub fn offset(&self) -> Dot<T,U> { self.0 }
-    pub fn far_offset(&self) -> Dot<T,U> { self.1 }
     pub fn size(&self) -> Dot<T,U> { self.1-self.0 }
 
     pub fn at_origin(self) -> Rect<T,U> {
@@ -216,5 +216,39 @@ impl<T: Copy+Clone+Debug + PartialOrd,
             Rect(self.0.unwrap().0.min(&pt),
                  self.0.unwrap().1.max(&pt))
         )
+    }
+}
+
+#[derive(Clone,Copy,Debug)]
+pub enum XPosition {
+    Base(f64,i32,i32),
+    Pixel(Edge<i32>,Edge<i32>)
+}
+
+#[derive(Clone,Copy,Debug)]
+pub enum YPosition {
+    Pixel(Edge<i32>,Edge<i32>),
+    Page(i32,i32)
+}
+
+#[derive(Clone,Copy,Debug)]
+pub enum Placement {
+    Placed(XPosition,YPosition),
+    Stretch(RLeaf)
+}
+
+impl Placement {
+    pub fn add_bp(&self, bp: f64, bp_per_leaf: f64) -> Placement {
+        match self {
+            Placement::Placed(mut x,y) => {
+                if let XPosition::Base(b,s,e) = x {
+                    x = XPosition::Base(b*bp_per_leaf+bp,s,e)
+                };
+                Placement::Placed(x,*y)
+            },
+            Placement::Stretch(r) => {
+                Placement::Stretch(*r * Dot(bp_per_leaf as f32,1) + Dot(bp as f32,0))
+            }
+        }
     }
 }

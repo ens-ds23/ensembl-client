@@ -8,39 +8,45 @@ import React, {
 
 import TrackPanelListItem from './TrackPanelListItem';
 
-import {
-  TrackPanelCategory,
-  TrackPanelItem,
-  TrackType
-} from '../trackPanelConfig';
+import { TrackType, TrackStates } from '../trackPanelConfig';
 import { ChrLocation } from '../../browserState';
 
 import styles from './TrackPanelList.scss';
+import { ImageButtonStatus } from 'src/shared/image-button/ImageButton';
+import { GenomeTrackCategory } from 'src/genome/genomeTypes';
+import { EnsObjectTrack, EnsObject } from 'src/ens-object/ensObjectTypes';
 
 type TrackPanelListProps = {
+  activeGenomeId: string;
   browserRef: RefObject<HTMLDivElement>;
-  defaultChrLocation: ChrLocation;
+  defaultChrLocation: { [genomeId: string]: ChrLocation };
   drawerOpened: boolean;
   drawerView: string;
   launchbarExpanded: boolean;
-  ensObjectInfo: any;
-  selectedBrowserTab: TrackType;
+  ensObjectInfo: EnsObject;
+  ensObjectTracks: EnsObjectTrack;
+  selectedBrowserTab: { [genomeId: string]: TrackType };
   toggleDrawer: (drawerOpened: boolean) => void;
-  trackCategories: [];
+  genomeTrackCategories: GenomeTrackCategory[];
+  trackStates: TrackStates;
   updateDrawerView: (drawerView: string) => void;
 };
 
 const TrackPanelList: FunctionComponent<TrackPanelListProps> = (
   props: TrackPanelListProps
 ) => {
-  const [currentTrackCategories, setCurrentTrackCategories] = useState([]);
+  const [currentTrackCategories, setCurrentTrackCategories] = useState<
+    GenomeTrackCategory[]
+  >([]);
 
   useEffect(() => {
-    if (props.trackCategories.length > 0) {
+    const selectedBrowserTab =
+      props.selectedBrowserTab[props.activeGenomeId] || TrackType.GENOMIC;
+
+    if (props.genomeTrackCategories && props.genomeTrackCategories.length > 0) {
       setCurrentTrackCategories(
-        props.trackCategories.filter(
-          (category: TrackPanelCategory) =>
-            category.types.indexOf(props.selectedBrowserTab) > -1
+        props.genomeTrackCategories.filter((category: GenomeTrackCategory) =>
+          category.types.includes(selectedBrowserTab)
         )
       );
     }
@@ -67,59 +73,48 @@ const TrackPanelList: FunctionComponent<TrackPanelListProps> = (
     return `${styles.trackPanelList} ${heightClass}`;
   };
 
-  const getMainTracks = (): TrackPanelItem | null => {
-    const { defaultChrLocation, ensObjectInfo } = props;
-    const [, chrStart, chrEnd] = defaultChrLocation;
+  const getDefaultTrackStatus = (categoryName: string, trackName: string) => {
+    let trackStatus = ImageButtonStatus.ACTIVE;
 
-    if (chrStart === 0 && chrEnd === 0) {
-      return null;
+    if (!props.trackStates[props.activeGenomeId]) {
+      return trackStatus;
+    }
+    const statesOfCategory =
+      props.trackStates[props.activeGenomeId][categoryName];
+
+    if (statesOfCategory && statesOfCategory[trackName]) {
+      trackStatus =
+        statesOfCategory[trackName] === 'active'
+          ? ImageButtonStatus.ACTIVE
+          : ImageButtonStatus.INACTIVE;
     }
 
-    let geneLabel = ensObjectInfo.obj_symbol;
-    let transcriptLabel = ensObjectInfo.associated_object.stable_id;
-
-    if (ensObjectInfo.obj_type === 'transcript') {
-      geneLabel = ensObjectInfo.associated_object.obj_symbol;
-      transcriptLabel = ensObjectInfo.stable_id;
-    }
-
-    return {
-      additionalInfo: ensObjectInfo.bio_type,
-      childTrackList: [
-        {
-          additionalInfo: ensObjectInfo.bio_type,
-          color: 'BLUE',
-          drawerView: 'transcript',
-          id: 0.1,
-          label: transcriptLabel,
-          name: 'gene-feat',
-          selectedInfo: ensObjectInfo.associated_object.selected_info
-        }
-      ],
-      drawerView: 'gene',
-      id: 0,
-      label: geneLabel,
-      name: 'gene-feat'
-    };
+    return trackStatus;
   };
 
-  const getTrackListItem = (track: TrackPanelItem | null) => {
+  const getTrackListItem = (
+    categoryName: string,
+    track: EnsObjectTrack | null
+  ) => {
     if (!track) {
       return;
     }
 
     return (
       <TrackPanelListItem
+        activeGenomeId={props.activeGenomeId}
         browserRef={props.browserRef}
+        categoryName={categoryName}
+        defaultTrackStatus={getDefaultTrackStatus(categoryName, track.track_id)}
         drawerOpened={props.drawerOpened}
         drawerView={props.drawerView}
-        key={track.id}
+        key={track.track_id}
         track={track}
         updateDrawerView={changeDrawerView}
       >
-        {track.childTrackList &&
-          track.childTrackList.map((childTrack: TrackPanelItem) =>
-            getTrackListItem(childTrack)
+        {track.child_tracks &&
+          track.child_tracks.map((childTrack: EnsObjectTrack) =>
+            getTrackListItem(categoryName, childTrack)
           )}
       </TrackPanelListItem>
     );
@@ -127,16 +122,18 @@ const TrackPanelList: FunctionComponent<TrackPanelListProps> = (
 
   return (
     <div className={getTrackPanelListClasses()}>
-      <section>
-        <dl>{getTrackListItem(getMainTracks())}</dl>
-      </section>
-      {currentTrackCategories.map((category: TrackPanelCategory) => (
-        <section key={category.name}>
-          <h4>{category.name}</h4>
+      {props.ensObjectInfo.object_type === 'region' ? null : (
+        <section>
+          <dl>{getTrackListItem('main', props.ensObjectTracks)}</dl>
+        </section>
+      )}
+      {currentTrackCategories.map((category: GenomeTrackCategory) => (
+        <section key={category.track_category_id}>
+          <h4>{category.label}</h4>
           <dl>
-            {category.trackList.length ? (
-              category.trackList.map((track: TrackPanelItem) =>
-                getTrackListItem(track)
+            {category.track_list.length ? (
+              category.track_list.map((track: EnsObjectTrack) =>
+                getTrackListItem(category.track_category_id, track)
               )
             ) : (
               <dd className={styles.emptyListMsg}>No data available</dd>

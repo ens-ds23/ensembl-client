@@ -5,7 +5,8 @@ use dom::domutil;
 
 #[derive(Clone)]
 pub enum OutputAction {
-    SendCustomEvent(String,JSONValue)
+    SendCustomEvent(String,JSONValue),
+    Destroy
 }
 
 impl OutputAction {
@@ -13,6 +14,9 @@ impl OutputAction {
         match self {
             OutputAction::SendCustomEvent(name,details) => {
                 domutil::send_custom_event(&ar.get_browser_el().into(),name,details);
+            },
+            OutputAction::Destroy => {
+                ar.destroy()
             }
         }
     }

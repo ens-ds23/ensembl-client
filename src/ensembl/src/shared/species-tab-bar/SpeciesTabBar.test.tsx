@@ -3,10 +3,14 @@ import { mount } from 'enzyme';
 import times from 'lodash/times';
 import random from 'lodash/random';
 
-import SpeciesTabBar from 'src/shared/species-tab-bar/SpeciesTabBar';
+import { SpeciesTabBar } from 'src/shared/species-tab-bar/SpeciesTabBar';
 import SpeciesTab from 'src/shared/species-tab/SpeciesTab';
 
 import { createSelectedSpecies } from 'tests/fixtures/selected-species';
+
+jest.mock('react-router-dom', () => ({
+  Link: (props: any) => <div>{props.children}</div>
+}));
 
 const speciesList = times(5, () => createSelectedSpecies());
 const onTabSelect = jest.fn();

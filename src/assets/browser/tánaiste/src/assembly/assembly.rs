@@ -37,7 +37,7 @@ mod test {
             proc.run();
             thread::sleep(time::Duration::from_millis(100));
         }
-        assert_eq!(proc.get_reg(1),"\"hello, tánaiste!\"");
+        assert_eq!(proc.get_reg(1),"[\"hello, tánaiste!\"]");
     }
 
     #[test]
@@ -61,6 +61,6 @@ mod test {
     #[test]
     fn inst_error_2() {
         let e = test_assemble("inst-error-2").err().unwrap();
-        assert_eq!("Incorrect arguments [Str(\"hello\")] vs [Reg]",e.join("\n"));
+        assert_eq!("Incorrect arguments [Str([\"hello\"])] vs [One(Reg)]",e.join("\n"));
     }
 }

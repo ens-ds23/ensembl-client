@@ -1,4 +1,4 @@
-# CICD - Reload with /api/ensembl_object endpoint
+# CICD - Deploy - internal
 stages:
   - test
   - test_build_static
@@ -10,9 +10,10 @@ variables:
   KUBECONFIG: /etc/deploy/config
   KUBECONTEXT: ens-dev-ctx
   DEPLOYENV: dev
+  ENVIRONMENT: production
 
 Test:
-  image: node:10.15.1
+  image: node:10.16.0
   stage: test
 
   before_script:
@@ -23,10 +24,12 @@ Test:
   - npm run test
 
   except:
+  - dev
+  - master
   - cicd-test
 
 Test & Build:
-  image: node:10.15.1
+  image: node:10.16.0
   stage: test_build_static
 
   before_script:
@@ -36,8 +39,7 @@ Test & Build:
   script:
   - npm run test
   - export NODE_ENV=production
-  - export API_HOST=''
-  - npm run build || true
+  - npm run build
 
   artifacts:
     name: static_assets
@@ -46,6 +48,29 @@ Test & Build:
 
   only:
   - cicd-test
+
+Test & Build (temp):
+  image: node:10.16.0
+  stage: test_build_static
+
+  before_script:
+  - cd src/ensembl
+  - npm ci
+
+  script:
+  - npm run test
+  - export NODE_ENV=production
+  - export GOOGLE_ANALYTICS_KEY=${GA_KEY}
+  - export API_HOST=""
+  - npm run build
+
+  artifacts:
+    name: static_assets
+    paths:
+    - src/ensembl/dist/
+
+  only:
+  - cicd-test  
 
 Nginx:
   image: docker
@@ -56,7 +81,7 @@ Nginx:
   stage: build_docker_images
 
   before_script:
-  - case "${CI_COMMIT_REF_NAME}" in dev) DEPLOYENV="staging" ;; master) DEPLOYENV="prod" ;; *) DEPLOYENV="dev" ;; esac
+  - case "${CI_COMMIT_REF_NAME}" in dev) DEPLOYENV="staging" ;; master) DEPLOYENV="prod" ;; cicd-test) DEPLOYENV="staging" ;; *) DEPLOYENV="dev" ;; esac
 
   script:
   - apk update && apk add git
@@ -65,7 +90,7 @@ Nginx:
   - cd ensembl-client-nginx
   - git checkout june-release
   - cd ..
-  - sed -i "s/<DEPLOYMNET_ENV>/${DEPLOYENV}/g" ensembl-client-nginx/config/conf.d/local.conf
+  - sed -i "s/<DEPLOYMENT_ENV>/${DEPLOYENV}/g" ensembl-client-nginx/config/conf.d/local.conf
   - docker build -t ${CONTAINER_IMAGE} -f ensembl-client-nginx/Dockerfile --no-cache .
   - echo "$GITLAB_REGISTRY_TOKEN" | docker login -u "$GITLAB_REGISTRY_USER" --password-stdin https://"$GITLAB_REGISTRY_URL"
   - docker push ${CONTAINER_IMAGE}
@@ -74,6 +99,62 @@ Nginx:
 
   only:
   - cicd-test
+
+Nginx(temp):
+  image: docker
+  
+  services:
+    - docker:dind
+  
+  stage: build_docker_images
+
+  before_script:
+  - case "${CI_COMMIT_REF_NAME}" in dev) DEPLOYENV="staging" ;; master) DEPLOYENV="prod" ;; cicd-test) DEPLOYENV="staging" ;; *) DEPLOYENV="dev" ;; esac
+
+  script:
+  - apk update && apk add git
+  - git clone --depth 1 https://github.com/Ensembl/ensembl-2020-static-assests.git
+  - git clone https://gitlab.ebi.ac.uk/kamal/ensembl-client-nginx.git
+  - cd ensembl-client-nginx
+  - git checkout june-release
+  - cd ..
+  - sed -i "s/<DEPLOYMENT_ENV>/${DEPLOYENV}/g" ensembl-client-nginx/config/conf.d/local.conf
+  - cat ensembl-client-nginx/config/conf.d/local.conf
+  - docker build -t ${CONTAINER_IMAGE} -f ensembl-client-nginx/Dockerfile --no-cache .
+  - echo "$GITLAB_REGISTRY_TOKEN" | docker login -u "$GITLAB_REGISTRY_USER" --password-stdin https://"$GITLAB_REGISTRY_URL"
+  - docker push ${CONTAINER_IMAGE}
+  - docker rmi ${CONTAINER_IMAGE}
+  - docker logout "$GITLAB_REGISTRY_URL"
+
+  only:
+  - cicd-test 
+
+Staging(temp):
+  stage: deploy
+  image: alpine
+  before_script:
+  - mkdir -p /etc/deploy
+  - echo ${EMBASSY_KUBECONFIG} | base64 -d > ${KUBECONFIG}
+  - case "${CI_COMMIT_REF_NAME}" in dev) DEPLOYENV="staging" ;; master) DEPLOYENV="prod" ;; cicd-test) DEPLOYENV="staging" ;; *) DEPLOYENV="dev" ;; esac
+
+  script:
+  - apk update && apk add --no-cache curl git
+  - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+  - chmod +x ./kubectl
+  - mv ./kubectl /usr/local/bin/kubectl
+  - git clone https://gitlab.ebi.ac.uk/kamal/ensembl-client-caas-deploy.git
+  - cd ensembl-client-caas-deploy
+  - git checkout refactor-manifest
+  - cd ..
+  - sed -i "s/<VERSION>/${CI_COMMIT_SHORT_SHA}/g" ensembl-client-caas-deploy/ensembl_client_deployment.yaml
+  - sed -i "s/<DEPLOYMNET_ENV>/${DEPLOYENV}/g" ensembl-client-caas-deploy/ensembl_client_deployment.yaml
+  - cat ensembl-client-caas-deploy/ensembl_client_deployment.yaml
+  - kubectl config view
+  - kubectl config use-context ens-stage-ctx
+  - kubectl apply -f ensembl-client-caas-deploy/ensembl_client_deployment.yaml
+  only:
+  - cicd-test
+
 
 Staging:
   stage: deploy

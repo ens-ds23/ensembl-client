@@ -1,18 +1,9 @@
-use std::collections::HashMap;
-use std::rc::Rc;
-
-use composit::{ 
-    ActiveSource, Landscape, Leaf, Plot, Source,
-    StateAtom, AllLandscapes, CombinedSource
-};
-
-use data::{ BackendConfig, HttpXferClerk };
+use composit::CombinedSource;
 
 #[cfg(not(deploy))]
 use debug::testcards::{
     leafcard_source, text_source, bs_source_main, bs_source_sub
 };
-use tácode::{ Tácode, TáSource };
 
 #[cfg(deploy)]
 pub const DEBUG_SOURCES : [&str;0] = [];

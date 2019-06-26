@@ -1,20 +1,23 @@
 use composit::{
-    ActiveSource, Stick, Scale, ComponentSet, StateManager
+    ActiveSource, Stick, Scale, ComponentSet, StateManager, Stage
 };
 
-use model::driver::PrinterManager;
+use model::driver::{ PrinterManager, Printer };
 use model::train::{ Train, TrainManager, TravellerCreator };
+use drivers::zmenu::{ ZMenuRegistry, ZMenuLeafSet };
 
 use controller::global::AppRunner;
+use controller::input::Action;
 use controller::output::Report;
 use data::{ Psychic, PsychicPacer, XferCache, XferClerk };
-use types::DOWN;
+use types::{ DOWN, Dot };
 
 const MS_PER_UPDATE : f64 = 0.;
 const MS_PRIME_DELAY: f64 = 2000.;
 
 pub struct Compositor {
     train_manager: TrainManager,
+    zmr: ZMenuRegistry,
     bp_per_screen: f64,
     updated: bool,
     prime_delay: Option<f64>,
@@ -32,6 +35,7 @@ impl Compositor {
     pub fn new(printer: PrinterManager, xfercache: &XferCache, xferclerk: Box<XferClerk>) -> Compositor {
         Compositor {
             train_manager: TrainManager::new(&printer),
+            zmr: ZMenuRegistry::new(),
             components: TravellerCreator::new(&printer),
             bp_per_screen: 1.,
             updated: true,
@@ -45,6 +49,8 @@ impl Compositor {
             xferclerk: xferclerk
         }
     }
+
+    pub fn get_zmr(&self) -> &ZMenuRegistry { &self.zmr }
 
     pub fn get_prop_trans(&self) -> f32 { self.train_manager.get_prop_trans() }
 
@@ -126,11 +132,22 @@ impl Compositor {
         &mut self.wanted_componentset
     }
     
-    fn add_component(&mut self, c: ActiveSource) {
+    pub fn redraw_where_needed(&mut self, printer: &mut Printer) {
+        let mut zmls = ZMenuLeafSet::new();
+        if let Some(train) = self.get_current_train() {
+            train.redraw_where_needed(printer,&mut zmls);
+        }
+        if let Some(train) = self.get_transition_train() {
+            train.redraw_where_needed(printer,&mut zmls);
+        }
+        self.zmr.add_leafset(zmls);
+    }
+
+    fn add_component(&mut self, mut c: ActiveSource) {
         {
             let cc = &mut self.components;
             self.train_manager.each_train(|sc|
-                sc.add_component(cc,&c)
+                sc.add_component(cc,&mut c)
             );
         }
         self.components.add_source(c);
@@ -138,6 +155,10 @@ impl Compositor {
     
     pub fn update_state(&mut self, oom: &StateManager) {
         self.train_manager.update_state(oom);
+    }
+    
+    pub fn intersects(&self, stage: &Stage, pos: Dot<i32,i32>) -> Vec<Action> {
+        self.zmr.intersects(stage,pos)
     }
 }
 

@@ -1,17 +1,10 @@
-import React, {
-  useEffect,
-  FunctionComponent,
-  Fragment,
-  lazy,
-  Suspense
-} from 'react';
-import { Redirect, Route, RouteComponentProps, Switch } from 'react-router-dom';
+import React, { useEffect, FunctionComponent, lazy, Suspense } from 'react';
+import { Route, RouteComponentProps, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { changeCurrentApp } from 'src/header/headerActions';
 import { getCurrentApp } from 'src/header/headerSelectors';
 
-import AppBar from './AppBar';
 import ErrorBoundary from 'src/shared/error-boundary/ErrorBoundary';
 import { NewTechError } from 'src/shared/error-screen';
 
@@ -41,12 +34,7 @@ type AppShellProps = {
 };
 
 export const AppShell = (props: AppShellProps) => {
-  return (
-    <Fragment>
-      <AppBar />
-      {props.children}
-    </Fragment>
-  );
+  return <>{props.children}</>;
 };
 
 const AppInner = (props: AppProps) => {
@@ -77,19 +65,8 @@ const AppInner = (props: AppProps) => {
         <Route path={`${url}/species-selector`} component={SpeciesSelector} />
         <Route path={`${url}/custom-download`} component={CustomDownload} />
         <ErrorBoundary fallbackComponent={NewTechError}>
-          <Route
-            path={`${url}/browser/:species/:stableId/`}
-            component={Browser}
-          />
+          <Route path={`${url}/browser/:genomeId?`} component={Browser} />
         </ErrorBoundary>
-        <Redirect
-          exact={true}
-          from={`${url}/browser`}
-          to={{
-            pathname: `${url}/browser/GRCh38_demo/ENSG00000139618`,
-            search: '?region=13:32271473-32437359'
-          }}
-        />
       </Switch>
     </Suspense>
   );

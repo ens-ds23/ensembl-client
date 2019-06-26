@@ -7,7 +7,8 @@ use composit::{
 };
 use data::{ BackendConfig, HttpXferClerk };
 use debug::{ add_debug_sources };
-use model::train::PartyResponses;
+use drivers::zmenu::ZMenuRegistry;
+use composit::source::SourceResponse;
 use tácode::{ Tácode, TáSource };
 
 const TOP : i32 = 50;
@@ -38,17 +39,17 @@ impl CombinedSource {
 }
 
 impl Source for CombinedSource {
-    fn populate(&self, acs: &ActiveSource, lc: PartyResponses, leaf: &Leaf) {
+    fn request_data(&self, acs: &ActiveSource, lc: SourceResponse, leaf: &Leaf) {
         let stick_name = leaf.get_stick().get_name();
         if let Some(source) = self.per_stick_sources.get(&stick_name) {
-            source.populate(acs,lc,leaf);
+            source.request_data(acs,lc,leaf);
         } else {
-            self.backend_source.populate(acs,lc,leaf);
+            self.backend_source.request_data(acs,lc,leaf);
         }
     }
 }
 
-pub fn build_combined_source(tc: &Tácode, config: &BackendConfig, als: &mut AllLandscapes, xf: &HttpXferClerk, type_name: &str) -> Option<ActiveSource> {
+pub fn build_combined_source(tc: &Tácode, config: &BackendConfig, zmr: &ZMenuRegistry, als: &mut AllLandscapes, xf: &HttpXferClerk, type_name: &str) -> Option<ActiveSource> {
     let lid = als.allocate(type_name);
     let cfg_track = config.get_track(type_name);
     let y_pos = cfg_track.map(|t| t.get_position()).unwrap_or(-1);
@@ -58,7 +59,7 @@ pub fn build_combined_source(tc: &Tácode, config: &BackendConfig, als: &mut All
     let backend = TáSource::new(tc,Box::new(xf.clone()),type_name,lid,config);
     let mut combined = CombinedSource::new(Box::new(backend));
     add_debug_sources(&mut combined,type_name);
-    let mut act = ActiveSource::new(type_name,Rc::new(combined),als,lid);
+    let mut act = ActiveSource::new(type_name,Rc::new(combined),zmr,als,lid);
     act.new_part(None,Rc::new(StateAtom::new(&type_name)));
     let none = vec!{};
     let parts = cfg_track.map(|t| t.get_parts()).unwrap_or(&none);

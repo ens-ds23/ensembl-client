@@ -33,3 +33,22 @@
   width: 100vw;
   z-index: 150;
 }
+
+.exampleLinks {
+  margin-top: 50px;
+  margin-left: 40px;
+  dd {
+    margin-bottom: 30px;
+  }
+}
+.objectType {
+  color: $ens-grey;
+  margin-right: 15px;
+  width: 60px;
+  text-align: right;
+  display: inline-block;
+}
+
+.objectLabel {
+  color: $ens-blue;
+}

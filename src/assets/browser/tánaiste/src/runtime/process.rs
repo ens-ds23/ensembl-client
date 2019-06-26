@@ -98,7 +98,7 @@ impl Process {
         self.data.registers().set(idx,v);
     }
 
-    pub fn get_reg_str(&mut self, idx: usize) -> String {
+    pub fn get_reg_str(&mut self, idx: usize) -> Vec<String> {
         self.data.registers().get(idx).as_string(|s| s.clone())
     }
 
@@ -118,12 +118,12 @@ mod test {
     fn registers() {
         let mut r = Process::new(Rc::new(vec!{}),0,None,&PROCESS_CONFIG_DEFAULT);
         let regs = r.data.registers();
-        regs.set(4,Value::new_from_string("hi".to_string()));
+        regs.set(4,Value::new_from_string(vec!["hi".to_string()]));
         let v = regs.get(4);
         regs.set(2,v);
-        regs.set(4,Value::new_from_string("lo".to_string()));
-        assert_eq!("\"lo\"",format!("{:?}",regs.get(4)));
-        assert_eq!("\"hi\"",format!("{:?}",regs.get(2)));
+        regs.set(4,Value::new_from_string(vec!["lo".to_string()]));
+        assert_eq!("[\"lo\"]",format!("{:?}",regs.get(4)));
+        assert_eq!("[\"hi\"]",format!("{:?}",regs.get(2)));
         assert_eq!("[]",format!("{:?}",regs.get(1)));
         regs.drop(4);
         assert_eq!("[]",format!("{:?}",regs.get(4)));
@@ -132,11 +132,11 @@ mod test {
     #[test]
     fn data_stack() {
         let mut r = Process::new(Rc::new(vec!{}),0,None,&PROCESS_CONFIG_DEFAULT);
-        r.data.push_data(Value::new_from_string("lo".to_string()));
-        r.data.push_data(Value::new_from_string("hi".to_string()));
-        assert_eq!("\"hi\"",format!("{:?}",r.data.peek_data()));
-        assert_eq!("\"hi\"",format!("{:?}",r.data.pop_data()));
-        assert_eq!("\"lo\"",format!("{:?}",r.data.pop_data()));
+        r.data.push_data(Value::new_from_string(vec!["lo".to_string()]));
+        r.data.push_data(Value::new_from_string(vec!["hi".to_string()]));
+        assert_eq!("[\"hi\"]",format!("{:?}",r.data.peek_data()));
+        assert_eq!("[\"hi\"]",format!("{:?}",r.data.pop_data()));
+        assert_eq!("[\"lo\"]",format!("{:?}",r.data.pop_data()));
         assert_eq!("[]",format!("{:?}",r.data.pop_data()));
     }
 }

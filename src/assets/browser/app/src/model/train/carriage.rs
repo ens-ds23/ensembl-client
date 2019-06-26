@@ -1,6 +1,9 @@
+use std::sync::{ Arc, Mutex };
+
 use composit::Leaf;
 use composit::{ StateManager };
 use model::driver::{ Printer, PrinterManager };
+use drivers::zmenu::{ ZMenuLeaf, ZMenuLeafSet };
 use super::Traveller;
 
 pub struct Carriage {
@@ -22,34 +25,18 @@ impl Carriage {
         };
         out.pm.add_leaf(leaf);
         out
-    }    
+    }
     
     pub fn get_leaf(&self) -> &Leaf { &self.leaf }
     
     pub(in super) fn set_needs_refresh(&mut self) {
         self.needs_rebuild = true;
     }
-
-    pub fn reset_needs_refresh(&mut self) {
-        self.needs_rebuild = false;
-    }
-
-    pub fn needs_refresh(&self) -> bool {
-         self.needs_rebuild
-    }
     
     pub(in super) fn add_traveller(&mut self, traveller: Traveller) {
         self.travellers.push(traveller);
     }
         
-    pub fn all_travellers(&self) -> Vec<&Traveller> {
-        self.travellers.iter().collect()
-    }
-
-    pub fn all_travellers_mut(&mut self) -> Vec<&mut Traveller> {
-        self.travellers.iter_mut().collect()
-    }
-    
     pub(in super) fn is_done(&mut self) -> bool {
         if self.known_done { return true; }
         for c in &self.travellers {
@@ -62,7 +49,7 @@ impl Carriage {
     
     pub fn update_state(&mut self, oom: &StateManager) {
         let mut redo = false;
-        for t in &mut self.all_travellers_mut() {
+        for t in &mut self.travellers {
             if t.update_state(oom) {
                 redo = true;
             }
@@ -70,6 +57,23 @@ impl Carriage {
         if redo {
             self.needs_rebuild = true;
         }
+    }
+    
+    fn build_zmenu(&self, zml: &mut ZMenuLeaf) {
+        for t in &self.travellers {
+            t.build_zmenu(zml);
+        }
+        zml.redrawn();
+    }
+    
+    pub fn redraw_where_needed(&mut self, printer: &mut Printer, zmls: &mut ZMenuLeafSet) {
+        let mut zml = ZMenuLeaf::new(&self.leaf);
+        if self.needs_rebuild {
+            self.needs_rebuild = false;
+            printer.redraw_carriage(&self.leaf);
+            self.build_zmenu(&mut zml);
+        }
+        zmls.register_leaf(zml);
     }
 }
 

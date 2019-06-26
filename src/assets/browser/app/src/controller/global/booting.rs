@@ -18,6 +18,7 @@ use data::blackbox::{
     BlackBoxDriverImpl, HttpBlackBoxDriverImpl,
     NullBlackBoxDriverImpl };
 
+#[cfg(not(deploy))]
 use debug::{ DebugBling, create_interactors };
 use dom::{ Bling, NoBling };
 use dom::event::{ EventListener, Target, EventData, EventType, EventControl, ICustomEvent };
@@ -110,18 +111,27 @@ impl Booting {
     }
     
     #[cfg(all(deploy,not(console)))]
-    fn make_blackbox(&self, debug_url: &Option<String>) -> BlackBoxDriver {
+    fn make_blackbox(&self, _debug_url: &Option<String>) -> BlackBoxDriver {
         BlackBoxDriver::new()
     }
     
-    pub fn boot(&mut self, config: &BackendConfig) {
-        console!("bootstrapping");
-        let mut global = self.global.clone();
-        let bling : Box<Bling> = if self.debug {
+    #[cfg(not(deploy))]
+    fn bling(&self) -> Box<Bling> {
+        if self.debug {
             Box::new(DebugBling::new(create_interactors()))
         } else { 
             Box::new(NoBling::new())
-        };
+        }
+    }
+    
+    #[cfg(deploy)]
+    fn bling(&self) -> Box<Bling> {
+        Box::new(NoBling::new())
+    }
+    
+    pub fn boot(&mut self, config: &BackendConfig) {
+        let mut global = self.global.clone();
+        let bling : Box<Bling> = self.bling();
         let debug_url = config.get_debug_url();
         let blackbox = self.make_blackbox(debug_url);
         let ar = AppRunner::new(
@@ -130,15 +140,11 @@ impl Booting {
             blackbox
         );
         {
-            global.register_app_now(&self.key,ar);
+            global.register_app_now(&self.key,ar.clone());
         }
-        let key = self.key.clone();
-        global.with_apprunner(&key,|ar| {
-            let app = ar.clone().state();
-            actions_run(&mut app.lock().unwrap(),&initial_actions());
-            console!("fire retro");
-            self.ec.reset();
-            self.missed.run_missed(&mut app.lock().unwrap());
-        });
+        let app = ar.clone().state();
+        actions_run(&mut app.lock().unwrap(),&initial_actions());
+        self.ec.reset();
+        self.missed.run_missed(&mut app.lock().unwrap());
     }
 }

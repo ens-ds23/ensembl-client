@@ -5,14 +5,15 @@ use std::rc::Rc;
 use composit::{ ActiveSource, Leaf };
 use data::BackendConfig;
 use model::shape::DrawingSpec;
-use model::train::PartyResponses;
+use composit::source::SourceResponse;
 
 pub enum TáTask {
-    MakeShapes(ActiveSource,Leaf,PartyResponses,Vec<DrawingSpec>,usize,Option<String>,Rc<BackendConfig>)
+    MakeShapes(ActiveSource,Leaf,SourceResponse,Vec<DrawingSpec>,usize,Option<String>,Rc<BackendConfig>)
 }
 
 impl TáTask {
     pub fn finished(&mut self) {
+        #[allow(unreachable_patterns)]
         match self {
             TáTask::MakeShapes(_,_leaf,sr,_,_,_,_) => {
                 //console!("{:?} for {} added {} shapes",leaf,sr.get_source_name(),sr.size());
@@ -33,11 +34,11 @@ impl TáContextImpl {
         TáContextImpl { pid, task: None }
     }
 
-    pub fn set_task(&mut self, task: TáTask) {
+    fn set_task(&mut self, task: TáTask) {
         self.task = Some(task);
     }
 
-    pub fn with_task<F,G>(&mut self, cb: F) -> Option<G>
+    fn with_task<F,G>(&mut self, cb: F) -> Option<G>
         where F: FnOnce(&mut TáTask) -> G {
         if let Some(ref mut task) = self.task {
             Some(cb(task))
@@ -46,13 +47,13 @@ impl TáContextImpl {
         }
     }
 
-    pub fn finished(&mut self) {
+    fn finished(&mut self) {
         if let Some(ref mut task) = self.task {
             task.finished();
         }
     }
 
-    pub fn appget(&mut self) {
+    fn appget(&mut self) {
         console!("appget {}",self.pid);
     }
 }

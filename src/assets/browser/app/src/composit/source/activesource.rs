@@ -11,7 +11,9 @@ use composit::{
 };
 
 use model::driver::PrinterManager;
-use model::train::{ Traveller, PartyResponses };
+use drivers::zmenu::ZMenuRegistry;
+use model::train::Traveller;
+use composit::source::SourceResponse;
 
 use super::SourcePart;
 
@@ -21,16 +23,18 @@ pub struct ActiveSource {
     lid: usize,
     name: String,
     parts: HashMap<Option<String>,SourcePart>,
-    source: Rc<Source>
+    source: Rc<Source>,
+    zmr: ZMenuRegistry
 }
 
 impl ActiveSource {
-    pub fn new(name: &str, source: Rc<Source>, als: &AllLandscapes, lid: usize) -> ActiveSource {
+    pub fn new(name: &str, source: Rc<Source>, zmr: &ZMenuRegistry, als: &AllLandscapes, lid: usize) -> ActiveSource {
         ActiveSource {
             source, lid,
             name: name.to_string(),
             als: als.clone(),
-            parts: HashMap::<Option<String>,SourcePart>::new()
+            parts: HashMap::<Option<String>,SourcePart>::new(),
+            zmr: zmr.clone()
         }
     }
     
@@ -44,24 +48,23 @@ impl ActiveSource {
         self.parts.keys().filter(|x| x.is_some()).map(|x| x.as_ref().unwrap().clone()).collect()
     }
     
-    fn make_traveller(&self, pm: &PrinterManager, party: &PartyResponses, part: &Option<String>, leaf: &Leaf) -> Traveller {
-        let srr = party.get_srr(part);
-        Traveller::new(pm,self.clone(),part,leaf,srr)
+    fn make_one_traveller(&self, part: &Option<String>, leaf: &Leaf) -> Traveller {
+        Traveller::new(self.clone(),part,leaf)
     }
     
-    pub fn make_party(&self, pm: &PrinterManager, party: &PartyResponses, leaf: &Leaf) -> Vec<Traveller> {
+     pub fn make_travellers(&mut self, leaf: &Leaf) -> Vec<Traveller> {
         let mut out = Vec::<Traveller>::new();
-        out.push(self.make_traveller(pm,&party,&None,&leaf));
+        /* create the travellers */
+        out.push(self.make_one_traveller(&None,&leaf));
         for part in self.list_parts() {            
-            debug!("redraw","make_carriages {:?} for {}",leaf,part);
-            out.push(self.make_traveller(pm,&party,&Some(part),&leaf));
+            out.push(self.make_one_traveller(&Some(part),&leaf));
         }
         out
     }
-
-    pub fn populate(&mut self, resp: PartyResponses, leaf: &Leaf) {
+        
+    pub fn request_data(&self, party: SourceResponse, leaf: &Leaf) {
         let twin = self.source.clone();
-        twin.populate(self,resp,leaf);
+        twin.request_data(self,party,leaf);
     }
     
     pub fn get_name(&self) -> &str { &self.name }  
@@ -73,6 +76,11 @@ impl ActiveSource {
     pub fn with_landscape<F,G>(&mut self, lid: usize, cb: F) -> Option<G>
             where F: FnOnce(&mut Landscape) -> G {
         self.als.with(lid,cb)
+    }
+    
+    pub fn with_zmr<F,G>(&mut self, cb: F) -> G
+            where F: FnOnce(&mut ZMenuRegistry) -> G {
+        cb(&mut self.zmr)
     }
     
     pub fn all_landscapes<F,G>(&mut self, cb: F) -> Vec<Option<G>>

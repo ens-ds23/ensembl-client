@@ -21,6 +21,12 @@
   }
 }
 
+.browserTabDisabled {
+  button {
+    color: $ens-dark-grey;
+    cursor: default;
+  }
+}
 .browserTabArrow {
   position: relative;
 

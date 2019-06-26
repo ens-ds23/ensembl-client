@@ -1,6 +1,7 @@
 use std::fmt;
 
 use composit::{ Stick, Scale };
+use types::Placement;
 
 #[derive(Clone,PartialEq,Eq,Hash)]
 pub struct Leaf {
@@ -52,6 +53,10 @@ impl Leaf {
     pub fn get_short_spec(&self) -> (String,String) {
         (self.get_stick().get_name(),
          format!("{}{}",self.scale.letter(),self.hindex))
+    }
+    
+    pub fn fix_placement(&self, p: &Placement) -> Placement {
+        p.add_bp(self.get_start(),self.total_bp())
     }
 }
 

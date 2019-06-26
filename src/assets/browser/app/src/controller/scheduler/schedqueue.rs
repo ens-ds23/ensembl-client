@@ -40,7 +40,7 @@ impl SchedQueue {
         if self.tasks.len() == 0 { return true; }
         let mut t = browser_time();
         if self.next >= self.tasks.len() { self.next = 0; }
-        for idx in 0..self.tasks.len() {
+        for _ in 0..self.tasks.len() {
             if t >= end_at { return false; }
             let task = &mut self.tasks[self.next];
             task.run(end_at-t);

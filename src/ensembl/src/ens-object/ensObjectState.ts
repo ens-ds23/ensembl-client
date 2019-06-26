@@ -1,27 +1,41 @@
+import {
+  EnsObject,
+  EnsObjectTrack,
+  ExampleEnsObjectsData
+} from './ensObjectTypes';
+
 export type EnsObjectInfoState = Readonly<{
-  ensObject: object;
-  ensObjectFetchFailed: boolean;
-  ensObjectFetching: boolean;
-  trackCategories: [];
+  ensObjectInfoData: EnsObject | {};
+  ensObjectInfoFetchFailed: boolean;
+  ensObjectInfoFetching: boolean;
 }>;
 
 export const defaultEnsObjectInfoState: EnsObjectInfoState = {
-  ensObject: {},
-  ensObjectFetchFailed: false,
-  ensObjectFetching: false,
-  trackCategories: []
+  ensObjectInfoData: {},
+  ensObjectInfoFetchFailed: false,
+  ensObjectInfoFetching: false
 };
 
-export type ExampleEnsObjectState = Readonly<{
-  exampleEnsObjectsFetchFailed: boolean;
-  exampleEnsObjectsFetching: boolean;
-  examples: {
-    [key: string]: {};
-  };
+export type EnsObjectTracksState = Readonly<{
+  ensObjectTracksData: EnsObjectTrack | {};
+  ensObjectTracksFetchFailed: boolean;
+  ensObjectTracksFetching: boolean;
 }>;
 
-export const defaultExampleEnsObjectState: ExampleEnsObjectState = {
+export const defaultEnsObjectTracksState: EnsObjectTracksState = {
+  ensObjectTracksData: {},
+  ensObjectTracksFetchFailed: false,
+  ensObjectTracksFetching: false
+};
+
+export type ExampleEnsObjectsState = Readonly<{
+  exampleEnsObjectsData: ExampleEnsObjectsData;
+  exampleEnsObjectsFetchFailed: boolean;
+  exampleEnsObjectsFetching: boolean;
+}>;
+
+export const defaultExampleEnsObjectsState: ExampleEnsObjectsState = {
+  exampleEnsObjectsData: {},
   exampleEnsObjectsFetchFailed: false,
-  exampleEnsObjectsFetching: false,
-  examples: {}
+  exampleEnsObjectsFetching: false
 };

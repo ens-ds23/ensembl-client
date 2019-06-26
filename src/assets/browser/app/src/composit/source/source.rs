@@ -1,6 +1,6 @@
 use composit::{ Leaf, ActiveSource };
-use model::train::PartyResponses;
+use composit::source::SourceResponse;
 
 pub trait Source {
-    fn populate(&self, acs: &ActiveSource, lc: PartyResponses, leaf: &Leaf);
+    fn request_data(&self, acs: &ActiveSource, lc: SourceResponse, leaf: &Leaf);
 }

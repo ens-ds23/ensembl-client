@@ -41,6 +41,7 @@ fn ruler(leaf: &Leaf, config: &Vec<f64>) -> (Vec<f64>, Vec<f64>, Vec<f64>, Strin
 pub struct Ruler(TáContext,usize,usize,usize,usize,usize);
 
 impl Command for Ruler {
+    #[allow(irrefutable_let_patterns)]
     fn execute(&self, rt: &mut DataState, proc: Arc<Mutex<ProcState>>) -> i64 {
         let pid = proc.lock().unwrap().get_pid().unwrap();
         self.0.with_task(pid,|task| {
@@ -51,7 +52,7 @@ impl Command for Ruler {
                      regs.set(self.1,Value::new_from_float(offset));
                      regs.set(self.2,Value::new_from_float(height));
                      regs.set(self.3,Value::new_from_float(text_len));
-                     regs.set(self.4,Value::new_from_string(text));
+                     regs.set(self.4,Value::new_from_string(vec![text]));
                 });
             }
         });

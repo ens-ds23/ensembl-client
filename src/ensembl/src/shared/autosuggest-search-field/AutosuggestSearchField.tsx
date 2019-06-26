@@ -179,6 +179,8 @@ const AutosuggestSearchField = (props: Props) => {
       const [groupIndex, itemIndex] = highlightedItemIndex;
       const match = props.matchGroups[groupIndex].matches[itemIndex];
       props.onSelect(match.data);
+
+      setHighlightedItemIndex(initialHighlightedItemIndex);
     }
     setIsSelected(true);
   };

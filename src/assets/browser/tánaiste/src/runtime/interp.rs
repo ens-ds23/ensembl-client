@@ -59,7 +59,7 @@ pub struct InterpConfig {
 }
 
 pub const DEFAULT_CONFIG : InterpConfig = InterpConfig {
-    cycles_per_run: 1,
+    cycles_per_run: 100,
 };
 
 pub struct Interp {
@@ -230,7 +230,7 @@ mod test {
         let tc = TestContext::new();
         let bin = command_compile("set-reg",&tc);
         let pid = t.exec(&bin,None,None).ok().unwrap();
-        t.set_reg(pid,2,Value::new_from_string("YES".to_string()));
+        t.set_reg(pid,2,Value::new_from_string(vec!["YES".to_string()]));
         t.start(pid);
         while t.run(1000) {}
         assert_eq!("YES",t_env.get_exit_str()[0]);
@@ -262,10 +262,10 @@ mod test {
         let pid = t.exec(&bin,None,None).ok().unwrap();
         t.start(pid);
         t.run(0);
-        assert_eq!(192,t.status(pid).cycles);
+        assert_eq!(194,t.status(pid).cycles);
         assert_eq!(ProcessState::Running,t.status(pid).state);
         t.run(0);
-        assert_eq!(384,t.status(pid).cycles);
+        assert_eq!(386,t.status(pid).cycles);
         assert_eq!(ProcessState::Running,t.status(pid).state);
         t.run(1000);
         assert_eq!(t_env.get_exit_state().unwrap(),ProcessState::Halted);

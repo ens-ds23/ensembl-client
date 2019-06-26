@@ -14,10 +14,12 @@ import {
   BrowserNavState,
   defaultBrowserNavState,
   TrackConfigState,
-  defaultTrackConfigState
+  defaultTrackConfigState,
+  BrowserEntityState,
+  defaultBrowserEntityState
 } from './browserState';
 
-function browserInfo(
+export function browserInfo(
   state: BrowserState = defaultBrowserState,
   action: ActionType<RootAction>
 ): BrowserState {
@@ -38,6 +40,20 @@ function browserInfo(
           ? BrowserOpenState.COLLAPSED
           : BrowserOpenState.SEMI_EXPANDED
       };
+    default:
+      return state;
+  }
+}
+
+export function browserEntity(
+  state: BrowserEntityState = defaultBrowserEntityState,
+  action: ActionType<typeof browserActions>
+): BrowserEntityState {
+  switch (action.type) {
+    case getType(browserActions.updateBrowserActiveGenomeId):
+      return { ...state, activeGenomeId: action.payload };
+    case getType(browserActions.updateBrowserActiveEnsObjectId):
+      return { ...state, activeEnsObjectId: action.payload };
     default:
       return state;
   }
@@ -67,7 +83,6 @@ export function browserLocation(
     case getType(browserActions.updateDefaultChrLocation):
       return {
         ...state,
-        chrLocation: action.payload,
         defaultChrLocation: action.payload
       };
     case getType(browserActions.toggleGenomeSelector):
@@ -113,6 +128,7 @@ export function trackConfig(
 
 export default combineReducers({
   browserInfo,
+  browserEntity,
   browserLocation,
   browserNav,
   trackConfig

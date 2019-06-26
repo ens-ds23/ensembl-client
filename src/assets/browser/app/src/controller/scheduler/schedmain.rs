@@ -45,11 +45,10 @@ impl SchedulerMain {
 
     fn run_beat(&mut self, allotment: f64) -> bool {
         let end_at = browser_time() + allotment;
-        let on_beat = (self.count == 0);
+        let on_beat = self.count == 0;
         self.count += 1;
         if self.count >= self.timesig { self.count = 0; }
         bb_metronome!("scheduler-beat");
-        let mut busrt = false;
         if on_beat {
             let mut burst = !self.on_beat.run(end_at);
             if !burst {

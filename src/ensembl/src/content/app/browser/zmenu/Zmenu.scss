@@ -1,0 +1,57 @@
+@import 'src/styles/common';
+
+$zmenuBackgroundColor: $ens-black;
+
+.zmenuWrapper {
+  position: absolute;
+  filter: drop-shadow(2px 2px 3px $ens-shadow-color);
+}
+
+.zmenu {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 5px 20px;
+  color: $ens-white;
+  background-color: $zmenuBackgroundColor;
+  min-height: 40px;
+}
+
+.zmenuTip {
+  position: absolute;
+
+  polygon {
+    fill: $zmenuBackgroundColor;
+  }
+}
+
+.zmenuContentFeature {
+  margin: 0;
+  &:not(:last-of-type) {
+    margin: 0 0 0.5em;
+  }
+}
+
+.zmenuContentLine {
+  display: block;
+  line-height: 1;
+}
+
+.zmenuContentBlock {
+  &:not(:last-child) {
+    margin-right: 1em;
+  }
+}
+
+.markupStrong {
+  font-weight: $bold;
+}
+
+.markupLight {
+  font-weight: $light;
+}
+
+.markupEmphasis {
+  font-style: italic;
+}

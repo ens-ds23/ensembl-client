@@ -5,11 +5,12 @@ use types::{
     Anchors, Anchor, cpixel, cleaf
 };
 
-use model::shape::{ DrawingSpec, ShapeSpec };
-use drivers::webgl::{ 
-    ShapeShortInstanceData, Facade, 
-    TypeToShape, FacadeType, ShapeInstanceDataType
+use model::shape::{
+    DrawingSpec, ShapeSpec, Facade, FacadeType, ShapeInstanceDataType,
+    ShapeShortInstanceData, TypeToShape, GenericShape
 };
+
+impl GenericShape for TextureSpec {}
 
 #[derive(Clone,Copy,Debug)]
 pub enum TexturePosition<T: Clone+Copy+Debug> {

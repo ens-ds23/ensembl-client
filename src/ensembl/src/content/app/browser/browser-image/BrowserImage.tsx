@@ -7,45 +7,54 @@ import React, {
 import { connect } from 'react-redux';
 
 import styles from './BrowserImage.scss';
-import { ChrLocation, BrowserNavStates, CogList } from '../browserState';
+import { BrowserNavStates, CogList } from '../browserState';
 import BrowserCogList from '../BrowserCogList';
+import { ZmenuController } from 'src/content/app/browser/zmenu';
+
 import {
   getTrackConfigNames,
   getTrackConfigLabel,
   getBrowserCogTrackList,
-  getChrLocation,
   getBrowserNavOpened,
-  getBrowserActivated
+  getBrowserActivated,
+  getBrowserActiveGenomeId,
+  getChrLocation
 } from '../browserSelectors';
 import {
   activateBrowser,
   updateBrowserActivated,
   updateBrowserNavStates,
-  updateChrLocation
+  setChrLocation
 } from '../browserActions';
+import browserStorageService from '../browser-storage-service';
+
+import { ChrLocation } from '../browserState';
 
 import { CircleLoader } from 'src/shared/loader/Loader';
 
 import { RootState } from 'src/store';
+import { TrackStates } from '../track-panel/trackPanelConfig';
 
 type StateProps = {
+  activeGenomeId: string;
   browserCogTrackList: CogList;
   browserNavOpened: boolean;
-  chrLocation: ChrLocation;
   trackConfigNames: any;
   trackConfigLabel: any;
   browserActivated: boolean;
+  chrLocation: { [genomeId: string]: ChrLocation };
 };
 
 type DispatchProps = {
   activateBrowser: (browserEl: HTMLDivElement) => void;
   updateBrowserNavStates: (browserNavStates: BrowserNavStates) => void;
-  updateChrLocation: (chrLocation: ChrLocation) => void;
   updateBrowserActivated: (browserActivated: boolean) => void;
+  setChrLocation: (chrLocation: ChrLocation) => void;
 };
 
 type OwnProps = {
   browserRef: RefObject<HTMLDivElement>;
+  trackStates: TrackStates;
 };
 
 type BrowserImageProps = StateProps & DispatchProps & OwnProps;
@@ -53,24 +62,34 @@ type BrowserImageProps = StateProps & DispatchProps & OwnProps;
 type BpaneOutEvent = Event & {
   detail: {
     bumper?: BrowserNavStates;
-    location?: ChrLocation;
+    location: string;
   };
 };
 
 export const BrowserImage: FunctionComponent<BrowserImageProps> = (
   props: BrowserImageProps
 ) => {
+  const dispatchSetChrLocation = (chrLocation: ChrLocation) => {
+    props.setChrLocation(chrLocation);
+  };
+
   const listenBpaneOut = useCallback((event: Event) => {
     const bpaneOutEvent = event as BpaneOutEvent;
     const navIconStates = bpaneOutEvent.detail.bumper as BrowserNavStates;
-    const chrLocation = bpaneOutEvent.detail.location as ChrLocation;
+    const location = bpaneOutEvent.detail.location;
 
     if (navIconStates) {
       props.updateBrowserNavStates(navIconStates);
     }
 
-    if (chrLocation) {
-      props.updateChrLocation(chrLocation);
+    if (location) {
+      const chrLocation = [
+        location[0].split(':')[1],
+        Number(location[1]),
+        Number(location[2])
+      ] as ChrLocation;
+
+      dispatchSetChrLocation(chrLocation);
     }
   }, []);
 
@@ -142,6 +161,7 @@ export const BrowserImage: FunctionComponent<BrowserImageProps> = (
           ref={props.browserRef}
         />
         <BrowserCogList browserRef={props.browserRef} />
+        <ZmenuController browserRef={props.browserRef} />
       </div>
     </>
   );
@@ -193,19 +213,20 @@ function getBrowserImageClasses(browserNavOpened: boolean): string {
 }
 
 const mapStateToProps = (state: RootState): StateProps => ({
+  activeGenomeId: getBrowserActiveGenomeId(state),
   browserCogTrackList: getBrowserCogTrackList(state),
   browserNavOpened: getBrowserNavOpened(state),
-  chrLocation: getChrLocation(state),
   trackConfigLabel: getTrackConfigLabel(state),
   trackConfigNames: getTrackConfigNames(state),
-  browserActivated: getBrowserActivated(state)
+  browserActivated: getBrowserActivated(state),
+  chrLocation: getChrLocation(state)
 });
 
 const mapDispatchToProps: DispatchProps = {
   activateBrowser,
   updateBrowserActivated,
   updateBrowserNavStates,
-  updateChrLocation
+  setChrLocation
 };
 
 export default connect(

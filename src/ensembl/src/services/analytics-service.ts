@@ -1,15 +1,15 @@
 import ReactGA from 'react-ga';
 import { AnalyticsType } from 'src/analyticsHelper';
 
-const googleTrackingID = process.env.GOOGLE_ANALYTICS_KEY
-  ? process.env.GOOGLE_ANALYTICS_KEY
-  : '';
+import config from 'config';
+
+const { googleAnalyticsKey = '' } = config;
 
 class AnalyticsTracking {
   private reactGA: typeof ReactGA;
 
   public constructor() {
-    ReactGA.initialize(googleTrackingID);
+    ReactGA.initialize(googleAnalyticsKey);
     this.reactGA = ReactGA;
   }
 
